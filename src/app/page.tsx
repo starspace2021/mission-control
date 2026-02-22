@@ -13,8 +13,15 @@ import {
   Battery,
   Clock,
   TrendingUp,
-  AlertTriangle,
-  Globe
+  Activity,
+  Globe,
+  Zap,
+  Target,
+  BarChart3,
+  PieChart,
+  ArrowUpRight,
+  ArrowDownRight,
+  Minus
 } from "lucide-react";
 import TaskBoard from "./components/TaskBoard";
 import CalendarView from "./components/CalendarView";
@@ -37,6 +44,8 @@ const mockStats = {
   memoryUsage: 68,
   networkStatus: "在线",
   uptime: "72小时34分",
+  todayTasks: 5,
+  completedToday: 2,
 };
 
 const mockTasks = [
@@ -124,6 +133,20 @@ function LiveClock() {
   );
 }
 
+// 动画数字组件
+function AnimatedNumber({ value, suffix = "" }: { value: number; suffix?: string }) {
+  return (
+    <motion.span
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="digital-number"
+    >
+      {value}{suffix}
+    </motion.span>
+  );
+}
+
 export default function MissionControl() {
   const [activeTab, setActiveTab] = useState("dashboard");
 
@@ -131,8 +154,8 @@ export default function MissionControl() {
     <div className="min-h-screen bg-[#0A0A0A] text-white grid-bg relative overflow-hidden">
       {/* 背景光效 */}
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-[#FFD700] rounded-full filter blur-[180px] opacity-10" />
-        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-[#B8860B] rounded-full filter blur-[180px] opacity-10" />
+        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-[#FFD700] rounded-full filter blur-[200px] opacity-10 animate-pulse" />
+        <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-[#B8860B] rounded-full filter blur-[200px] opacity-10 animate-pulse" style={{ animationDelay: '1s' }} />
       </div>
 
       {/* 扫描线 */}
