@@ -33,9 +33,9 @@ const navItems = [
 // 模拟数据 - 现代控制台风格
 const mockData = {
   stats: {
-    activeTasks: 4,
-    cronJobs: 11,
-    memories: 15,
+    activeTasks: 5,
+    cronJobs: 14,
+    memories: 16,
     successRate: 98.5,
     cpuUsage: 42,
     memoryUsage: 68,
@@ -45,18 +45,22 @@ const mockData = {
   tasks: [
     { id: "1", title: "非洲涉华情报收集", status: "running", priority: "high", progress: 75, nextRun: "20:00" },
     { id: "2", title: "Polymarket 监控", status: "running", priority: "high", progress: 60, nextRun: "20:00" },
-    { id: "3", title: "QQ邮箱自动清理", status: "scheduled", priority: "medium", progress: 0, nextRun: "06:16" },
-    { id: "4", title: "Mission Control 开发", status: "in_progress", priority: "medium", progress: 45, nextRun: null },
+    { id: "3", title: "美国对华政策监控", status: "running", priority: "high", progress: 80, nextRun: "20:00" },
+    { id: "4", title: "QQ邮箱自动清理", status: "scheduled", priority: "medium", progress: 0, nextRun: "06:16" },
+    { id: "5", title: "Mission Control 开发", status: "in_progress", priority: "medium", progress: 45, nextRun: null },
   ],
   events: [
     { id: "1", title: "非洲情报简报", time: "20:00", type: "cron", status: "pending" },
     { id: "2", title: "Polymarket 盘中简报", time: "20:00", type: "cron", status: "pending" },
-    { id: "3", title: "Polymarket 夜盘简报", time: "22:00", type: "cron", status: "pending" },
+    { id: "3", title: "美国对华政策晚间简报", time: "20:00", type: "cron", status: "pending" },
+    { id: "4", title: "美国对华政策夜间简报", time: "00:00", type: "cron", status: "pending" },
+    { id: "5", title: "美国对华政策日报", time: "07:00", type: "cron", status: "pending" },
   ],
   activities: [
     { id: "1", action: "非洲情报简报生成", time: "16:00", status: "success" },
     { id: "2", action: "Polymarket 简报生成", time: "17:00", status: "success" },
-    { id: "3", action: "UI 自动迭代任务", time: "03:00", status: "scheduled" },
+    { id: "3", action: "美国对华政策监控启动", time: "18:30", status: "success" },
+    { id: "4", action: "UI 自动迭代任务", time: "03:00", status: "scheduled" },
   ]
 };
 
