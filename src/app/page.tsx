@@ -24,7 +24,11 @@ import {
   Search,
   Settings,
   Menu,
-  X
+  X,
+  Sparkles,
+  Command,
+  Maximize2,
+  Minimize2
 } from "lucide-react";
 import TaskBoard from "./components/TaskBoard";
 import CalendarView from "./components/CalendarView";
@@ -32,10 +36,10 @@ import MemoryScreen from "./components/MemoryScreen";
 
 // 导航配置
 const navItems = [
-  { id: "dashboard", label: "仪表盘", icon: LayoutDashboard },
-  { id: "tasks", label: "任务", icon: ClipboardList },
-  { id: "calendar", label: "日历", icon: Calendar },
-  { id: "memory", label: "记忆", icon: Brain },
+  { id: "dashboard", label: "仪表盘", icon: LayoutDashboard, shortcut: "1" },
+  { id: "tasks", label: "任务", icon: ClipboardList, shortcut: "2" },
+  { id: "calendar", label: "日历", icon: Calendar, shortcut: "3" },
+  { id: "memory", label: "记忆", icon: Brain, shortcut: "4" },
 ];
 
 // 模拟数据 - 现代控制台风格
@@ -82,7 +86,7 @@ function LiveClock() {
   
   return (
     <div className="text-right">
-      <div className="text-2xl font-semibold tracking-tight tabular-nums">
+      <div className="text-2xl font-semibold tracking-tight tabular-nums bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
         {time.toLocaleTimeString('zh-CN', { hour12: false })}
       </div>
       <div className="text-xs text-[#71717A]">
@@ -144,21 +148,107 @@ function MiniChart({ data, color = "#3B82F6" }: { data: number[]; color?: string
   );
 }
 
+// 环形进度组件
+function CircularProgress({ value, size = 40, strokeWidth = 3, color = "#3B82F6" }: { 
+  value: number; 
+  size?: number; 
+  strokeWidth?: number;
+  color?: string;
+}) {
+  const radius = (size - strokeWidth) / 2;
+  const circumference = radius * 2 * Math.PI;
+  const offset = circumference - (value / 100) * circumference;
+  
+  return (
+    <div className="relative" style={{ width: size, height: size }}>
+      <svg className="transform -rotate-90" width={size} height={size}>
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke="rgba(255,255,255,0.1)"
+          strokeWidth={strokeWidth}
+          fill="none"
+        />
+        <motion.circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke={color}
+          strokeWidth={strokeWidth}
+          fill="none"
+          strokeLinecap="round"
+          initial={{ strokeDashoffset: circumference }}
+          animate={{ strokeDashoffset: offset }}
+          transition={{ duration: 1, ease: "easeOut" }}
+          style={{
+            strokeDasharray: circumference,
+          }}
+        />
+      </svg>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <span className="text-xs font-semibold" style={{ color }}>{value}%</span>
+      </div>
+    </div>
+  );
+}
+
+// 趋势指示器组件
+function TrendIndicator({ value, trend }: { value: string | number; trend: string }) {
+  const isPositive = trend.startsWith('+');
+  const isNeutral = trend === 'stable';
+  
+  return (
+    <div className="flex items-center gap-1.5">
+      <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
+        isPositive ? 'bg-[#10B981]/10 text-[#10B981]' : 
+        isNeutral ? 'bg-[#71717A]/10 text-[#71717A]' : 
+        'bg-[#EF4444]/10 text-[#EF4444]'
+      }`}>
+        {isPositive ? <TrendingUp className="w-3 h-3" /> : 
+         isNeutral ? <Activity className="w-3 h-3" /> : 
+         <TrendingUp className="w-3 h-3 rotate-180" />}
+        {trend}
+      </div>
+    </div>
+  );
+}
+
 export default function MissionControl() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [notifications, setNotifications] = useState(2);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+  // 键盘快捷键
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        setIsSearchOpen(true);
+      }
+      if (e.key >= "1" && e.key <= "4") {
+        const index = parseInt(e.key) - 1;
+        if (index < navItems.length) {
+          setActiveTab(navItems[index].id);
+        }
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#0A0A0F] text-white grid-bg">
       <div className="flex h-screen">
         {/* 侧边栏 */}
-        <aside className={`${sidebarCollapsed ? 'w-16' : 'w-64'} bg-[#111118] border-r border-white/10 flex flex-col transition-all duration-300`}>
+        <aside className={`${sidebarCollapsed ? 'w-16' : 'w-64'} bg-[#111118]/95 backdrop-blur-xl border-r border-white/5 flex flex-col transition-all duration-300`}>
           {/* Logo */}
-          <div className="p-4 border-b border-white/10">
+          <div className="p-4 border-b border-white/5">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-[#3B82F6] to-[#8B5CF6] rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
-                <Terminal className="w-5 h-5 text-white" />
+              <div className="w-10 h-10 bg-gradient-to-br from-[#3B82F6] via-[#8B5CF6] to-[#EC4899] rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent" />
+                <Terminal className="w-5 h-5 text-white relative z-10" />
               </div>
               {!sidebarCollapsed && (
                 <div>
@@ -178,22 +268,29 @@ export default function MissionControl() {
                 <button
                   key={item.id}
                   onClick={() => setActiveTab(item.id)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all group ${
                     isActive
-                      ? "bg-gradient-to-r from-[#3B82F6]/20 to-transparent text-[#3B82F6] border border-[#3B82F6]/20"
+                      ? "bg-gradient-to-r from-[#3B82F6]/20 to-transparent text-[#3B82F6] border border-[#3B82F6]/20 shadow-lg shadow-blue-500/10"
                       : "text-[#A1A1AA] hover:text-white hover:bg-white/5"
                   }`}
                   title={sidebarCollapsed ? item.label : undefined}
                 >
-                  <Icon className={`w-5 h-5 ${isActive ? 'text-[#3B82F6]' : ''}`} />
-                  {!sidebarCollapsed && item.label}
+                  <Icon className={`w-5 h-5 transition-transform group-hover:scale-110 ${isActive ? 'text-[#3B82F6]' : ''}`} />
+                  {!sidebarCollapsed && (
+                    <>
+                      <span className="flex-1 text-left">{item.label}</span>
+                      <span className="text-xs text-[#52525B] opacity-0 group-hover:opacity-100 transition-opacity">
+                        ⌘{item.shortcut}
+                      </span>
+                    </>
+                  )}
                 </button>
               );
             })}
           </nav>
 
           {/* 系统状态 */}
-          <div className="p-3 border-t border-white/10 space-y-3">
+          <div className="p-3 border-t border-white/5 space-y-3">
             {!sidebarCollapsed && (
               <>
                 <div className="flex items-center justify-between text-sm">
@@ -239,35 +336,35 @@ export default function MissionControl() {
         {/* 主内容区 */}
         <main className="flex-1 overflow-auto">
           {/* 顶部栏 */}
-          <header className="h-16 border-b border-white/10 flex items-center justify-between px-6 bg-[#0A0A0F]/80 backdrop-blur-sm sticky top-0 z-10">
+          <header className="h-16 border-b border-white/5 flex items-center justify-between px-6 bg-[#0A0A0F]/80 backdrop-blur-sm sticky top-0 z-10">
             <div className="flex items-center gap-4">
               <h1 className="text-xl font-semibold">
                 {navItems.find(n => n.id === activeTab)?.label}
               </h1>
               {/* 面包屑 */}
               <div className="flex items-center gap-2 text-sm text-[#71717A]">
-                <span>Mission Control</span>
+                <span className="hover:text-white transition-colors cursor-pointer">Mission Control</span>
                 <ChevronRight className="w-4 h-4" />
                 <span className="text-white">{navItems.find(n => n.id === activeTab)?.label}</span>
               </div>
             </div>
             
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               {/* 搜索 */}
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#71717A]" />
-                <input
-                  type="text"
-                  placeholder="搜索..."
-                  className="pl-9 pr-4 py-2 bg-[#1A1A24] border border-white/10 rounded-lg text-sm text-white placeholder:text-[#52525B] focus:border-[#3B82F6]/50 focus:outline-none w-64 transition-all"
-                />
-              </div>
+              <button 
+                onClick={() => setIsSearchOpen(true)}
+                className="relative flex items-center gap-2 px-3 py-2 bg-[#1A1A24] border border-white/10 rounded-lg text-sm text-[#71717A] hover:text-white hover:border-white/20 transition-all"
+              >
+                <Search className="w-4 h-4" />
+                <span className="hidden sm:inline">搜索...</span>
+                <span className="hidden md:inline text-xs px-1.5 py-0.5 bg-white/5 rounded text-[#52525B]">⌘K</span>
+              </button>
               
               {/* 通知 */}
               <button className="relative p-2 text-[#71717A] hover:text-white hover:bg-white/5 rounded-lg transition-all">
                 <Bell className="w-5 h-5" />
                 {notifications > 0 && (
-                  <span className="absolute top-1 right-1 w-4 h-4 bg-[#EF4444] rounded-full text-[10px] flex items-center justify-center text-white font-medium">
+                  <span className="absolute top-1 right-1 w-4 h-4 bg-gradient-to-r from-[#EF4444] to-[#EC4899] rounded-full text-[10px] flex items-center justify-center text-white font-medium">
                     {notifications}
                   </span>
                 )}
@@ -279,9 +376,9 @@ export default function MissionControl() {
               </button>
               
               {/* 运行时间 */}
-              <div className="text-right hidden lg:block">
+              <div className="text-right hidden lg:block pl-3 border-l border-white/10">
                 <div className="text-xs text-[#71717A]">运行时间</div>
-                <div className="text-sm font-medium tabular-nums">{mockData.stats.uptime}</div>
+                <div className="text-sm font-medium tabular-nums text-[#10B981]">{mockData.stats.uptime}</div>
               </div>
               
               {/* 时钟 */}
@@ -294,13 +391,78 @@ export default function MissionControl() {
             <AnimatePresence mode="wait">
               {activeTab === "dashboard" && <DashboardView key="dashboard" />}
               {activeTab === "tasks" && <TasksView key="tasks" />}
-              {activeTab === "calendar" && <CalendarView key="calendar" />}
+              {activeTab === "calendar" && <CalendarViewWrapper key="calendar" />}
               {activeTab === "memory" && <MemoryView key="memory" />}
             </AnimatePresence>
           </div>
         </main>
       </div>
+
+      {/* 全局搜索弹窗 */}
+      <AnimatePresence>
+        {isSearchOpen && (
+          <GlobalSearch onClose={() => setIsSearchOpen(false)} />
+        )}
+      </AnimatePresence>
     </div>
+  );
+}
+
+// 全局搜索组件
+function GlobalSearch({ onClose }: { onClose: () => void }) {
+  const [query, setQuery] = useState("");
+  
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-start justify-center pt-[20vh]"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: -20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: -20 }}
+        className="w-full max-w-2xl console-card overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center gap-3 p-4 border-b border-white/5">
+          <Search className="w-5 h-5 text-[#71717A]" />
+          <input
+            type="text"
+            placeholder="搜索任务、记忆、事件..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="flex-1 bg-transparent text-white placeholder:text-[#52525B] outline-none text-lg"
+            autoFocus
+          />
+          <span className="text-xs text-[#52525B] px-2 py-1 bg-white/5 rounded">ESC</span>
+        </div>
+        <div className="p-4 max-h-[400px] overflow-auto">
+          <div className="text-sm text-[#71717A] mb-3">最近访问</div>
+          <div className="space-y-1">
+            {["非洲涉华情报系统", "美国对华政策监控", "卫星遥感报告"].map((item, i) => (
+              <div 
+                key={i}
+                className="flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 cursor-pointer transition-colors"
+              >
+                <Clock className="w-4 h-4 text-[#71717A]" />
+                <span className="text-white">{item}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
   );
 }
 
@@ -316,6 +478,20 @@ function DashboardView() {
       exit={{ opacity: 0, y: -20 }}
       className="space-y-6"
     >
+      {/* 欢迎横幅 */}
+      <div className="console-card p-6 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-[#3B82F6]/10 via-[#8B5CF6]/10 to-transparent" />
+        <div className="absolute top-0 right-0 w-64 h-64 bg-[#3B82F6]/5 rounded-full blur-3xl" />
+        <div className="relative z-10">
+          <div className="flex items-center gap-2 mb-2">
+            <Sparkles className="w-5 h-5 text-[#F59E0B]" />
+            <span className="text-sm text-[#F59E0B] font-medium">早安</span>
+          </div>
+          <h2 className="text-2xl font-bold mb-2">欢迎回来，Hourglass</h2>
+          <p className="text-[#71717A]">系统运行正常，今日有 5 个定时任务待执行。</p>
+        </div>
+      </div>
+
       {/* 指标卡片 */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard 
@@ -326,6 +502,7 @@ function DashboardView() {
           icon={ClipboardList} 
           color="blue"
           chart={chartData1}
+          subtitle="较昨日增加"
         />
         <MetricCard 
           title="定时任务" 
@@ -335,6 +512,7 @@ function DashboardView() {
           icon={Clock} 
           color="purple"
           chart={chartData2}
+          subtitle="运行正常"
         />
         <MetricCard 
           title="记忆文档" 
@@ -344,6 +522,7 @@ function DashboardView() {
           icon={Brain} 
           color="green"
           chart={chartData1}
+          subtitle="本周新增"
         />
         <MetricCard 
           title="成功率" 
@@ -353,6 +532,7 @@ function DashboardView() {
           icon={Activity} 
           color="cyan"
           chart={chartData2}
+          subtitle="系统健康"
         />
       </div>
 
@@ -360,9 +540,9 @@ function DashboardView() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* 任务面板 */}
         <div className="lg:col-span-2 console-card overflow-hidden">
-          <div className="p-5 border-b border-white/10 flex items-center justify-between">
+          <div className="p-5 border-b border-white/5 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-[#3B82F6]/10 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#3B82F6]/20 to-[#3B82F6]/5 flex items-center justify-center">
                 <ClipboardList className="w-5 h-5 text-[#3B82F6]" />
               </div>
               <div>
@@ -370,8 +550,9 @@ function DashboardView() {
                 <p className="text-xs text-[#71717A]">{mockData.tasks.filter(t => t.status === 'running').length} 个正在运行</p>
               </div>
             </div>
-            <button className="text-sm text-[#3B82F6] hover:text-[#60A5FA] font-medium transition-colors">
+            <button className="text-sm text-[#3B82F6] hover:text-[#60A5FA] font-medium transition-colors flex items-center gap-1">
               查看全部
+              <ChevronRight className="w-4 h-4" />
             </button>
           </div>
           <div className="divide-y divide-white/5">
@@ -415,9 +596,9 @@ function DashboardView() {
 
         {/* 今日日程 */}
         <div className="console-card overflow-hidden">
-          <div className="p-5 border-b border-white/10">
+          <div className="p-5 border-b border-white/5">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-[#8B5CF6]/10 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#8B5CF6]/20 to-[#8B5CF6]/5 flex items-center justify-center">
                 <Calendar className="w-5 h-5 text-[#8B5CF6]" />
               </div>
               <div>
@@ -433,7 +614,7 @@ function DashboardView() {
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="flex items-center gap-3 p-3 bg-white/[0.02] hover:bg-white/[0.04] rounded-xl transition-all group cursor-pointer"
+                className="flex items-center gap-3 p-3 bg-white/[0.02] hover:bg-white/[0.04] rounded-xl transition-all group cursor-pointer border border-transparent hover:border-white/5"
               >
                 <div className="w-12 text-center">
                   <div className="text-lg font-semibold text-white tabular-nums">{event.time}</div>
@@ -446,9 +627,10 @@ function DashboardView() {
               </motion.div>
             ))}
           </div>
-          <div className="p-4 border-t border-white/10">
-            <button className="w-full py-2 text-sm text-[#71717A] hover:text-white transition-colors">
-              查看完整日历 →
+          <div className="p-4 border-t border-white/5">
+            <button className="w-full py-2 text-sm text-[#71717A] hover:text-white transition-colors flex items-center justify-center gap-1">
+              查看完整日历
+              <ChevronRight className="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -458,9 +640,9 @@ function DashboardView() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* 活动日志 */}
         <div className="console-card overflow-hidden">
-          <div className="p-5 border-b border-white/10">
+          <div className="p-5 border-b border-white/5">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-[#06B6D4]/10 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#06B6D4]/20 to-[#06B6D4]/5 flex items-center justify-center">
                 <Activity className="w-5 h-5 text-[#06B6D4]" />
               </div>
               <div>
@@ -500,9 +682,9 @@ function DashboardView() {
 
         {/* 系统资源 */}
         <div className="console-card overflow-hidden">
-          <div className="p-5 border-b border-white/10">
+          <div className="p-5 border-b border-white/5">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-[#EC4899]/10 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#EC4899]/20 to-[#EC4899]/5 flex items-center justify-center">
                 <Cpu className="w-5 h-5 text-[#EC4899]" />
               </div>
               <div>
@@ -567,7 +749,8 @@ function MetricCard({
   trendUp,
   icon: Icon, 
   color,
-  chart
+  chart,
+  subtitle
 }: {
   title: string;
   value: string | number;
@@ -576,46 +759,40 @@ function MetricCard({
   icon: React.ComponentType<{ className?: string }>;
   color: string;
   chart: number[];
+  subtitle?: string;
 }) {
-  const colorMap: Record<string, { bg: string; text: string; chart: string }> = {
-    blue: { bg: "bg-[#3B82F6]/10", text: "text-[#3B82F6]", chart: "#3B82F6" },
-    purple: { bg: "bg-[#8B5CF6]/10", text: "text-[#8B5CF6]", chart: "#8B5CF6" },
-    green: { bg: "bg-[#10B981]/10", text: "text-[#10B981]", chart: "#10B981" },
-    cyan: { bg: "bg-[#06B6D4]/10", text: "text-[#06B6D4]", chart: "#06B6D4" },
+  const colorMap: Record<string, { bg: string; text: string; chart: string; gradient: string }> = {
+    blue: { bg: "bg-[#3B82F6]/10", text: "text-[#3B82F6]", chart: "#3B82F6", gradient: "from-[#3B82F6] to-[#60A5FA]" },
+    purple: { bg: "bg-[#8B5CF6]/10", text: "text-[#8B5CF6]", chart: "#8B5CF6", gradient: "from-[#8B5CF6] to-[#A78BFA]" },
+    green: { bg: "bg-[#10B981]/10", text: "text-[#10B981]", chart: "#10B981", gradient: "from-[#10B981] to-[#34D399]" },
+    cyan: { bg: "bg-[#06B6D4]/10", text: "text-[#06B6D4]", chart: "#06B6D4", gradient: "from-[#06B6D4] to-[#22D3EE]" },
   };
 
   const colors = colorMap[color];
 
   return (
     <motion.div 
-      className="console-card p-5"
+      className="console-card p-5 relative overflow-hidden group"
       whileHover={{ y: -2, scale: 1.01 }}
       transition={{ duration: 0.2 }}
     >
-      <div className="flex items-start justify-between mb-4">
-        <div className={`p-2.5 rounded-xl ${colors.bg}`}>
-          <Icon className={`w-5 h-5 ${colors.text}`} />
+      <div className={`absolute inset-0 bg-gradient-to-br ${colors.gradient} opacity-0 group-hover:opacity-5 transition-opacity`} />
+      <div className="relative z-10">
+        <div className="flex items-start justify-between mb-4">
+          <div className={`p-2.5 rounded-xl ${colors.bg}`}>
+            <Icon className={`w-5 h-5 ${colors.text}`} />
+          </div>
+          <TrendIndicator value={value} trend={trend} />
         </div>
-        <div className="flex items-center gap-1">
-          {trendUp !== null && (
-            <TrendingUp className={`w-3 h-3 ${trendUp ? 'text-[#10B981]' : 'text-[#EF4444] rotate-180'}`} />
-          )}
-          <span className={`text-xs font-medium ${
-            trendUp === true ? 'text-[#10B981]' : 
-            trendUp === false ? 'text-[#EF4444]' :
-            trend === 'stable' ? 'text-[#71717A]' : 'text-[#10B981]'
-          }`}>
-            {trend}
-          </span>
+        
+        <div className="flex items-end justify-between">
+          <div>
+            <div className="metric-value">{value}</div>
+            <div className="metric-label mt-1">{title}</div>
+            {subtitle && <div className="text-xs text-[#52525B] mt-0.5">{subtitle}</div>}
+          </div>
+          <MiniChart data={chart} color={colors.chart} />
         </div>
-      </div>
-      
-      <div className="flex items-end justify-between">
-        <div>
-          <div className="metric-value">{value}</div>
-          <div className="metric-label mt-1">{title}</div>
-        </div>
-        <MiniChart data={chart} color={colors.chart} />
       </div>
     </motion.div>
   );
