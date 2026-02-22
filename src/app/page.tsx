@@ -11,17 +11,20 @@ import {
   Cpu,
   Wifi,
   Battery,
-  Clock
+  Clock,
+  TrendingUp,
+  AlertTriangle,
+  Globe
 } from "lucide-react";
 import TaskBoard from "./components/TaskBoard";
 import CalendarView from "./components/CalendarView";
 import MemoryScreen from "./components/MemoryScreen";
 
 const navItems = [
-  { id: "dashboard", label: "DASHBOARD", icon: LayoutDashboard, color: "#00f5ff" },
-  { id: "tasks", label: "TASKS", icon: ClipboardList, color: "#b829dd" },
-  { id: "calendar", label: "CALENDAR", icon: Calendar, color: "#ff0080" },
-  { id: "memory", label: "MEMORY", icon: Brain, color: "#00ff88" },
+  { id: "dashboard", label: "仪表盘", icon: LayoutDashboard },
+  { id: "tasks", label: "任务", icon: ClipboardList },
+  { id: "calendar", label: "日历", icon: Calendar },
+  { id: "memory", label: "记忆", icon: Brain },
 ];
 
 // 模拟数据
@@ -32,8 +35,8 @@ const mockStats = {
   successRate: 100,
   cpuUsage: 42,
   memoryUsage: 68,
-  networkStatus: "ONLINE",
-  uptime: "72h 34m",
+  networkStatus: "在线",
+  uptime: "72小时34分",
 };
 
 const mockTasks = [
@@ -43,7 +46,7 @@ const mockTasks = [
     description: "自动化收集非洲涉华新闻，每日5次简报",
     status: "in_progress", 
     priority: "high",
-    assignee: "ceying",
+    assignee: "侧影",
     tags: ["情报", "自动化"],
     dueDate: null,
   },
@@ -53,7 +56,7 @@ const mockTasks = [
     description: "每日清理垃圾邮件和Apple广告",
     status: "in_progress", 
     priority: "medium",
-    assignee: "ceying",
+    assignee: "侧影",
     tags: ["邮箱", "自动化"],
     dueDate: null,
   },
@@ -63,7 +66,7 @@ const mockTasks = [
     description: "Next.js + Convex 任务管理系统",
     status: "in_progress", 
     priority: "medium",
-    assignee: "ceying",
+    assignee: "侧影",
     tags: ["开发", "UI"],
     dueDate: Date.now() + 7 * 24 * 60 * 60 * 1000,
   },
@@ -73,7 +76,7 @@ const mockTasks = [
     description: "世界银行NO₂经济评估研究综述",
     status: "done", 
     priority: "high",
-    assignee: "ceying",
+    assignee: "侧影",
     tags: ["研究报告", "卫星遥感"],
     dueDate: Date.now() - 1 * 24 * 60 * 60 * 1000,
   },
@@ -115,89 +118,72 @@ function LiveClock() {
   }, []);
   
   return (
-    <div className="font-mono text-[#00f5ff] text-sm">
-      {time.toLocaleTimeString('en-US', { hour12: false })}
+    <div className="font-mono text-[#FFD700] text-lg font-bold tracking-wider">
+      {time.toLocaleTimeString('zh-CN', { hour12: false })}
     </div>
   );
 }
 
 export default function MissionControl() {
   const [activeTab, setActiveTab] = useState("dashboard");
-  const [glitchEffect, setGlitchEffect] = useState(false);
-
-  // 随机故障效果
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setGlitchEffect(true);
-      setTimeout(() => setGlitchEffect(false), 100);
-    }, 10000);
-    return () => clearInterval(interval);
-  }, []);
 
   return (
-    <div className="min-h-screen bg-[#050508] text-white grid-bg relative overflow-hidden">
+    <div className="min-h-screen bg-[#0A0A0A] text-white grid-bg relative overflow-hidden">
       {/* 背景光效 */}
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-[#00f5ff] rounded-full filter blur-[200px] opacity-10 animate-pulse" />
-        <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-[#b829dd] rounded-full filter blur-[200px] opacity-10 animate-pulse" style={{ animationDelay: '1s' }} />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#ff0080] rounded-full filter blur-[250px] opacity-5" />
+        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-[#FFD700] rounded-full filter blur-[180px] opacity-10" />
+        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-[#B8860B] rounded-full filter blur-[180px] opacity-10" />
       </div>
 
       {/* 扫描线 */}
-      <div className="fixed inset-0 pointer-events-none scan-line opacity-40" />
-
-      {/* 故障效果 */}
-      {glitchEffect && (
-        <div className="fixed inset-0 bg-[#00f5ff]/5 pointer-events-none z-50" />
-      )}
+      <div className="fixed inset-0 pointer-events-none scan-line" />
 
       {/* 主内容 */}
       <div className="relative z-10 flex">
         {/* 侧边导航 */}
-        <nav className="w-72 glass-card min-h-screen m-4 mr-0 flex flex-col hologram">
+        <nav className="w-80 glass-card min-h-screen m-4 mr-0 flex flex-col hologram">
           {/* Logo区域 */}
-          <div className="p-6 border-b border-white/10 relative">
-            <div className="flex items-center gap-3">
+          <div className="p-8 border-b-2 border-[#FFD700]/30 relative">
+            <div className="flex items-center gap-4">
               <div className="relative">
-                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#00f5ff] to-[#b829dd] flex items-center justify-center pulse-glow">
-                  <Terminal className="w-6 h-6 text-white" />
+                <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-[#FFD700] to-[#B8860B] flex items-center justify-center pulse-gold">
+                  <Terminal className="w-8 h-8 text-black" />
                 </div>
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-[#00ff88] rounded-full animate-pulse" />
+                <div className="absolute -top-1 -right-1 w-4 h-4 bg-[#00C851] rounded-full animate-pulse border-2 border-black" />
               </div>
               <div>
-                <div className="font-bold text-white tracking-[0.2em] text-lg">MISSION</div>
-                <div className="text-xs text-[#00f5ff] font-mono tracking-wider">CONTROL v2.0</div>
+                <div className="hero-text text-2xl">任务控制</div>
+                <div className="text-sm text-[#FFD700] font-mono tracking-widest font-bold">MISSION CONTROL</div>
               </div>
             </div>
             
-            {/* 装饰角标 */}
             <div className="corner-decoration top-left" />
             <div className="corner-decoration top-right" />
           </div>
 
           {/* 系统状态 */}
-          <div className="px-4 py-3 border-b border-white/10">
-            <div className="flex items-center justify-between text-xs font-mono">
-              <div className="flex items-center gap-2">
-                <Wifi className="w-3 h-3 text-[#00ff88]" />
-                <span className="text-[#00ff88]">{mockStats.networkStatus}</span>
+          <div className="px-6 py-4 border-b-2 border-[#FFD700]/20 bg-gradient-to-r from-[#FFD700]/5 to-transparent">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <Wifi className="w-5 h-5 text-[#00C851]" />
+                <span className="text-[#00C851] font-bold text-lg">{mockStats.networkStatus}</span>
               </div>
               <LiveClock />
             </div>            
-            <div className="flex items-center justify-between mt-2 text-xs font-mono text-white/40">
-              <div className="flex items-center gap-1">
-                <Cpu className="w-3 h-3" />
+            <div className="flex items-center justify-between text-sm font-mono">
+              <div className="flex items-center gap-2 text-[#FFD700]/80">
+                <Cpu className="w-4 h-4" />
                 <span>CPU {mockStats.cpuUsage}%</span>
               </div>
-              <div className="flex items-center gap-1">
-                <Battery className="w-3 h-3" />
-                <span>MEM {mockStats.memoryUsage}%</span>
+              <div className="flex items-center gap-2 text-[#FFD700]/80">
+                <Battery className="w-4 h-4" />
+                <span>内存 {mockStats.memoryUsage}%</span>
               </div>
             </div>
           </div>
 
           {/* 导航项 */}
-          <div className="flex-1 p-4 space-y-2">
+          <div className="flex-1 p-4 space-y-3">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
@@ -206,28 +192,27 @@ export default function MissionControl() {
                 <motion.button
                   key={item.id}
                   onClick={() => setActiveTab(item.id)}
-                  whileHover={{ x: 4 }}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all relative overflow-hidden ${
+                  whileHover={{ x: 6 }}
+                  className={`w-full flex items-center gap-4 px-6 py-4 rounded-xl transition-all relative overflow-hidden ${
                     isActive 
-                      ? "bg-gradient-to-r from-[#00f5ff]/20 to-transparent border-l-2 border-[#00f5ff]" 
-                      : "text-white/50 hover:text-white hover:bg-white/5"
+                      ? "bg-gradient-to-r from-[#FFD700]/20 to-transparent border-l-4 border-[#FFD700]" 
+                      : "text-white/60 hover:text-white hover:bg-white/5"
                   }`}
                 >
                   <Icon 
-                    className="w-5 h-5" 
-                    style={{ color: isActive ? item.color : 'inherit' }}
+                    className="w-6 h-6" 
+                    style={{ color: isActive ? '#FFD700' : 'inherit' }}
                   />
                   <span 
-                    className="font-mono text-sm tracking-wider"
-                    style={{ color: isActive ? item.color : 'inherit' }}
+                    className="font-bold text-lg tracking-wider"
+                    style={{ color: isActive ? '#FFD700' : 'inherit' }}
                   >
                     {item.label}
                   </span>
                   {isActive && (
                     <motion.div
                       layoutId="activeIndicator"
-                      className="absolute right-2 w-1.5 h-1.5 rounded-full"
-                      style={{ backgroundColor: item.color }}
+                      className="absolute right-4 w-2 h-2 rounded-full bg-[#FFD700]"
                       transition={{ type: "spring", stiffness: 300 }}
                     />
                   )}
@@ -237,28 +222,27 @@ export default function MissionControl() {
           </div>
 
           {/* 底部状态 */}
-          <div className="p-4 border-t border-white/10">
-            <div className="flex items-center justify-between text-xs">
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-[#00ff88] pulse-glow" />
-                <span className="text-[#00ff88] font-mono">SYSTEM ONLINE</span>
-              </div>
-              <div className="text-white/30 font-mono">
-                UP {mockStats.uptime}
+          <div className="p-6 border-t-2 border-[#FFD700]/20">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <span className="w-3 h-3 rounded-full bg-[#00C851] pulse-gold" />
+                <span className="text-[#00C851] font-bold text-lg">系统正常运行</span>
               </div>
             </div>
+            <div className="text-white/50 font-mono text-sm">
+              运行时间: {mockStats.uptime}
+            </div>
             
-            <div className="mt-2 h-1 bg-white/10 rounded-full overflow-hidden">
+            <div className="mt-4 h-2 bg-black/50 rounded-full overflow-hidden border border-[#FFD700]/20">
               <motion.div 
-                className="h-full bg-gradient-to-r from-[#00f5ff] to-[#b829dd]"
+                className="h-full bg-gradient-to-r from-[#FFD700] to-[#FFE55C]"
                 initial={{ width: 0 }}
                 animate={{ width: "100%" }}
-                transition={{ duration: 2, repeat: Infinity }}
+                transition={{ duration: 3, repeat: Infinity }}
               />
             </div>
           </div>
           
-          {/* 装饰角标 */}
           <div className="corner-decoration bottom-left" />
           <div className="corner-decoration bottom-right" />
         </nav>
@@ -266,34 +250,34 @@ export default function MissionControl() {
         {/* 主面板 */}
         <main className="flex-1 p-6">
           {/* 头部 */}
-          <header className="mb-6 flex items-center justify-between">
+          <header className="mb-8 flex items-center justify-between">
             <div>
               <motion.h1 
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-3xl font-bold neon-text tracking-[0.15em]"
+                className="hero-text"
               >
-                MISSION CONTROL
+                任务控制中心
               </motion.h1>
               <motion.div 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.2 }}
-                className="flex items-center gap-4 mt-2"
+                className="flex items-center gap-4 mt-3"
               >
-                <span className="text-[#00f5ff]/70 font-mono text-xs tracking-wider">
-                  SYSTEM STATUS: ONLINE
+                <span className="text-[#FFD700] font-mono text-base font-bold tracking-wider">
+                  系统状态: 在线
                 </span>
-                <span className="text-white/20">|</span>
-                <span className="text-[#b829dd]/70 font-mono text-xs tracking-wider">
-                  TASK BOARD + CALENDAR + MEMORY
+                <span className="text-[#FFD700]/40">|</span>
+                <span className="text-[#FFD700]/70 font-mono text-base">
+                  任务看板 + 日历 + 记忆库
                 </span>
               </motion.div>
             </div>
             
             <div className="flex items-center gap-4">
-              <div className="glass-card px-4 py-2 flex items-center gap-2">
-                <Clock className="w-4 h-4 text-[#00f5ff]" />
+              <div className="glass-card px-6 py-3 flex items-center gap-3">
+                <Clock className="w-6 h-6 text-[#FFD700]" />
                 <LiveClock />
               </div>
             </div>
@@ -342,10 +326,10 @@ function DashboardView({ stats, tasks, events }: {
     >
       {/* 统计卡片 */}
       <div className="grid grid-cols-4 gap-6">
-        <StatCard title="ACTIVE TASKS" value={stats.activeTasks} color="cyan" icon="⚡" trend="+2" />
-        <StatCard title="CRON JOBS" value={stats.cronJobs} color="purple" icon="🔁" trend="stable" />
-        <StatCard title="MEMORIES" value={stats.memories} color="pink" icon="🧠" trend="+5" />
-        <StatCard title="SUCCESS RATE" value={`${stats.successRate}%`} color="green" icon="✓" trend="100%" />
+        <StatCard title="进行中任务" value={stats.activeTasks} icon="⚡" trend="+2" />
+        <StatCard title="定时任务" value={stats.cronJobs} icon="🔁" trend="stable" />
+        <StatCard title="记忆文档" value={stats.memories} icon="🧠" trend="+5" />
+        <StatCard title="成功率" value={`${stats.successRate}%`} icon="✓" trend="100%" />
       </div>
 
       {/* 主面板网格 */}
@@ -355,28 +339,28 @@ function DashboardView({ stats, tasks, events }: {
           <div className="corner-decoration top-left" />
           <div className="corner-decoration top-right" />
           
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold flex items-center gap-2">
-              <span className="w-2 h-2 bg-[#00f5ff] rounded-full pulse-glow" />
-              <span className="tracking-wider">ACTIVE TASKS</span>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold flex items-center gap-3 text-bright">
+              <span className="w-3 h-3 bg-[#FFD700] rounded-full pulse-gold" />
+              <span className="gold-text">进行中任务</span>
             </h2>
-            <span className="text-xs font-mono text-white/40">{activeTasks.length} RUNNING</span>
+            <span className="text-base font-mono text-[#FFD700]/60 font-bold">{activeTasks.length} 个任务</span>
           </div>
           
-          <div className="space-y-3">
+          <div className="space-y-4">
             {activeTasks.slice(0, 3).map((task, index) => (
               <motion.div
                 key={task._id}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="p-4 bg-white/5 rounded-lg border-l-2 border-[#00f5ff] hover:bg-white/10 transition-colors cursor-pointer group"
+                className="p-5 bg-black/40 rounded-xl border-l-4 border-[#FFD700] hover:bg-black/60 transition-colors cursor-pointer group"
               >
                 <div className="flex items-center justify-between">
-                  <h3 className="font-medium text-white group-hover:text-[#00f5ff] transition-colors">{task.title}</h3>
-                  <span className="text-xs font-mono text-white/30">{task.assignee}</span>
+                  <h3 className="font-bold text-xl text-white group-hover:text-[#FFD700] transition-colors">{task.title}</h3>
+                  <span className="text-sm font-mono text-[#FFD700]/60">{task.assignee}</span>
                 </div>
-                <p className="text-sm text-white/50 mt-1">{task.description}</p>
+                <p className="text-base text-white/60 mt-2">{task.description}</p>
               </motion.div>
             ))}
           </div>
@@ -390,26 +374,26 @@ function DashboardView({ stats, tasks, events }: {
           <div className="corner-decoration top-left" />
           <div className="corner-decoration top-right" />
           
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold flex items-center gap-2">
-              <span className="w-2 h-2 bg-[#b829dd] rounded-full pulse-glow" />
-              <span className="tracking-wider">TODAY</span>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold flex items-center gap-3 text-bright">
+              <span className="w-3 h-3 bg-[#FFD700] rounded-full pulse-gold" />
+              <span className="gold-text">今日日程</span>
             </h2>
-            <span className="text-xs font-mono text-white/40">{events.length} EVENTS</span>
+            <span className="text-base font-mono text-[#FFD700]/60 font-bold">{events.length} 个事件</span>
           </div>
           
-          <div className="space-y-3">
+          <div className="space-y-4">
             {events.map((event, index) => (
               <motion.div
                 key={event._id}
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="p-3 bg-[#00f5ff]/10 rounded border border-[#00f5ff]/30 hover:border-[#00f5ff]/60 transition-colors cursor-pointer"
+                className="p-4 bg-[#FFD700]/10 rounded-xl border-2 border-[#FFD700]/40 hover:border-[#FFD700] transition-colors cursor-pointer"
               >
-                <div className="text-sm font-medium text-[#00f5ff]">{event.title}</div>
-                <div className="text-xs text-white/40 mt-1 font-mono">
-                  {new Date(event.startTime).toLocaleTimeString('en-US', { hour12: false })}
+                <div className="text-lg font-bold text-[#FFD700]">{event.title}</div>
+                <div className="text-sm text-white/50 mt-2 font-mono">
+                  {new Date(event.startTime).toLocaleTimeString('zh-CN', { hour12: false })}
                 </div>
               </motion.div>
             ))}
@@ -424,66 +408,38 @@ function DashboardView({ stats, tasks, events }: {
 }
 
 // 统计卡片组件
-function StatCard({ title, value, color, icon, trend }: { 
+function StatCard({ title, value, icon, trend }: { 
   title: string; 
   value: number | string; 
-  color: string;
   icon: string;
   trend: string;
 }) {
-  const colorMap: Record<string, { from: string; to: string; glow: string }> = {
-    cyan: { from: "#00f5ff", to: "#0080ff", glow: "rgba(0, 245, 255, 0.3)" },
-    purple: { from: "#b829dd", to: "#ff0080", glow: "rgba(184, 41, 221, 0.3)" },
-    pink: { from: "#ff0080", to: "#ff4444", glow: "rgba(255, 0, 128, 0.3)" },
-    green: { from: "#00ff88", to: "#00cc66", glow: "rgba(0, 255, 136, 0.3)" },
-  };
-
-  const colors = colorMap[color];
-
   return (
     <motion.div
-      whileHover={{ scale: 1.02, y: -4 }}
+      whileHover={{ scale: 1.03, y: -4 }}
       className="glass-card p-6 relative overflow-hidden group cursor-pointer hologram"
     >
       <div className="corner-decoration top-left" />
       <div className="corner-decoration top-right" />
       
-      {/* 背景渐变 */}
-      <div 
-        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-        style={{
-          background: `linear-gradient(135deg, ${colors.glow} 0%, transparent 60%)`
-        }}
-      />
+      <div className="absolute inset-0 bg-gradient-to-br from-[#FFD700]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
       <div className="relative z-10">
-        {/* 图标和趋势 */}
-        <div className="flex justify-between items-start mb-3">
-          <span className="text-3xl">{icon}</span>
-          <span 
-            className={`text-xs font-mono px-2 py-1 rounded bg-white/5 ${
-              trend.startsWith('+') ? 'text-[#00ff88]' : 
-              trend === 'stable' ? 'text-white/50' : 'text-white/50'
-            }`}
-          >
+        <div className="flex justify-between items-start mb-4">
+          <span className="text-4xl">{icon}</span>
+          <span className={`text-sm font-mono px-3 py-1 rounded-lg bg-black/50 font-bold ${
+            trend.startsWith('+') ? 'text-[#00C851]' : 
+            trend === 'stable' ? 'text-[#FFD700]/60' : 'text-white/60'
+          }`}>
             {trend}
           </span>
         </div>
         
-        {/* 数值 */}
-        <div 
-          className="text-4xl font-bold digital-number"
-          style={{
-            background: `linear-gradient(90deg, ${colors.from}, ${colors.to})`,
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent'
-          }}
-        >
+        <div className="text-5xl font-bold digital-number gold-text">
           {value}
         </div>
         
-        {/* 标题 */}
-        <div className="text-sm text-white/50 mt-2 font-mono tracking-wider">
+        <div className="text-lg text-white/70 mt-3 font-bold tracking-wider">
           {title}
         </div>
       </div>
