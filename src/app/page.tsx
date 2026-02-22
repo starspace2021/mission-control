@@ -12,21 +12,17 @@ import {
   Wifi,
   Battery,
   Clock,
-  TrendingUp,
   Activity,
-  Globe,
-  Zap,
-  Target,
-  BarChart3,
-  PieChart,
-  ArrowUpRight,
-  ArrowDownRight,
-  Minus
+  TrendingUp,
+  AlertCircle,
+  CheckCircle2,
+  Clock4,
+  MoreHorizontal,
+  ChevronRight,
+  Zap
 } from "lucide-react";
-import TaskBoard from "./components/TaskBoard";
-import CalendarView from "./components/CalendarView";
-import MemoryScreen from "./components/MemoryScreen";
 
+// 导航配置
 const navItems = [
   { id: "dashboard", label: "仪表盘", icon: LayoutDashboard },
   { id: "tasks", label: "任务", icon: ClipboardList },
@@ -34,128 +30,71 @@ const navItems = [
   { id: "memory", label: "记忆", icon: Brain },
 ];
 
-// 模拟数据
-const mockStats = {
-  activeTasks: 4,
-  cronJobs: 11,
-  memories: 15,
-  successRate: 100,
-  cpuUsage: 42,
-  memoryUsage: 68,
-  networkStatus: "在线",
-  uptime: "72小时34分",
-  todayTasks: 5,
-  completedToday: 2,
+// 模拟数据 - 现代控制台风格
+const mockData = {
+  stats: {
+    activeTasks: 4,
+    cronJobs: 11,
+    memories: 15,
+    successRate: 98.5,
+    cpuUsage: 42,
+    memoryUsage: 68,
+    networkStatus: "online",
+    uptime: "72h 34m",
+  },
+  tasks: [
+    { id: "1", title: "非洲涉华情报收集", status: "running", priority: "high", progress: 75, nextRun: "20:00" },
+    { id: "2", title: "Polymarket 监控", status: "running", priority: "high", progress: 60, nextRun: "20:00" },
+    { id: "3", title: "QQ邮箱自动清理", status: "scheduled", priority: "medium", progress: 0, nextRun: "06:16" },
+    { id: "4", title: "Mission Control 开发", status: "in_progress", priority: "medium", progress: 45, nextRun: null },
+  ],
+  events: [
+    { id: "1", title: "非洲情报简报", time: "20:00", type: "cron", status: "pending" },
+    { id: "2", title: "Polymarket 盘中简报", time: "20:00", type: "cron", status: "pending" },
+    { id: "3", title: "Polymarket 夜盘简报", time: "22:00", type: "cron", status: "pending" },
+  ],
+  activities: [
+    { id: "1", action: "非洲情报简报生成", time: "16:00", status: "success" },
+    { id: "2", action: "Polymarket 简报生成", time: "17:00", status: "success" },
+    { id: "3", action: "UI 自动迭代任务", time: "03:00", status: "scheduled" },
+  ]
 };
 
-const mockTasks = [
-  { 
-    _id: "1", 
-    title: "非洲涉华情报收集系统", 
-    description: "自动化收集非洲涉华新闻，每日5次简报",
-    status: "in_progress", 
-    priority: "high",
-    assignee: "侧影",
-    tags: ["情报", "自动化"],
-    dueDate: null,
-  },
-  { 
-    _id: "2", 
-    title: "Polymarket 监控", 
-    description: "每日5次简报：06:00/12:00/17:00/20:00/22:00",
-    status: "in_progress", 
-    priority: "high",
-    assignee: "侧影",
-    tags: ["预测市场", "自动化"],
-    dueDate: null,
-  },
-  { 
-    _id: "3", 
-    title: "QQ邮箱自动清理", 
-    description: "每日清理垃圾邮件和Apple广告",
-    status: "in_progress", 
-    priority: "medium",
-    assignee: "侧影",
-    tags: ["邮箱", "自动化"],
-    dueDate: null,
-  },
-  { 
-    _id: "4", 
-    title: "Mission Control 系统开发", 
-    description: "Next.js + Convex 任务管理系统",
-    status: "in_progress", 
-    priority: "medium",
-    assignee: "侧影",
-    tags: ["开发", "UI"],
-    dueDate: Date.now() + 7 * 24 * 60 * 60 * 1000,
-  },
-  { 
-    _id: "5", 
-    title: "卫星遥感研究报告", 
-    description: "世界银行NO₂经济评估研究综述",
-    status: "done", 
-    priority: "high",
-    assignee: "侧影",
-    tags: ["研究报告", "卫星遥感"],
-    dueDate: Date.now() - 1 * 24 * 60 * 60 * 1000,
-  },
-];
-
-const mockEvents = [
-  { _id: "1", title: "Polymarket 每日简报", startTime: Date.now() + 3600000 * 14, type: "cron" },
-  { _id: "2", title: "非洲情报-10:00简报", startTime: Date.now() + 3600000 * 1, type: "cron" },
-  { _id: "3", title: "Polymarket 盘中简报", startTime: Date.now() + 3600000 * 2, type: "cron" },
-  { _id: "4", title: "QQ邮箱清理", startTime: Date.now() + 3600000 * 15, type: "cron" },
-];
-
-const mockMemories = [
-  { 
-    _id: "1", 
-    title: "卫星遥感研究报告", 
-    content: "世界银行NO₂经济评估研究综述...",
-    type: "project",
-    tags: ["卫星遥感", "世界银行"],
-    importance: 9,
-    updatedAt: Date.now(),
-  },
-  { 
-    _id: "2", 
-    title: "非洲情报系统配置", 
-    content: "定时任务配置和QQ邮箱设置...",
-    type: "system",
-    tags: ["情报", "配置"],
-    importance: 8,
-    updatedAt: Date.now(),
-  },
-];
-
-// 实时时钟组件
+// 实时时钟
 function LiveClock() {
   const [time, setTime] = useState(new Date());
-  
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
   
   return (
-    <div className="font-mono text-[#FFD700] text-lg font-bold tracking-wider">
+    <div className="text-2xl font-semibold tracking-tight">
       {time.toLocaleTimeString('zh-CN', { hour12: false })}
     </div>
   );
 }
 
-// 动画数字组件
-function AnimatedNumber({ value, suffix = "" }: { value: number; suffix?: string }) {
+// 状态图表组件
+function StatusChart({ value, max = 100, color = "blue" }: { value: number; max?: number; color?: string }) {
+  const percentage = (value / max) * 100;
+  const colorMap: Record<string, string> = {
+    blue: "#3B82F6",
+    green: "#10B981",
+    yellow: "#F59E0B",
+    red: "#EF4444",
+  };
+  
   return (
-    <motion.span
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="digital-number"
-    >
-      {value}{suffix}
-    </motion.span>
+    <div className="w-full bg-[#1A1A24] rounded-full h-2 overflow-hidden">
+      <motion.div 
+        className="h-full rounded-full"
+        style={{ backgroundColor: colorMap[color] }}
+        initial={{ width: 0 }}
+        animate={{ width: `${percentage}%` }}
+        transition={{ duration: 1, ease: "easeOut" }}
+      />
+    </div>
   );
 }
 
@@ -163,181 +102,100 @@ export default function MissionControl() {
   const [activeTab, setActiveTab] = useState("dashboard");
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white grid-bg relative overflow-hidden">
-      {/* 背景光效 */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-[#FFD700] rounded-full filter blur-[200px] opacity-10 animate-pulse" />
-        <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-[#B8860B] rounded-full filter blur-[200px] opacity-10 animate-pulse" style={{ animationDelay: '1s' }} />
-      </div>
-
-      {/* 扫描线 */}
-      <div className="fixed inset-0 pointer-events-none scan-line" />
-
-      {/* 主内容 */}
-      <div className="relative z-10 flex">
-        {/* 侧边导航 */}
-        <nav className="w-80 glass-card min-h-screen m-4 mr-0 flex flex-col hologram">
-          {/* Logo区域 */}
-          <div className="p-8 border-b-2 border-[#FFD700]/30 relative">
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-[#FFD700] to-[#B8860B] flex items-center justify-center pulse-gold">
-                  <Terminal className="w-8 h-8 text-black" />
-                </div>
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-[#00C851] rounded-full animate-pulse border-2 border-black" />
+    <div className="min-h-screen bg-[#0A0A0F] text-white grid-bg">
+      <div className="flex h-screen">
+        {/* 侧边栏 */}
+        <aside className="w-64 bg-[#111118] border-r border-white/10 flex flex-col">
+          {/* Logo */}
+          <div className="p-6 border-b border-white/10">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-[#3B82F6] rounded-lg flex items-center justify-center">
+                <Terminal className="w-5 h-5 text-white" />
               </div>
               <div>
-                <div className="hero-text text-2xl">任务控制</div>
-                <div className="text-sm text-[#FFD700] font-mono tracking-widest font-bold">MISSION CONTROL</div>
-              </div>
-            </div>
-            
-            <div className="corner-decoration top-left" />
-            <div className="corner-decoration top-right" />
-          </div>
-
-          {/* 系统状态 */}
-          <div className="px-6 py-4 border-b-2 border-[#FFD700]/20 bg-gradient-to-r from-[#FFD700]/5 to-transparent">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-3">
-                <Wifi className="w-5 h-5 text-[#00C851]" />
-                <span className="text-[#00C851] font-bold text-lg">{mockStats.networkStatus}</span>
-              </div>
-              <LiveClock />
-            </div>            
-            <div className="flex items-center justify-between text-sm font-mono">
-              <div className="flex items-center gap-2 text-[#FFD700]/80">
-                <Cpu className="w-4 h-4" />
-                <span>CPU {mockStats.cpuUsage}%</span>
-              </div>
-              <div className="flex items-center gap-2 text-[#FFD700]/80">
-                <Battery className="w-4 h-4" />
-                <span>内存 {mockStats.memoryUsage}%</span>
+                <div className="font-semibold text-white">Mission Control</div>
+                <div className="text-xs text-[#71717A]">任务控制中心</div>
               </div>
             </div>
           </div>
 
-          {/* 导航项 */}
-          <div className="flex-1 p-4 space-y-3">
+          {/* 导航 */}
+          <nav className="flex-1 p-4 space-y-1">
             {navItems.map((item) => {
               const Icon = item.icon;
-              const isActive = activeTab === item.id;
-              
               return (
-                <motion.button
+                <button
                   key={item.id}
                   onClick={() => setActiveTab(item.id)}
-                  whileHover={{ x: 6 }}
-                  className={`w-full flex items-center gap-4 px-6 py-4 rounded-xl transition-all relative overflow-hidden ${
-                    isActive 
-                      ? "bg-gradient-to-r from-[#FFD700]/20 to-transparent border-l-4 border-[#FFD700]" 
-                      : "text-white/60 hover:text-white hover:bg-white/5"
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                    activeTab === item.id
+                      ? "bg-[#3B82F6]/10 text-[#3B82F6]"
+                      : "text-[#A1A1AA] hover:text-white hover:bg-white/5"
                   }`}
                 >
-                  <Icon 
-                    className="w-6 h-6" 
-                    style={{ color: isActive ? '#FFD700' : 'inherit' }}
-                  />
-                  <span 
-                    className="font-bold text-lg tracking-wider"
-                    style={{ color: isActive ? '#FFD700' : 'inherit' }}
-                  >
-                    {item.label}
-                  </span>
-                  {isActive && (
-                    <motion.div
-                      layoutId="activeIndicator"
-                      className="absolute right-4 w-2 h-2 rounded-full bg-[#FFD700]"
-                      transition={{ type: "spring", stiffness: 300 }}
-                    />
-                  )}
-                </motion.button>
+                  <Icon className="w-5 h-5" />
+                  {item.label}
+                </button>
               );
             })}
-          </div>
+          </nav>
 
-          {/* 底部状态 */}
-          <div className="p-6 border-t-2 border-[#FFD700]/20">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-3">
-                <span className="w-3 h-3 rounded-full bg-[#00C851] pulse-gold" />
-                <span className="text-[#00C851] font-bold text-lg">系统正常运行</span>
+          {/* 系统状态 */}
+          <div className="p-4 border-t border-white/10 space-y-3">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-[#71717A]">系统状态</span>
+              <span className="status-badge online">
+                <span className="live-dot" />
+                在线
+              </span>
+            </div>
+            <div className="space-y-2">
+              <div className="flex justify-between text-xs text-[#71717A]">
+                <span>CPU</span>
+                <span>{mockData.stats.cpuUsage}%</span>
               </div>
+              <StatusChart value={mockData.stats.cpuUsage} color="blue" />
             </div>
-            <div className="text-white/50 font-mono text-sm">
-              运行时间: {mockStats.uptime}
-            </div>
-            
-            <div className="mt-4 h-2 bg-black/50 rounded-full overflow-hidden border border-[#FFD700]/20">
-              <motion.div 
-                className="h-full bg-gradient-to-r from-[#FFD700] to-[#FFE55C]"
-                initial={{ width: 0 }}
-                animate={{ width: "100%" }}
-                transition={{ duration: 3, repeat: Infinity }}
-              />
+            <div className="space-y-2">
+              <div className="flex justify-between text-xs text-[#71717A]">
+                <span>内存</span>
+                <span>{mockData.stats.memoryUsage}%</span>
+              </div>
+              <StatusChart value={mockData.stats.memoryUsage} color="green" />
             </div>
           </div>
-          
-          <div className="corner-decoration bottom-left" />
-          <div className="corner-decoration bottom-right" />
-        </nav>
+        </aside>
 
-        {/* 主面板 */}
-        <main className="flex-1 p-6">
-          {/* 头部 */}
-          <header className="mb-8 flex items-center justify-between">
+        {/* 主内容区 */}
+        <main className="flex-1 overflow-auto">
+          {/* 顶部栏 */}
+          <header className="h-16 border-b border-white/10 flex items-center justify-between px-8">
             <div>
-              <motion.h1 
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="hero-text"
-              >
-                任务控制中心
-              </motion.h1>
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.2 }}
-                className="flex items-center gap-4 mt-3"
-              >
-                <span className="text-[#FFD700] font-mono text-base font-bold tracking-wider">
-                  系统状态: 在线
-                </span>
-                <span className="text-[#FFD700]/40">|</span>
-                <span className="text-[#FFD700]/70 font-mono text-base">
-                  任务看板 + 日历 + 记忆库
-                </span>
-              </motion.div>
+              <h1 className="text-xl font-semibold">
+                {navItems.find(n => n.id === activeTab)?.label}
+              </h1>
             </div>
-            
-            <div className="flex items-center gap-4">
-              <div className="glass-card px-6 py-3 flex items-center gap-3">
-                <Clock className="w-6 h-6 text-[#FFD700]" />
+            <div className="flex items-center gap-6">
+              <div className="text-right">
+                <div className="text-xs text-[#71717A]">运行时间</div>
+                <div className="text-sm font-medium">{mockData.stats.uptime}</div>
+              </div>
+              <div className="text-right">
+                <div className="text-xs text-[#71717A]">当前时间</div>
                 <LiveClock />
               </div>
             </div>
           </header>
 
-          {/* 内容区 */}
-          <AnimatePresence mode="wait">
-            {activeTab === "dashboard" && (
-              <DashboardView 
-                key="dashboard" 
-                stats={mockStats}
-                tasks={mockTasks}
-                events={mockEvents}
-              />
-            )}
-            {activeTab === "tasks" && (
-              <TaskBoard key="tasks" tasks={mockTasks} />
-            )}
-            {activeTab === "calendar" && (
-              <CalendarView key="calendar" events={mockEvents} />
-            )}
-            {activeTab === "memory" && (
-              <MemoryScreen key="memory" memories={mockMemories} />
-            )}
-          </AnimatePresence>
+          {/* 页面内容 */}
+          <div className="p-8">
+            <AnimatePresence mode="wait">
+              {activeTab === "dashboard" && <DashboardView key="dashboard" />}
+              {activeTab === "tasks" && <TasksView key="tasks" />}
+              {activeTab === "calendar" && <CalendarView key="calendar" />}
+              {activeTab === "memory" && <MemoryView key="memory" />}
+            </AnimatePresence>
+          </div>
         </main>
       </div>
     </div>
@@ -345,13 +203,7 @@ export default function MissionControl() {
 }
 
 // 仪表盘视图
-function DashboardView({ stats, tasks, events }: { 
-  stats: any; 
-  tasks: any[];
-  events: any[];
-}) {
-  const activeTasks = tasks.filter(t => t.status === "in_progress");
-
+function DashboardView() {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -359,128 +211,200 @@ function DashboardView({ stats, tasks, events }: {
       exit={{ opacity: 0, y: -20 }}
       className="space-y-6"
     >
-      {/* 统计卡片 */}
-      <div className="grid grid-cols-4 gap-6">
-        <StatCard title="进行中任务" value={stats.activeTasks} icon="⚡" trend="+2" />
-        <StatCard title="定时任务" value={stats.cronJobs} icon="🔁" trend="stable" />
-        <StatCard title="记忆文档" value={stats.memories} icon="🧠" trend="+5" />
-        <StatCard title="成功率" value={`${stats.successRate}%`} icon="✓" trend="100%" />
+      {/* 指标卡片 */}
+      <div className="grid grid-cols-4 gap-4">
+        <MetricCard title="进行中任务" value={mockData.stats.activeTasks} trend="+1" icon={ClipboardList} color="blue" />
+        <MetricCard title="定时任务" value={mockData.stats.cronJobs} trend="stable" icon={Clock} color="purple" />
+        <MetricCard title="记忆文档" value={mockData.stats.memories} trend="+3" icon={Brain} color="green" />
+        <MetricCard title="成功率" value={`${mockData.stats.successRate}%`} trend="+0.5%" icon={Activity} color="cyan" />
       </div>
 
-      {/* 主面板网格 */}
+      {/* 主内容网格 */}
       <div className="grid grid-cols-3 gap-6">
-        {/* 任务看板预览 */}
-        <div className="col-span-2 glass-card p-6 hologram relative">
-          <div className="corner-decoration top-left" />
-          <div className="corner-decoration top-right" />
-          
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold flex items-center gap-3 text-bright">
-              <span className="w-3 h-3 bg-[#FFD700] rounded-full pulse-gold" />
-              <span className="gold-text">进行中任务</span>
+        {/* 任务面板 */}
+        <div className="col-span-2 console-card">
+          <div className="p-5 border-b border-white/10 flex items-center justify-between">
+            <h2 className="font-semibold flex items-center gap-2">
+              <ClipboardList className="w-5 h-5 text-[#3B82F6]" />
+              活跃任务
             </h2>
-            <span className="text-base font-mono text-[#FFD700]/60 font-bold">{activeTasks.length} 个任务</span>
+            <button className="text-sm text-[#3B82F6] hover:underline">查看全部</button>
           </div>
-          
-          <div className="space-y-4">
-            {activeTasks.slice(0, 3).map((task, index) => (
-              <motion.div
-                key={task._id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="p-5 bg-black/40 rounded-xl border-l-4 border-[#FFD700] hover:bg-black/60 transition-colors cursor-pointer group"
-              >
-                <div className="flex items-center justify-between">
-                  <h3 className="font-bold text-xl text-white group-hover:text-[#FFD700] transition-colors">{task.title}</h3>
-                  <span className="text-sm font-mono text-[#FFD700]/60">{task.assignee}</span>
+          <div className="divide-y divide-white/5">
+            {mockData.tasks.map((task) => (
+              <div key={task.id} className="p-4 hover:bg-white/5 transition-colors">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-3">
+                    {task.status === "running" && <div className="w-2 h-2 bg-[#10B981] rounded-full animate-pulse" />}
+                    {task.status === "scheduled" && <Clock4 className="w-4 h-4 text-[#F59E0B]" />}
+                    {task.status === "in_progress" && <div className="w-2 h-2 bg-[#3B82F6] rounded-full" />}
+                    <span className="font-medium">{task.title}</span>
+                  </div>
+                  <span className={`text-xs ${
+                    task.priority === "high" ? "priority-high" :
+                    task.priority === "medium" ? "priority-medium" : "priority-low"
+                  }`}>
+                    {task.priority}
+                  </span>
                 </div>
-                <p className="text-base text-white/60 mt-2">{task.description}</p>
-              </motion.div>
+                <div className="flex items-center gap-4 text-sm text-[#71717A]">
+                  <div className="flex-1">
+                    <StatusChart value={task.progress} color={task.status === "running" ? "green" : "blue"} />
+                  </div>
+                  <span>{task.progress}%</span>
+                  {task.nextRun && <span>下次: {task.nextRun}</span>}
+                </div>
+              </div>
             ))}
           </div>
-          
-          <div className="corner-decoration bottom-left" />
-          <div className="corner-decoration bottom-right" />
         </div>
 
         {/* 今日日程 */}
-        <div className="glass-card p-6 hologram relative">
-          <div className="corner-decoration top-left" />
-          <div className="corner-decoration top-right" />
-          
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold flex items-center gap-3 text-bright">
-              <span className="w-3 h-3 bg-[#FFD700] rounded-full pulse-gold" />
-              <span className="gold-text">今日日程</span>
+        <div className="console-card">
+          <div className="p-5 border-b border-white/10">
+            <h2 className="font-semibold flex items-center gap-2">
+              <Calendar className="w-5 h-5 text-[#8B5CF6]" />
+              今日日程
             </h2>
-            <span className="text-base font-mono text-[#FFD700]/60 font-bold">{events.length} 个事件</span>
           </div>
-          
-          <div className="space-y-4">
-            {events.map((event, index) => (
-              <motion.div
-                key={event._id}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="p-4 bg-[#FFD700]/10 rounded-xl border-2 border-[#FFD700]/40 hover:border-[#FFD700] transition-colors cursor-pointer"
-              >
-                <div className="text-lg font-bold text-[#FFD700]">{event.title}</div>
-                <div className="text-sm text-white/50 mt-2 font-mono">
-                  {new Date(event.startTime).toLocaleTimeString('zh-CN', { hour12: false })}
+          <div className="p-4 space-y-3">
+            {mockData.events.map((event) => (
+              <div key={event.id} className="flex items-center gap-3 p-3 bg-white/5 rounded-lg">
+                <div className="w-12 text-center">
+                  <div className="text-lg font-semibold">{event.time}</div>
                 </div>
-              </motion.div>
+                <div className="flex-1">
+                  <div className="font-medium text-sm">{event.title}</div>
+                  <div className="text-xs text-[#71717A]">定时任务</div>
+                </div>
+                <div className="w-2 h-2 bg-[#F59E0B] rounded-full" />
+              </div>
             ))}
           </div>
-          
-          <div className="corner-decoration bottom-left" />
-          <div className="corner-decoration bottom-right" />
+        </div>
+      </div>
+
+      {/* 活动日志 */}
+      <div className="console-card">
+        <div className="p-5 border-b border-white/10">
+          <h2 className="font-semibold flex items-center gap-2">
+            <Activity className="w-5 h-5 text-[#06B6D4]" />
+            最近活动
+          </h2>
+        </div>
+        <div className="p-4">
+          <div className="space-y-3">
+            {mockData.activities.map((activity) => (
+              <div key={activity.id} className="flex items-center gap-4 py-2">
+                {activity.status === "success" ? (
+                  <CheckCircle2 className="w-5 h-5 text-[#10B981]" />
+                ) : (
+                  <Clock4 className="w-5 h-5 text-[#F59E0B]" />
+                )}
+                <div className="flex-1">
+                  <span className="text-sm">{activity.action}</span>
+                </div>
+                <span className="text-xs text-[#71717A]">{activity.time}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </motion.div>
   );
 }
 
-// 统计卡片组件
-function StatCard({ title, value, icon, trend }: { 
-  title: string; 
-  value: number | string; 
-  icon: string;
+// 指标卡片组件
+function MetricCard({ title, value, trend, icon: Icon, color }: {
+  title: string;
+  value: string | number;
   trend: string;
+  icon: React.ComponentType<{ className?: string }>;
+  color: string;
 }) {
+  const colorMap: Record<string, string> = {
+    blue: "text-[#3B82F6] bg-[#3B82F6]/10",
+    purple: "text-[#8B5CF6] bg-[#8B5CF6]/10",
+    green: "text-[#10B981] bg-[#10B981]/10",
+    cyan: "text-[#06B6D4] bg-[#06B6D4]/10",
+  };
+
+  return (
+    <motion.div 
+      className="console-card p-5"
+      whileHover={{ y: -2 }}
+      transition={{ duration: 0.2 }}
+    >
+      <div className="flex items-start justify-between mb-4">
+        <div className={`p-2 rounded-lg ${colorMap[color]}`}>
+          <Icon className="w-5 h-5" />
+        </div>
+        <span className={`text-xs font-medium ${
+          trend.startsWith('+') ? 'text-[#10B981]' : 
+          trend === 'stable' ? 'text-[#71717A]' : 'text-[#EF4444]'
+        }`}>
+          {trend}
+        </span>
+      </div>
+      <div className="metric-value">{value}</div>
+      <div className="metric-label mt-1">{title}</div>
+    </motion.div>
+  );
+}
+
+// 任务视图
+function TasksView() {
   return (
     <motion.div
-      whileHover={{ scale: 1.03, y: -4 }}
-      className="glass-card p-6 relative overflow-hidden group cursor-pointer hologram"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      className="console-card"
     >
-      <div className="corner-decoration top-left" />
-      <div className="corner-decoration top-right" />
-      
-      <div className="absolute inset-0 bg-gradient-to-br from-[#FFD700]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-      <div className="relative z-10">
-        <div className="flex justify-between items-start mb-4">
-          <span className="text-4xl">{icon}</span>
-          <span className={`text-sm font-mono px-3 py-1 rounded-lg bg-black/50 font-bold ${
-            trend.startsWith('+') ? 'text-[#00C851]' : 
-            trend === 'stable' ? 'text-[#FFD700]/60' : 'text-white/60'
-          }`}>
-            {trend}
-          </span>
-        </div>
-        
-        <div className="text-5xl font-bold digital-number gold-text">
-          {value}
-        </div>
-        
-        <div className="text-lg text-white/70 mt-3 font-bold tracking-wider">
-          {title}
-        </div>
+      <div className="p-5 border-b border-white/10">
+        <h2 className="text-lg font-semibold">任务管理</h2>
       </div>
-      
-      <div className="corner-decoration bottom-left" />
-      <div className="corner-decoration bottom-right" />
+      <div className="p-5">
+        <p className="text-[#71717A]">任务管理功能开发中...</p>
+      </div>
+    </motion.div>
+  );
+}
+
+// 日历视图
+function CalendarView() {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      className="console-card"
+    >
+      <div className="p-5 border-b border-white/10">
+        <h2 className="text-lg font-semibold">日程日历</h2>
+      </div>
+      <div className="p-5">
+        <p className="text-[#71717A]">日历功能开发中...</p>
+      </div>
+    </motion.div>
+  );
+}
+
+// 记忆视图
+function MemoryView() {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      className="console-card"
+    >
+      <div className="p-5 border-b border-white/10">
+        <h2 className="text-lg font-semibold">记忆库</h2>
+      </div>
+      <div className="p-5">
+        <p className="text-[#71717A]">记忆库功能开发中...</p>
+      </div>
     </motion.div>
   );
 }
