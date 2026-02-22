@@ -36,8 +36,8 @@ const navItems = [
 
 // 模拟数据
 const mockStats = {
-  activeTasks: 3,
-  cronJobs: 6,
+  activeTasks: 4,
+  cronJobs: 11,
   memories: 15,
   successRate: 100,
   cpuUsage: 42,
@@ -61,6 +61,16 @@ const mockTasks = [
   },
   { 
     _id: "2", 
+    title: "Polymarket 监控", 
+    description: "每日5次简报：06:00/12:00/17:00/20:00/22:00",
+    status: "in_progress", 
+    priority: "high",
+    assignee: "侧影",
+    tags: ["预测市场", "自动化"],
+    dueDate: null,
+  },
+  { 
+    _id: "3", 
     title: "QQ邮箱自动清理", 
     description: "每日清理垃圾邮件和Apple广告",
     status: "in_progress", 
@@ -70,7 +80,7 @@ const mockTasks = [
     dueDate: null,
   },
   { 
-    _id: "3", 
+    _id: "4", 
     title: "Mission Control 系统开发", 
     description: "Next.js + Convex 任务管理系统",
     status: "in_progress", 
@@ -80,7 +90,7 @@ const mockTasks = [
     dueDate: Date.now() + 7 * 24 * 60 * 60 * 1000,
   },
   { 
-    _id: "4", 
+    _id: "5", 
     title: "卫星遥感研究报告", 
     description: "世界银行NO₂经济评估研究综述",
     status: "done", 
@@ -92,8 +102,10 @@ const mockTasks = [
 ];
 
 const mockEvents = [
-  { _id: "1", title: "非洲情报-24小时简报", startTime: Date.now(), type: "cron" },
-  { _id: "2", title: "QQ邮箱清理", startTime: Date.now() + 3600000, type: "cron" },
+  { _id: "1", title: "Polymarket 每日简报", startTime: Date.now() + 3600000 * 14, type: "cron" },
+  { _id: "2", title: "非洲情报-10:00简报", startTime: Date.now() + 3600000 * 1, type: "cron" },
+  { _id: "3", title: "Polymarket 盘中简报", startTime: Date.now() + 3600000 * 2, type: "cron" },
+  { _id: "4", title: "QQ邮箱清理", startTime: Date.now() + 3600000 * 15, type: "cron" },
 ];
 
 const mockMemories = [
