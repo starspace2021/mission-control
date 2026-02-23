@@ -64,7 +64,7 @@ body {
   font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
 }
 
-/* ========== 现代网格背景 - v4.0 增强版 ========== */
+/* ========== 现代网格背景 - v5.0 终极版 ========== */
 .grid-bg {
   background-image: 
     linear-gradient(rgba(59, 130, 246, 0.015) 1px, transparent 1px),
@@ -1816,5 +1816,297 @@ body {
     background: white;
     border: 1px solid #ddd;
     box-shadow: none;
+  }
+}
+
+/* ========== v5.0 新增样式 ========== */
+
+/* 热力图样式 */
+.heatmap-grid {
+  display: grid;
+  gap: 2px;
+}
+
+.heatmap-cell {
+  border-radius: 4px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.heatmap-cell:hover {
+  transform: scale(1.15);
+  z-index: 10;
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+}
+
+.heatmap-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 6px 12px;
+  background: rgba(17, 17, 24, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  pointer-events: none;
+  z-index: 100;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.heatmap-cell:hover .heatmap-tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* 部门活跃度条 */
+.activity-bar {
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #3B82F6, #8B5CF6);
+  position: relative;
+  overflow: hidden;
+}
+
+.activity-bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  animation: activity-shimmer 2s ease-in-out infinite;
+}
+
+@keyframes activity-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* 增强的脉冲动画 */
+@keyframes pulse-ring-enhanced {
+  0% { 
+    transform: scale(0.8); 
+    opacity: 1; 
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+  }
+  100% { 
+    transform: scale(2); 
+    opacity: 0; 
+    box-shadow: 0 0 0 20px rgba(16, 185, 129, 0);
+  }
+}
+
+.pulse-ring-enhanced {
+  position: relative;
+}
+
+.pulse-ring-enhanced::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: inherit;
+  border: 2px solid currentColor;
+  animation: pulse-ring-enhanced 2s ease-out infinite;
+}
+
+/* 发光边框动画 */
+@keyframes border-glow {
+  0%, 100% { 
+    border-color: rgba(59, 130, 246, 0.3);
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
+  }
+  50% { 
+    border-color: rgba(59, 130, 246, 0.6);
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+  }
+}
+
+.border-glow {
+  animation: border-glow 2s ease-in-out infinite;
+}
+
+/* 数据流动效果 */
+@keyframes data-stream {
+  0% { 
+    background-position: -200% 0;
+    opacity: 0.5;
+  }
+  50% { 
+    opacity: 1;
+  }
+  100% { 
+    background-position: 200% 0;
+    opacity: 0.5;
+  }
+}
+
+.data-stream {
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(59, 130, 246, 0.3) 20%, 
+    rgba(139, 92, 246, 0.3) 50%, 
+    rgba(59, 130, 246, 0.3) 80%, 
+    transparent 100%);
+  background-size: 200% 100%;
+  animation: data-stream 3s linear infinite;
+}
+
+/* 呼吸发光效果 */
+@keyframes breathe-glow-enhanced {
+  0%, 100% { 
+    box-shadow: 0 0 5px rgba(59, 130, 246, 0.3),
+                0 0 10px rgba(59, 130, 246, 0.2),
+                0 0 15px rgba(59, 130, 246, 0.1);
+  }
+  50% { 
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.5),
+                0 0 20px rgba(59, 130, 246, 0.3),
+                0 0 30px rgba(59, 130, 246, 0.2);
+  }
+}
+
+.breathe-glow {
+  animation: breathe-glow-enhanced 3s ease-in-out infinite;
+}
+
+/* 悬停发光效果 */
+.hover-glow {
+  transition: all 0.3s ease;
+}
+
+.hover-glow:hover {
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3),
+              0 0 40px rgba(59, 130, 246, 0.2),
+              0 0 60px rgba(59, 130, 246, 0.1);
+}
+
+/* 渐变文字效果增强 */
+.gradient-text-enhanced {
+  background: linear-gradient(135deg, #3B82F6, #8B5CF6, #EC4899, #F59E0B);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradient-shift 5s ease infinite;
+}
+
+/* 卡片堆叠效果增强 */
+.card-stack-enhanced {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.card-stack-enhanced::before,
+.card-stack-enhanced::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(145deg, rgba(17, 17, 24, 0.98), rgba(20, 20, 28, 0.95));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  z-index: -1;
+  transition: all 0.3s ease;
+}
+
+.card-stack-enhanced::before {
+  transform: translateY(6px) scale(0.97);
+  opacity: 0.5;
+}
+
+.card-stack-enhanced::after {
+  transform: translateY(12px) scale(0.94);
+  opacity: 0.25;
+}
+
+.card-stack-enhanced:hover {
+  transform: translateY(-4px);
+}
+
+.card-stack-enhanced:hover::before {
+  transform: translateY(8px) scale(0.96);
+}
+
+.card-stack-enhanced:hover::after {
+  transform: translateY(16px) scale(0.92);
+}
+
+/* 加载状态 */
+.loading-pulse {
+  position: relative;
+  overflow: hidden;
+}
+
+.loading-pulse::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  animation: loading-shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes loading-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* 统计数字动画 */
+@keyframes count-up {
+  from { 
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.count-up {
+  animation: count-up 0.5s ease-out forwards;
+}
+
+/* 浮动标签 */
+.floating-label {
+  position: absolute;
+  padding: 4px 8px;
+  background: rgba(17, 17, 24, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  font-size: 11px;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.2s ease;
+}
+
+.group:hover .floating-label {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 响应式优化 */
+@media (max-width: 1024px) {
+  .heatmap-grid {
+    gap: 1px;
+  }
+  
+  .heatmap-cell {
+    border-radius: 2px;
+  }
+}
+
+/* 减少动画偏好 */
+@media (prefers-reduced-motion: reduce) {
+  .activity-bar::after,
+  .pulse-ring-enhanced::before,
+  .border-glow,
+  .data-stream,
+  .breathe-glow,
+  .gradient-text-enhanced,
+  .loading-pulse::after {
+    animation: none;
   }
 }

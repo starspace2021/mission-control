@@ -60,7 +60,7 @@ const navItems = [
   { id: "team", label: "团队", icon: Users, shortcut: "5" },
 ];
 
-// 模拟数据 - 现代控制台风格
+// 模拟数据 - 现代控制台风格 v2.0
 const mockData = {
   stats: {
     activeTasks: 5,
@@ -92,7 +92,7 @@ const mockData = {
     { id: "3", action: "美国对华政策监控启动", time: "18:30", status: "success" },
     { id: "4", action: "UI 自动迭代任务", time: "03:00", status: "scheduled" },
   ],
-  // 新增图表数据
+  // 增强图表数据
   chartData: {
     donut: [
       { label: "情报", value: 35, color: "#3B82F6" },
@@ -109,8 +109,33 @@ const mockData = {
       { label: "扩展性", value: 70 },
     ],
     area: [30, 45, 35, 50, 40, 60, 55, 70, 65, 80, 75, 85],
+    // 新增热力图数据
+    heatmap: [
+      { day: "周一", hour: 0, value: 12 }, { day: "周一", hour: 4, value: 8 }, { day: "周一", hour: 8, value: 45 },
+      { day: "周一", hour: 12, value: 38 }, { day: "周一", hour: 16, value: 52 }, { day: "周一", hour: 20, value: 78 },
+      { day: "周二", hour: 0, value: 15 }, { day: "周二", hour: 4, value: 10 }, { day: "周二", hour: 8, value: 48 },
+      { day: "周二", hour: 12, value: 42 }, { day: "周二", hour: 16, value: 58 }, { day: "周二", hour: 20, value: 82 },
+      { day: "周三", hour: 0, value: 18 }, { day: "周三", hour: 4, value: 12 }, { day: "周三", hour: 8, value: 52 },
+      { day: "周三", hour: 12, value: 45 }, { day: "周三", hour: 16, value: 62 }, { day: "周三", hour: 20, value: 85 },
+      { day: "周四", hour: 0, value: 14 }, { day: "周四", hour: 4, value: 9 }, { day: "周四", hour: 8, value: 50 },
+      { day: "周四", hour: 12, value: 40 }, { day: "周四", hour: 16, value: 55 }, { day: "周四", hour: 20, value: 80 },
+      { day: "周五", hour: 0, value: 20 }, { day: "周五", hour: 4, value: 15 }, { day: "周五", hour: 8, value: 55 },
+      { day: "周五", hour: 12, value: 48 }, { day: "周五", hour: 16, value: 65 }, { day: "周五", hour: 20, value: 88 },
+      { day: "周六", hour: 0, value: 25 }, { day: "周六", hour: 4, value: 18 }, { day: "周六", hour: 8, value: 35 },
+      { day: "周六", hour: 12, value: 30 }, { day: "周六", hour: 16, value: 40 }, { day: "周六", hour: 20, value: 55 },
+      { day: "周日", hour: 0, value: 22 }, { day: "周日", hour: 4, value: 16 }, { day: "周日", hour: 8, value: 32 },
+      { day: "周日", hour: 12, value: 28 }, { day: "周日", hour: 16, value: 35 }, { day: "周日", hour: 20, value: 50 },
+    ],
+    // 新增柱状图数据
+    bar: [
+      { label: "情报", value: 35, color: "#3B82F6" },
+      { label: "政策", value: 25, color: "#8B5CF6" },
+      { label: "市场", value: 20, color: "#10B981" },
+      { label: "工程", value: 15, color: "#F59E0B" },
+      { label: "其他", value: 5, color: "#EC4899" },
+    ],
   },
-  // 新增系统指标
+  // 增强系统指标
   systemMetrics: {
     requestsPerMin: 1247,
     avgLatency: 98,
@@ -120,14 +145,26 @@ const mockData = {
     diskUsage: 68,
     networkIn: 12.5,
     networkOut: 8.3,
+    // 新增指标
+    cpuHistory: [35, 42, 38, 45, 40, 48, 42, 50, 45, 52, 48, 55],
+    memoryHistory: [60, 65, 62, 68, 65, 70, 68, 72, 70, 75, 72, 78],
+    requestHistory: [800, 950, 1100, 1050, 1200, 1150, 1300, 1250, 1400, 1350, 1500, 1450],
   },
-  // 新增趋势数据
+  // 趋势数据
   trends: {
     tasks: { value: 12, direction: "up" as const },
     success: { value: 2.3, direction: "up" as const },
     latency: { value: 5, direction: "down" as const },
     errors: { value: 0.5, direction: "down" as const },
-  }
+  },
+  // 新增部门活跃度
+  departmentActivity: [
+    { name: "情报部", activity: 85, tasks: 12, online: 3 },
+    { name: "政策部", activity: 72, tasks: 8, online: 2 },
+    { name: "市场部", activity: 65, tasks: 6, online: 2 },
+    { name: "工程部", activity: 90, tasks: 15, online: 3 },
+    { name: "记忆部", activity: 45, tasks: 4, online: 2 },
+  ],
 };
 
 // 实时时钟
@@ -1189,63 +1226,86 @@ function DashboardView() {
           </div>
         </div>
 
-        {/* 系统资源 */}
+        {/* 部门活跃度 - 新增 */}
         <div className="console-card overflow-hidden">
           <div className="p-5 border-b border-white/5">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#EC4899]/20 to-[#EC4899]/5 flex items-center justify-center">
-                <Cpu className="w-5 h-5 text-[#EC4899]" />
+                <Users className="w-5 h-5 text-[#EC4899]" />
               </div>
               <div>
-                <h2 className="font-semibold text-white">系统资源</h2>
-                <p className="text-xs text-[#71717A]">实时性能监控</p>
+                <h2 className="font-semibold text-white">部门活跃度</h2>
+                <p className="text-xs text-[#71717A]">实时团队状态</p>
               </div>
             </div>
           </div>
-          <div className="p-5 space-y-5">
-            {/* CPU */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-[#A1A1AA] flex items-center gap-2">
-                  <Cpu className="w-4 h-4" />
-                  CPU 使用率
-                </span>
-                <span className="text-sm font-medium tabular-nums">{mockData.stats.cpuUsage}%</span>
-              </div>
-              <StatusChart value={mockData.stats.cpuUsage} color="blue" />
-            </div>
-            
-            {/* 内存 */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-[#A1A1AA] flex items-center gap-2">
-                  <Activity className="w-4 h-4" />
-                  内存使用
-                </span>
-                <span className="text-sm font-medium tabular-nums">{mockData.stats.memoryUsage}%</span>
-              </div>
-              <StatusChart value={mockData.stats.memoryUsage} color="green" />
-            </div>
-            
-            {/* 网络 */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-[#A1A1AA] flex items-center gap-2">
-                  <Wifi className="w-4 h-4" />
-                  网络状态
-                </span>
-                <span className="text-sm font-medium text-[#10B981]">在线</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="flex-1 h-1 bg-[#1A1A24] rounded-full overflow-hidden">
-                  <div className="h-full w-[95%] bg-gradient-to-r from-[#10B981] to-[#06B6D4] rounded-full" />
+          <div className="p-4 space-y-3">
+            {mockData.departmentActivity.map((dept, index) => (
+              <motion.div
+                key={dept.name}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="flex items-center gap-4 p-3 bg-white/[0.02] rounded-xl hover:bg-white/[0.04] transition-all group"
+              >
+                <div className="flex-1">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-medium text-white">{dept.name}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-[#71717A]">{dept.tasks} 任务</span>
+                      <span className="flex items-center gap-1 text-xs text-[#10B981]">
+                        <span className="w-1.5 h-1.5 bg-[#10B981] rounded-full animate-pulse" />
+                        {dept.online} 在线
+                      </span>
+                    </div>
+                  </div>
+                  <div className="h-2 bg-[#1A1A24] rounded-full overflow-hidden">
+                    <motion.div
+                      className="h-full rounded-full bg-gradient-to-r from-[#3B82F6] to-[#8B5CF6]"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${dept.activity}%` }}
+                      transition={{ duration: 1, delay: index * 0.1 }}
+                    />
+                  </div>
                 </div>
-                <span className="text-xs text-[#71717A]">95ms</span>
-              </div>
-            </div>
+                <div className="text-lg font-bold text-white w-12 text-right">{dept.activity}%</div>
+              </motion.div>
+            ))}
           </div>
         </div>
       </div>
+
+      {/* 新增：系统负载热力图 */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+        className="console-card p-5"
+      >
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#F59E0B]/20 to-[#F59E0B]/5 flex items-center justify-center">
+              <Layers className="w-5 h-5 text-[#F59E0B]" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-white">系统负载热力图</h3>
+              <p className="text-xs text-[#71717A]">过去7天 × 24小时请求分布</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 text-xs text-[#71717A]">
+            <span>低</span>
+            <div className="flex gap-0.5">
+              <div className="w-3 h-3 rounded bg-[#1A1A24]" />
+              <div className="w-3 h-3 rounded bg-[#3B82F6]/30" />
+              <div className="w-3 h-3 rounded bg-[#3B82F6]/50" />
+              <div className="w-3 h-3 rounded bg-[#3B82F6]/70" />
+              <div className="w-3 h-3 rounded bg-[#3B82F6]" />
+            </div>
+            <span>高</span>
+          </div>
+        </div>
+        <HeatmapChart data={mockData.chartData.heatmap} />
+      </motion.div>
     </motion.div>
   );
 }
@@ -1448,6 +1508,75 @@ function SystemMetricCard({
         </div>
       </div>
     </motion.div>
+  );
+}
+
+// 热力图组件
+function HeatmapChart({ data }: { data: { day: string; hour: number; value: number }[] }) {
+  const days = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"];
+  const hours = [0, 4, 8, 12, 16, 20];
+  
+  const getValue = (day: string, hour: number) => {
+    const item = data.find(d => d.day === day && d.hour === hour);
+    return item?.value || 0;
+  };
+  
+  const getColor = (value: number) => {
+    if (value === 0) return "rgba(26, 26, 36, 0.8)";
+    if (value < 20) return "rgba(59, 130, 246, 0.3)";
+    if (value < 40) return "rgba(59, 130, 246, 0.5)";
+    if (value < 60) return "rgba(59, 130, 246, 0.7)";
+    return "rgba(59, 130, 246, 1)";
+  };
+  
+  return (
+    <div className="w-full overflow-x-auto">
+      <div className="min-w-[600px]">
+        {/* 时间标签 */}
+        <div className="flex items-center mb-2">
+          <div className="w-12" />
+          {hours.map(hour => (
+            <div key={hour} className="flex-1 text-center text-xs text-[#71717A]">
+              {hour.toString().padStart(2, "0")}:00
+            </div>
+          ))}
+        </div>
+        
+        {/* 热力图网格 */}
+        <div className="space-y-1">
+          {days.map((day, dayIndex) => (
+            <motion.div
+              key={day}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: dayIndex * 0.05 }}
+              className="flex items-center gap-1"
+            >
+              <div className="w-12 text-xs text-[#71717A] text-right pr-2">{day}</div>
+              {hours.map((hour, hourIndex) => {
+                const value = getValue(day, hour);
+                return (
+                  <motion.div
+                    key={`${day}-${hour}`}
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: dayIndex * 0.05 + hourIndex * 0.02 }}
+                    whileHover={{ scale: 1.1, zIndex: 10 }}
+                    className="flex-1 h-8 rounded cursor-pointer relative group"
+                    style={{ backgroundColor: getColor(value) }}
+                  >
+                    {/* Tooltip */}
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-[#1A1A24] border border-white/10 rounded text-xs text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-20">
+                      {day} {hour}:00 - {value} 请求
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
 
