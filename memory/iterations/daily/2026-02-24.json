@@ -1,0 +1,216 @@
+{
+  "date": "2026-02-24",
+  "evaluation_time": "2026-02-24T06:30:00+08:00",
+  "evaluator": "daily-quality-assessment",
+  "tasks_evaluated": 7,
+  "tasks": [
+    {
+      "task_id": "africa-osint-daily-summary",
+      "execution_time": "2026-02-23T07:00:00+08:00",
+      "status": "success",
+      "output_quality": 8,
+      "quality_breakdown": {
+        "intelligence_coverage": 8,
+        "china_relevance": 9,
+        "source_diversity": 8,
+        "timeliness": 8,
+        "analysis_quality": 7
+      },
+      "issues": [
+        {
+          "severity": "P3",
+          "description": "部分数据源可能存在延迟",
+          "category": "data_freshness"
+        }
+      ],
+      "improvements": [
+        "增加非洲本地新闻源（如Nation Media Group）",
+        "优化关键词权重自动调整机制"
+      ],
+      "root_cause": null,
+      "recommendation": "继续保持高质量输出"
+    },
+    {
+      "task_id": "us-china-monitoring-daily-report",
+      "execution_time": "2026-02-23T07:00:00+08:00",
+      "status": "success",
+      "output_quality": 8,
+      "quality_breakdown": {
+        "policy_coverage": 8,
+        "source_quality": 9,
+        "classification_completeness": 7,
+        "accuracy": 9
+      },
+      "issues": [
+        {
+          "severity": "P2",
+          "description": "6大类别覆盖不够完整，国会动态、盟友协调领域信息较少",
+          "category": "coverage_gap"
+        }
+      ],
+      "improvements": [
+        "完善6大政策类别监控清单",
+        "增加智库报告自动摘要",
+        "添加政策变化趋势分析"
+      ],
+      "root_cause": null,
+      "recommendation": "完善分类体系，已在pending.md中记录改进方案"
+    },
+    {
+      "task_id": "polymarket-daily-summary",
+      "execution_time": "2026-02-23T06:00:00+08:00",
+      "status": "success",
+      "output_quality": 7,
+      "quality_breakdown": {
+        "data_accuracy": 8,
+        "market_coverage": 7,
+        "analysis_depth": 6,
+        "timeliness": 8
+      },
+      "issues": [
+        {
+          "severity": "P2",
+          "description": "缺少Polymarket专用技能文件，依赖通用工具",
+          "category": "skill_missing"
+        },
+        {
+          "severity": "P3",
+          "description": "市场分析深度有待提升",
+          "category": "analysis_depth"
+        }
+      ],
+      "improvements": [
+        "创建专门的polymarket-monitoring技能",
+        "增加TOP 10盘口自动追踪",
+        "集成更多链上数据源"
+      ],
+      "root_cause": null,
+      "recommendation": "建议创建专用技能文件"
+    },
+    {
+      "task_id": "mission-control-ui-auto-iteration",
+      "execution_time": "2026-02-23T06:34:00+08:00",
+      "status": "failed",
+      "output_quality": 0,
+      "quality_breakdown": {
+        "functionality": 0,
+        "code_quality": 0,
+        "ui_design": 0,
+        "documentation": 0
+      },
+      "issues": [
+        {
+          "severity": "P0",
+          "description": "构建失败，无法生成dist文件",
+          "category": "build_error"
+        }
+      ],
+      "improvements": [
+        "添加构建前依赖检查",
+        "增加详细的错误日志输出",
+        "设置构建失败自动回滚机制"
+      ],
+      "root_cause": "构建过程中出现错误",
+      "recommendation": "需要立即修复构建问题"
+    },
+    {
+      "task_id": "qq-mail-cleanup",
+      "execution_time": "2026-02-23T06:16:00+08:00",
+      "status": "failed",
+      "output_quality": 0,
+      "quality_breakdown": {
+        "execution_success": 0,
+        "error_handling": 0,
+        "config_management": 0
+      },
+      "issues": [
+        {
+          "severity": "P0",
+          "description": "任务执行超时(300秒)",
+          "category": "timeout"
+        },
+        {
+          "severity": "P1",
+          "description": "连续2次执行失败",
+          "category": "consecutive_failure"
+        }
+      ],
+      "improvements": [
+        "优化IMAP连接超时处理",
+        "增加连接重试机制",
+        "减少单次处理邮件数量"
+      ],
+      "root_cause": "IMAP连接超时，可能是网络问题或邮箱服务器响应慢",
+      "recommendation": "需要优化连接逻辑和超时处理"
+    },
+    {
+      "task_id": "memory-export-daily",
+      "execution_time": "2026-02-23T23:00:00+08:00",
+      "status": "failed",
+      "output_quality": 0,
+      "quality_breakdown": {
+        "execution_success": 0,
+        "error_handling": 0
+      },
+      "issues": [
+        {
+          "severity": "P0",
+          "description": "任务执行超时(180秒)",
+          "category": "timeout"
+        }
+      ],
+      "improvements": [
+        "增加超时时间至300秒",
+        "优化文件读取逻辑",
+        "分批处理大文件"
+      ],
+      "root_cause": "文件读取和导出耗时过长",
+      "recommendation": "优化导出逻辑或增加超时时间"
+    },
+    {
+      "task_id": "africa-osint-10am",
+      "execution_time": "2026-02-23T16:00:00+08:00",
+      "status": "error",
+      "output_quality": 0,
+      "quality_breakdown": {
+        "delivery": 0
+      },
+      "issues": [
+        {
+          "severity": "P1",
+          "description": "cron announce delivery failed",
+          "category": "delivery_failure"
+        }
+      ],
+      "improvements": [
+        "检查飞书通知渠道配置",
+        "增加delivery失败重试机制"
+      ],
+      "root_cause": "飞书消息发送失败",
+      "recommendation": "检查通知渠道配置"
+    }
+  ],
+  "summary": {
+    "total_tasks": 7,
+    "successful": 3,
+    "failed": 4,
+    "success_rate": 42.9,
+    "average_quality": 3.3,
+    "critical_issues": 3,
+    "high_priority_improvements": 4
+  },
+  "overall_assessment": "昨日任务执行质量较差，成功率仅42.9%。3个任务超时失败，1个任务构建失败，1个任务通知发送失败。成功的任务质量良好(平均7.7分)，但系统稳定性问题严重。",
+  "key_findings": [
+    "超时问题严重：qq-mail-cleanup和memory-export-daily均因超时而失败",
+    "构建系统不稳定：mission-control-ui-auto-iteration构建失败",
+    "通知渠道偶发故障：africa-osint-10am消息发送失败",
+    "成功的情报任务质量良好：非洲情报8分，对华政策监控8分"
+  ],
+  "priority_actions": [
+    "P0: 修复qq-mail-cleanup超时问题",
+    "P0: 修复memory-export-daily超时问题",
+    "P0: 修复mission-control-ui构建失败",
+    "P1: 检查飞书通知渠道稳定性"
+  ],
+  "next_evaluation": "2026-02-25T06:30:00+08:00"
+}

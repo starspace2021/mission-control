@@ -1,272 +1,287 @@
 #!/usr/bin/env python3
-# QQ邮箱清理脚本 - 最终版
-
 import imaplib
-import ssl
 import email
 from email.header import decode_header
 from datetime import datetime, timedelta
 import re
-import socket
+import sys
 
-# 设置超时
-socket.setdefaulttimeout(60)
-
-# 邮箱配置
-IMAP_SERVER = "imap.qq.com"
+EMAIL = '495168397@qq.com'
+PASSWORD = 'ghvuapitdfwqbiee'
+IMAP_SERVER = 'imap.qq.com'
 IMAP_PORT = 993
-EMAIL = "495168397@qq.com"
-PASSWORD = "ghvuapitdfwqbiee"
 
-# 强制删除的发件人列表
 FORCE_DELETE_SENDERS = [
-    "no_reply@email.apple.com",
-    "do_not_reply@email.apple.com"
+    'no_reply@email.apple.com',
+    'do_not_reply@email.apple.com'
 ]
 
-# 关键词列表
 SPAM_KEYWORDS = [
-    "广告", "推广", "优惠", "促销", "特价", "秒杀",
-    "贷款", "信用卡", "保险", "理财", "投资",
-    "招聘", "兼职", "刷单", "返利",
-    "中奖", "抽奖", "免费领",
-    "代写", "论文", "考试",
-    "色情", "赌博", "博彩"
+    '广告', '推广', '优惠', '促销', '特价', '秒杀',
+    '贷款', '信用卡', '保险', '理财', '投资',
+    '招聘', '兼职', '刷单', '返利',
+    '中奖', '抽奖', '免费领',
+    '代写', '论文', '考试',
+    '色情', '赌博', '博彩'
 ]
+
+cutoff_date = datetime.now() - timedelta(days=30)
+
+stats = {
+    'total_checked': 0,
+    'deleted_force': [],
+    'deleted_keywords': [],
+    'deleted_old': [],
+    'skipped_important': 0,
+    'errors': []
+}
 
 def decode_str(s):
     if s is None:
-        return ""
-    try:
-        decoded = decode_header(s)
-        result = ""
-        for part, charset in decoded:
-            if isinstance(part, bytes):
-                if charset:
-                    result += part.decode(charset, errors='ignore')
-                else:
-                    result += part.decode('utf-8', errors='ignore')
-            else:
-                result += part
-        return result
-    except:
-        return str(s)
+        return ''
+    decoded_fragments = decode_header(s)
+    result = ''
+    for fragment, charset in decoded_fragments:
+        if isinstance(fragment, bytes):
+            try:
+                result += fragment.decode(charset or 'utf-8', errors='ignore')
+            except:
+                result += fragment.decode('utf-8', errors='ignore')
+        else:
+            result += fragment
+    return result
 
 def get_sender(msg):
-    from_header = msg.get("From", "")
+    from_header = msg.get('From', '')
     match = re.search(r'<([^>]+)>', from_header)
     if match:
         return match.group(1).lower()
     if '@' in from_header:
-        return from_header.strip().lower()
+        return from_header.lower().strip()
     return from_header.lower()
 
 def get_subject(msg):
-    subject = msg.get("Subject", "")
-    return decode_str(subject)
+    return decode_str(msg.get('Subject', '(无主题)'))
 
 def get_date(msg):
-    date_str = msg.get("Date", "")
+    date_str = msg.get('Date', '')
     try:
         from email.utils import parsedate_to_datetime
         return parsedate_to_datetime(date_str)
     except:
         return None
 
+def is_important(msg):
+    flags = msg.get('X-Priority', '')
+    if flags in ['1', '2']:
+        return True
+    if msg.get('Importance', '').lower() == 'high':
+        return True
+    if msg.get('X-MSMail-Priority', '').lower() == 'high':
+        return True
+    return False
+
 def should_delete_by_keywords(subject, sender):
-    text = (subject + " " + sender).lower()
+    text = (subject + ' ' + sender).lower()
     for keyword in SPAM_KEYWORDS:
         if keyword in text:
             return True, keyword
     return False, None
 
-def process_folder(mail, folder_name, folder_label, stats):
-    print(f"\n正在选择 {folder_label}...")
-    status, _ = mail.select(folder_name, readonly=False)
-    if status != "OK":
-        print(f"✗ 无法选择 {folder_label}")
-        return
-    
-    print(f"正在搜索邮件...")
-    status, data = mail.search(None, "ALL")
-    if status != "OK":
-        print(f"✗ 无法搜索 {folder_label}")
-        return
-    
-    email_ids = data[0].split()
-    total = len(email_ids)
-    print(f"发现 {total} 封邮件")
-    
-    if total == 0:
-        return
-    
-    cutoff_date = datetime.now() - timedelta(days=30)
-    to_delete = []
-    
-    print("开始分析邮件...")
-    for i, email_id in enumerate(email_ids):
-        try:
-            status, msg_data = mail.fetch(email_id, "(RFC822)")
-            if status != "OK":
-                continue
-            
-            raw_email = msg_data[0][1]
-            msg = email.message_from_bytes(raw_email)
-            
-            sender = get_sender(msg)
-            subject = get_subject(msg)
-            date = get_date(msg)
-            
-            # 规则1: 强制删除特定发件人
-            if sender in FORCE_DELETE_SENDERS:
-                to_delete.append((email_id, "force", sender, subject))
-                continue
-            
-            # 规则2: 关键词匹配
-            should_delete, matched_keyword = should_delete_by_keywords(subject, sender)
-            if should_delete:
-                to_delete.append((email_id, "keyword", sender, subject, matched_keyword))
-                continue
-            
-            # 规则3: 超过30天的邮件
-            if date and date < cutoff_date:
-                to_delete.append((email_id, "old", sender, subject, str(date)[:10]))
-                
-        except Exception as e:
-            continue
-        
-        if (i + 1) % 50 == 0:
-            print(f"  已分析 {i + 1}/{total} 封邮件...")
-    
-    print(f"分析完成，准备删除 {len(to_delete)} 封邮件...")
-    
-    # 执行删除
-    for item in to_delete:
-        email_id = item[0]
-        delete_type = item[1]
-        sender = item[2]
-        subject = item[3]
-        
-        try:
-            mail.store(email_id, "+FLAGS", "\\Deleted")
-            
-            if delete_type == "force":
-                stats["deleted_force"].append({
-                    "folder": folder_label,
-                    "sender": sender,
-                    "subject": subject[:50] + "..." if len(subject) > 50 else subject
-                })
-            elif delete_type == "keyword":
-                stats["deleted_keywords"].append({
-                    "folder": folder_label,
-                    "sender": sender,
-                    "subject": subject[:50] + "..." if len(subject) > 50 else subject,
-                    "keyword": item[4]
-                })
-            elif delete_type == "old":
-                stats["deleted_old"].append({
-                    "folder": folder_label,
-                    "sender": sender,
-                    "subject": subject[:50] + "..." if len(subject) > 50 else subject,
-                    "date": item[4]
-                })
-        except Exception as e:
-            pass
-    
-    # 执行永久删除
-    if to_delete:
-        mail.expunge()
-        print(f"✓ 已删除 {len(to_delete)} 封邮件")
-    else:
-        print("✓ 没有需要删除的邮件")
+print('='*60, flush=True)
+print('QQ邮箱清理助手', flush=True)
+print('开始时间: ' + datetime.now().strftime('%Y-%m-%d %H:%M:%S'), flush=True)
+print('='*60, flush=True)
 
-def main():
-    print("=" * 50)
-    print("QQ邮箱清理助手")
-    print(f"时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    print("=" * 50)
+try:
+    print('正在连接 ' + IMAP_SERVER + '...', flush=True)
+    mail = imaplib.IMAP4_SSL(IMAP_SERVER, IMAP_PORT)
+    mail.login(EMAIL, PASSWORD)
+    print('登录成功!', flush=True)
     
-    stats = {
-        "deleted_force": [],
-        "deleted_keywords": [],
-        "deleted_old": []
-    }
+    # 收件箱
+    print('\n' + '='*50, flush=True)
+    print('正在检查: 收件箱 (INBOX)', flush=True)
+    print('='*50, flush=True)
+    
+    status, messages = mail.select('INBOX')
+    if status == 'OK':
+        status, data = mail.search(None, 'ALL')
+        if status == 'OK':
+            msg_ids = data[0].split()
+            print('找到 ' + str(len(msg_ids)) + ' 封邮件', flush=True)
+            
+            for msg_id in msg_ids:
+                try:
+                    status, msg_data = mail.fetch(msg_id, '(RFC822)')
+                    if status != 'OK':
+                        continue
+                    
+                    raw_email = msg_data[0][1]
+                    msg = email.message_from_bytes(raw_email)
+                    
+                    stats['total_checked'] += 1
+                    
+                    sender = get_sender(msg)
+                    subject = get_subject(msg)
+                    date = get_date(msg)
+                    
+                    if is_important(msg):
+                        stats['skipped_important'] += 1
+                        continue
+                    
+                    if sender in FORCE_DELETE_SENDERS:
+                        mail.store(msg_id, '+FLAGS', '\\Deleted')
+                        stats['deleted_force'].append({
+                            'sender': sender,
+                            'subject': subject,
+                            'folder': '收件箱'
+                        })
+                        print('  [删除-强制] ' + sender + ': ' + subject[:50], flush=True)
+                        continue
+                    
+                    has_spam_keyword, matched_keyword = should_delete_by_keywords(subject, sender)
+                    if has_spam_keyword:
+                        mail.store(msg_id, '+FLAGS', '\\Deleted')
+                        stats['deleted_keywords'].append({
+                            'sender': sender,
+                            'subject': subject,
+                            'keyword': matched_keyword,
+                            'folder': '收件箱'
+                        })
+                        print('  [删除-关键词:' + matched_keyword + '] ' + sender + ': ' + subject[:50], flush=True)
+                        continue
+                    
+                    if date and date < cutoff_date:
+                        mail.store(msg_id, '+FLAGS', '\\Deleted')
+                        stats['deleted_old'].append({
+                            'sender': sender,
+                            'subject': subject,
+                            'date': date.strftime('%Y-%m-%d'),
+                            'folder': '收件箱'
+                        })
+                        print('  [删除-过期:' + date.strftime('%Y-%m-%d') + '] ' + sender + ': ' + subject[:50], flush=True)
+                        continue
+                    
+                except Exception as e:
+                    stats['errors'].append(str(e))
+                    continue
+            
+            mail.expunge()
+            print('收件箱 清理完成', flush=True)
+    
+    # 垃圾箱
+    print('\n' + '='*50, flush=True)
+    print('正在检查: 垃圾箱 (Junk)', flush=True)
+    print('='*50, flush=True)
     
     try:
-        print("\n正在连接邮箱服务器...")
-        mail = imaplib.IMAP4_SSL(IMAP_SERVER, IMAP_PORT)
-        print("✓ 服务器连接成功")
-        
-        print("正在登录...")
-        mail.login(EMAIL, PASSWORD)
-        print(f"✓ 登录成功: {EMAIL}")
-        
-        # 处理收件箱
-        print("\n【处理收件箱】")
-        process_folder(mail, "INBOX", "收件箱", stats)
-        
-        # 处理垃圾箱
-        print("\n【处理垃圾箱】")
-        trash_folders = ["Junk", "Spam", "垃圾邮件", "垃圾箱"]
-        trash_found = False
-        for trash_name in trash_folders:
-            try:
-                status, _ = mail.select(trash_name, readonly=False)
-                if status == "OK":
-                    print(f"找到垃圾箱: {trash_name}")
-                    mail.close()
-                    process_folder(mail, trash_name, "垃圾箱", stats)
-                    trash_found = True
-                    break
-            except:
-                continue
-        if not trash_found:
-            print("未找到垃圾箱或垃圾箱为空")
-        
-        mail.close()
-        mail.logout()
-        
-        # 输出报告
-        print("\n" + "=" * 50)
-        print("清理报告")
-        print("=" * 50)
-        
-        total_deleted = len(stats["deleted_force"]) + len(stats["deleted_keywords"]) + len(stats["deleted_old"])
-        
-        print(f"\n总计删除: {total_deleted} 封邮件")
-        print(f"  - 强制删除（Apple邮件）: {len(stats['deleted_force'])} 封")
-        print(f"  - 关键词匹配删除: {len(stats['deleted_keywords'])} 封")
-        print(f"  - 过期邮件删除（>30天）: {len(stats['deleted_old'])} 封")
-        
-        if stats["deleted_force"]:
-            print("\n【强制删除详情】")
-            for item in stats["deleted_force"][:5]:
-                print(f"  - [{item['folder']}] {item['sender']}")
-                print(f"    {item['subject']}")
-            if len(stats["deleted_force"]) > 5:
-                print(f"  ... 还有 {len(stats['deleted_force']) - 5} 封")
-        
-        if stats["deleted_keywords"]:
-            print("\n【关键词删除详情】")
-            for item in stats["deleted_keywords"][:5]:
-                print(f"  - [{item['folder']}] [{item['keyword']}] {item['sender']}")
-                print(f"    {item['subject']}")
-            if len(stats["deleted_keywords"]) > 5:
-                print(f"  ... 还有 {len(stats['deleted_keywords']) - 5} 封")
-        
-        if stats["deleted_old"]:
-            print("\n【过期邮件删除详情】")
-            for item in stats["deleted_old"][:3]:
-                print(f"  - [{item['folder']}] {item['date']} {item['sender']}")
-            if len(stats["deleted_old"]) > 3:
-                print(f"  ... 还有 {len(stats['deleted_old']) - 3} 封")
-        
-        print("\n✓ 清理完成")
-        
+        status, messages = mail.select('Junk')
+        if status == 'OK':
+            status, data = mail.search(None, 'ALL')
+            if status == 'OK':
+                msg_ids = data[0].split()
+                print('找到 ' + str(len(msg_ids)) + ' 封邮件', flush=True)
+                
+                for msg_id in msg_ids:
+                    try:
+                        status, msg_data = mail.fetch(msg_id, '(RFC822)')
+                        if status != 'OK':
+                            continue
+                        
+                        raw_email = msg_data[0][1]
+                        msg = email.message_from_bytes(raw_email)
+                        
+                        stats['total_checked'] += 1
+                        
+                        sender = get_sender(msg)
+                        subject = get_subject(msg)
+                        date = get_date(msg)
+                        
+                        if is_important(msg):
+                            stats['skipped_important'] += 1
+                            continue
+                        
+                        if sender in FORCE_DELETE_SENDERS:
+                            mail.store(msg_id, '+FLAGS', '\\Deleted')
+                            stats['deleted_force'].append({
+                                'sender': sender,
+                                'subject': subject,
+                                'folder': '垃圾箱'
+                            })
+                            print('  [删除-强制] ' + sender + ': ' + subject[:50], flush=True)
+                            continue
+                        
+                        has_spam_keyword, matched_keyword = should_delete_by_keywords(subject, sender)
+                        if has_spam_keyword:
+                            mail.store(msg_id, '+FLAGS', '\\Deleted')
+                            stats['deleted_keywords'].append({
+                                'sender': sender,
+                                'subject': subject,
+                                'keyword': matched_keyword,
+                                'folder': '垃圾箱'
+                            })
+                            print('  [删除-关键词:' + matched_keyword + '] ' + sender + ': ' + subject[:50], flush=True)
+                            continue
+                        
+                        if date and date < cutoff_date:
+                            mail.store(msg_id, '+FLAGS', '\\Deleted')
+                            stats['deleted_old'].append({
+                                'sender': sender,
+                                'subject': subject,
+                                'date': date.strftime('%Y-%m-%d'),
+                                'folder': '垃圾箱'
+                            })
+                            print('  [删除-过期:' + date.strftime('%Y-%m-%d') + '] ' + sender + ': ' + subject[:50], flush=True)
+                            continue
+                        
+                    except Exception as e:
+                        stats['errors'].append(str(e))
+                        continue
+                
+                mail.expunge()
+                print('垃圾箱 清理完成', flush=True)
     except Exception as e:
-        print(f"\n✗ 错误: {e}")
-        import traceback
-        traceback.print_exc()
+        print('垃圾箱处理出错: ' + str(e), flush=True)
+    
+    mail.close()
+    mail.logout()
+    
+except Exception as e:
+    stats['errors'].append('错误: ' + str(e))
+    print('错误: ' + str(e), flush=True)
 
-if __name__ == "__main__":
-    main()
+print('\n' + '='*60, flush=True)
+print('清理报告', flush=True)
+print('='*60, flush=True)
+print('检查邮件总数: ' + str(stats['total_checked']), flush=True)
+print('强制删除: ' + str(len(stats['deleted_force'])) + ' 封', flush=True)
+print('关键词删除: ' + str(len(stats['deleted_keywords'])) + ' 封', flush=True)
+print('过期删除: ' + str(len(stats['deleted_old'])) + ' 封', flush=True)
+print('保留重要邮件: ' + str(stats['skipped_important']) + ' 封', flush=True)
+print('错误数: ' + str(len(stats['errors'])), flush=True)
+
+if stats['deleted_force']:
+    print('\n--- 强制删除的邮件 ---', flush=True)
+    for item in stats['deleted_force']:
+        print('  [' + item['folder'] + '] ' + item['sender'] + ': ' + item['subject'][:40], flush=True)
+
+if stats['deleted_keywords']:
+    print('\n--- 关键词删除的邮件 ---', flush=True)
+    for item in stats['deleted_keywords']:
+        print('  [' + item['folder'] + '] [' + item['keyword'] + '] ' + item['sender'] + ': ' + item['subject'][:40], flush=True)
+
+if stats['deleted_old']:
+    print('\n--- 过期删除的邮件 (显示前10封) ---', flush=True)
+    for item in stats['deleted_old'][:10]:
+        print('  [' + item['folder'] + '] [' + item['date'] + '] ' + item['sender'] + ': ' + item['subject'][:40], flush=True)
+    if len(stats['deleted_old']) > 10:
+        print('  ... 还有 ' + str(len(stats['deleted_old']) - 10) + ' 封', flush=True)
+
+if stats['errors']:
+    print('\n--- 错误信息 ---', flush=True)
+    for err in stats['errors']:
+        print('  ! ' + err, flush=True)
+
+print('\n结束时间: ' + datetime.now().strftime('%Y-%m-%d %H:%M:%S'), flush=True)
+print('='*60, flush=True)
