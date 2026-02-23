@@ -445,7 +445,7 @@ function RadarChart({ data, size = 140 }: {
   );
 }
 
-// 流量指示器组件
+// 流量指示器组件 - 增强版
 function TrafficIndicator() {
   return (
     <div className="flex items-end gap-0.5 h-5">
@@ -467,6 +467,32 @@ function TrafficIndicator() {
       ))}
     </div>
   );
+}
+
+// 实时数据计数器组件 - 新增
+function LiveCounter({ value, suffix = "" }: { value: number; suffix?: string }) {
+  const [displayValue, setDisplayValue] = useState(0);
+  
+  useEffect(() => {
+    let startTime: number;
+    let animationFrame: number;
+    
+    const animate = (timestamp: number) => {
+      if (!startTime) startTime = timestamp;
+      const progress = Math.min((timestamp - startTime) / 1500, 1);
+      const easeProgress = 1 - Math.pow(1 - progress, 4);
+      setDisplayValue(Math.floor(easeProgress * value));
+      
+      if (progress < 1) {
+        animationFrame = requestAnimationFrame(animate);
+      }
+    };
+    
+    animationFrame = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animationFrame);
+  }, [value]);
+  
+  return <span className="tabular-nums">{displayValue}{suffix}</span>;
 }
 
 // 趋势指示器组件
@@ -845,14 +871,14 @@ function DashboardView() {
         />
       </div>
 
-      {/* 新增数据可视化区域 */}
+      {/* 新增数据可视化区域 - 增强版 */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* 环形图 - 任务分布 */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="console-card p-5"
+          className="glass-card-enhanced p-5"
         >
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#3B82F6]/20 to-[#3B82F6]/5 flex items-center justify-center">
@@ -882,7 +908,7 @@ function DashboardView() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="console-card p-5"
+          className="glass-card-enhanced p-5"
         >
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#8B5CF6]/20 to-[#8B5CF6]/5 flex items-center justify-center">
@@ -909,12 +935,12 @@ function DashboardView() {
           </div>
         </motion.div>
 
-        {/* 实时流量监控 */}
+        {/* 实时流量监控 - 增强版 */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="console-card p-5"
+          className="glass-card-enhanced p-5"
         >
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#10B981]/20 to-[#10B981]/5 flex items-center justify-center">

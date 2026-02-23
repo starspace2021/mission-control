@@ -18,7 +18,9 @@ import {
   CheckCircle2,
   CalendarDays,
   Clock3,
-  AlertCircle
+  AlertCircle,
+  LayoutGrid,
+  List
 } from "lucide-react";
 
 interface Event {
@@ -127,7 +129,7 @@ const typeConfig: Record<string, { color: string; bgColor: string; label: string
 
 export default function CalendarView() {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [viewMode, setViewMode] = useState<"day" | "week" | "month">("week");
+  const [viewMode, setViewMode] = useState<"day" | "week" | "month" | "timeline">("week");
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -139,6 +141,8 @@ export default function CalendarView() {
       setCurrentDate(addDays(currentDate, 7 * multiplier));
     } else if (viewMode === "day") {
       setCurrentDate(addDays(currentDate, 1 * multiplier));
+    } else if (viewMode === "timeline") {
+      setCurrentDate(addDays(currentDate, 7 * multiplier));
     } else {
       setCurrentDate(addDays(currentDate, 30 * multiplier));
     }
@@ -148,7 +152,7 @@ export default function CalendarView() {
 
   // 获取当前视图的所有日期
   const getViewDates = () => {
-    if (viewMode === "week") {
+    if (viewMode === "week" || viewMode === "timeline") {
       const weekStart = startOfWeek(currentDate, { weekStartsOn: 0 });
       return Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
     } else if (viewMode === "day") {
@@ -184,6 +188,15 @@ export default function CalendarView() {
     scheduled: mockEvents.filter(e => e.status === 'scheduled').length,
   };
 
+  // 计算事件密度（用于热力图效果）
+  const getEventDensity = (date: Date) => {
+    const count = getEventsForDate(date).length;
+    if (count === 0) return 0;
+    if (count === 1) return 1;
+    if (count <= 3) return 2;
+    return 3;
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -191,31 +204,43 @@ export default function CalendarView() {
       exit={{ opacity: 0, y: -20 }}
       className="space-y-6"
     >
-      {/* 统计卡片 */}
+      {/* 统计卡片 - 优化版 */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4"
       >
         {[
-          { label: "今日事件", value: stats.today, icon: CalendarDays, color: "#3B82F6" },
-          { label: "待执行", value: stats.pending, icon: Clock3, color: "#F59E0B" },
-          { label: "已计划", value: stats.scheduled, icon: CheckCircle2, color: "#10B981" },
-          { label: "总计", value: stats.total, icon: CalendarIcon, color: "#8B5CF6" },
+          { label: "今日事件", value: stats.today, icon: CalendarDays, color: "#3B82F6", trend: "+2" },
+          { label: "待执行", value: stats.pending, icon: Clock3, color: "#F59E0B", trend: "pending" },
+          { label: "已计划", value: stats.scheduled, icon: CheckCircle2, color: "#10B981", trend: "stable" },
+          { label: "总计", value: stats.total, icon: CalendarIcon, color: "#8B5CF6", trend: "+5" },
         ].map((stat, i) => (
           <motion.div
             key={stat.label}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
-            className="console-card p-4 flex items-center gap-3"
+            whileHover={{ y: -4, scale: 1.02 }}
+            className="console-card p-4 flex items-center gap-3 cursor-pointer group"
           >
             <div 
-              className="w-10 h-10 rounded-xl flex items-center justify-center"
+              className="w-12 h-12 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110"
               style={{ backgroundColor: `${stat.color}20` }}
             >
-              <stat.icon className="w-5 h-5" style={{ color: stat.color }} />
+              <stat.icon className="w-6 h-6" style={{ color: stat.color }} />
             </div>
-            <div>
-              <div className="text-2xl font-bold">{stat.value}</div>
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <div className="text-2xl font-bold">{stat.value}</div>
+                {stat.trend && stat.trend !== 'stable' && stat.trend !== 'pending' && (
+                  <span className="text-xs px-1.5 py-0.5 rounded-full bg-green-500/20 text-green-400">
+                    {stat.trend}
+                  </span>
+                )}
+              </div>
               <div className="text-xs text-[#71717A]">{stat.label}</div>
+            </div>
+            {/* 迷你趋势图 */}
+            <div className="w-12 h-8">
+              <MiniTrendChart color={stat.color} />
             </div>
           </motion.div>
         ))}
@@ -231,7 +256,7 @@ export default function CalendarView() {
             {/* 视图切换 */}
             <div className="flex gap-1 bg-[#1A1A24] rounded-xl p-1"
             >
-              {(["day", "week", "month"] as const).map((mode) => (
+              {(["day", "week", "month", "timeline"] as const).map((mode) => (
                 <button
                   key={mode}
                   onClick={() => setViewMode(mode)}
@@ -241,7 +266,7 @@ export default function CalendarView() {
                       : "text-[#71717A] hover:text-white"
                   }`}
                 >
-                  {mode === "day" ? "日" : mode === "week" ? "周" : "月"}
+                  {mode === "day" ? "日" : mode === "week" ? "周" : mode === "month" ? "月" : "时间线"}
                 </button>
               ))}
             </div>
@@ -301,69 +326,29 @@ export default function CalendarView() {
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6"
       >
-        {/* 日历网格 */}
-        <div className="lg:col-span-3 console-card overflow-hidden"
-        >
-          {/* 星期标题 */}
-          <div className={`grid ${viewMode === "day" ? "grid-cols-1" : "grid-cols-7"} border-b border-white/5`}
-          >
-            {(viewMode === "day" ? [weekDays[currentDate.getDay()]] : weekDays).map((day) => (
-              <div 
-                key={day} 
-                className="text-center py-3 text-sm font-medium text-[#71717A] border-r border-white/5 last:border-r-0"
-              >
-                {day}
-              </div>
-            ))}
-          </div>
-
-          {/* 日期单元格 */}
-          <div className={`grid ${viewMode === "day" ? "grid-cols-1" : viewMode === "week" ? "grid-cols-7" : "grid-cols-7"} auto-rows-fr`}
-          >
-            {viewDates.map((date, index) => {
-              const dayEvents = getEventsForDate(date);
-              const isToday = isDateToday(date);
-              const isCurrentMonth = isSameMonth(date, currentDate);
-
-              return (
-                <motion.div
-                  key={date.toISOString()}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: index * 0.01 }}
-                  className={`min-h-[120px] p-3 border-r border-b border-white/5 last:border-r-0 
-                             ${!isCurrentMonth && viewMode === "month" ? "bg-white/[0.02]" : ""}
-                             ${isToday ? "bg-gradient-to-br from-[#3B82F6]/10 to-transparent" : "hover:bg-white/[0.02]"} 
-                             transition-colors`}
-                >
-                  {/* 日期数字 */}
-                  <div className={`text-lg font-semibold mb-2 ${
-                    isToday ? "text-[#3B82F6]" : "text-white/70"
-                  }`}
-                  >
-                    {format(date, "d")}
-                    {isToday && (
-                      <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-[#3B82F6]/20 text-[#3B82F6]">
-                        今天
-                      </span>
-                    )}
-                  </div>
-
-                  {/* 事件列表 */}
-                  <div className="space-y-1"
-                  >
-                    {dayEvents.map((event) => (
-                      <EventCard 
-                        key={event._id} 
-                        event={event} 
-                        onClick={() => setSelectedEvent(event)}
-                      />
-                    ))}
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
+        {/* 主内容区 - 根据视图模式切换 */}
+        <div className="lg:col-span-3">
+          <AnimatePresence mode="wait">
+            {viewMode === "timeline" ? (
+              <TimelineView 
+                key="timeline"
+                events={mockEvents}
+                currentDate={currentDate}
+                onSelectEvent={setSelectedEvent}
+              />
+            ) : (
+              <CalendarGridView
+                key="calendar"
+                viewDates={viewDates}
+                viewMode={viewMode}
+                currentDate={currentDate}
+                getEventsForDate={getEventsForDate}
+                getEventDensity={getEventDensity}
+                onSelectEvent={setSelectedEvent}
+                weekDays={weekDays}
+              />
+            )}
+          </AnimatePresence>
         </div>
 
         {/* 侧边栏 - 即将到来的事件 */}
@@ -486,6 +471,231 @@ export default function CalendarView() {
   );
 }
 
+// 日历网格视图
+function CalendarGridView({
+  viewDates,
+  viewMode,
+  currentDate,
+  getEventsForDate,
+  getEventDensity,
+  onSelectEvent,
+  weekDays
+}: {
+  viewDates: Date[];
+  viewMode: string;
+  currentDate: Date;
+  getEventsForDate: (date: Date) => Event[];
+  getEventDensity: (date: Date) => number;
+  onSelectEvent: (event: Event) => void;
+  weekDays: string[];
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      className="console-card overflow-hidden"
+    >
+      {/* 星期标题 */}
+      <div className={`grid ${viewMode === "day" ? "grid-cols-1" : "grid-cols-7"} border-b border-white/5`}
+      >
+        {(viewMode === "day" ? [weekDays[currentDate.getDay()]] : weekDays).map((day) => (
+          <div 
+            key={day} 
+            className="text-center py-3 text-sm font-medium text-[#71717A] border-r border-white/5 last:border-r-0"
+          >
+            {day}
+          </div>
+        ))}
+      </div>
+
+      {/* 日期单元格 */}
+      <div className={`grid ${viewMode === "day" ? "grid-cols-1" : viewMode === "week" ? "grid-cols-7" : "grid-cols-7"} auto-rows-fr`}
+      >
+        {viewDates.map((date, index) => {
+          const dayEvents = getEventsForDate(date);
+          const isToday = isDateToday(date);
+          const isCurrentMonth = isSameMonth(date, currentDate);
+          const density = getEventDensity(date);
+          
+          // 根据事件密度设置背景色
+          const densityBg = density === 0 ? '' :
+            density === 1 ? 'bg-[#3B82F6]/5' :
+            density === 2 ? 'bg-[#3B82F6]/10' :
+            'bg-[#3B82F6]/15';
+
+          return (
+            <motion.div
+              key={date.toISOString()}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: index * 0.01 }}
+              whileHover={{ backgroundColor: 'rgba(255,255,255,0.06)' }}
+              className={`min-h-[140px] p-3 border-r border-b border-white/5 last:border-r-0 
+                         ${!isCurrentMonth && viewMode === "month" ? "bg-white/[0.02]" : ""}
+                         ${isToday ? "bg-gradient-to-br from-[#3B82F6]/15 to-transparent ring-1 ring-[#3B82F6]/30" : densityBg} 
+                         transition-all duration-200 cursor-pointer`}
+            >
+              {/* 日期数字 - 增强 */}
+              <div className={`flex items-center gap-2 mb-3 ${
+                isToday ? "text-[#3B82F6]" : "text-white/70"
+              }`}
+              >
+                <span className={`text-lg font-bold ${isToday ? 'text-[#3B82F6]' : ''}`}
+                >
+                  {format(date, "d")}
+                </span>
+                {isToday && (
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#3B82F6] text-white font-medium">
+                    今天
+                  </span>
+                )}
+                {density > 0 && (
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#3B82F6]/20 text-[#3B82F6] font-medium">
+                    {dayEvents.length} 事件
+                  </span>
+                )}
+              </div>
+
+              {/* 事件列表 - 增强 */}
+              <div className="space-y-1.5"
+              >
+                {dayEvents.slice(0, 4).map((event) => (
+                  <EventCard 
+                    key={event._id} 
+                    event={event} 
+                    onClick={() => onSelectEvent(event)}
+                  />
+                ))}
+                {dayEvents.length > 4 && (
+                  <div className="text-[10px] text-[#71717A] text-center py-1">
+                    +{dayEvents.length - 4} 更多
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          );
+        })}
+      </div>
+    </motion.div>
+  );
+}
+
+// 时间线视图
+function TimelineView({
+  events,
+  currentDate,
+  onSelectEvent
+}: {
+  events: Event[];
+  currentDate: Date;
+  onSelectEvent: (event: Event) => void;
+}) {
+  const weekStart = startOfWeek(currentDate, { weekStartsOn: 0 });
+  const weekEvents = events
+    .filter(e => {
+      const eventDate = new Date(e.startTime);
+      const diffDays = Math.floor((eventDate.getTime() - weekStart.getTime()) / (1000 * 60 * 60 * 24));
+      return diffDays >= 0 && diffDays < 7;
+    })
+    .sort((a, b) => a.startTime - b.startTime);
+
+  const hours = Array.from({ length: 24 }, (_, i) => i);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -20 }}
+      className="console-card overflow-hidden"
+    >
+      <div className="flex">
+        {/* 时间轴 */}
+        <div className="w-16 border-r border-white/5 flex-shrink-0">
+          <div className="h-12 border-b border-white/5"></div>
+          {hours.map(hour => (
+            <div key={hour} className="h-16 border-b border-white/5 flex items-start justify-center pt-1">
+              <span className="text-xs text-[#52525B]">{`${hour.toString().padStart(2, '0')}:00`}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* 日期列 */}
+        <div className="flex-1 overflow-x-auto">
+          <div className="flex min-w-max">
+            {Array.from({ length: 7 }, (_, dayIndex) => {
+              const date = addDays(weekStart, dayIndex);
+              const isToday = isDateToday(date);
+              const dayEvents = weekEvents.filter(e => 
+                isSameDay(new Date(e.startTime), date)
+              );
+
+              return (
+                <div key={dayIndex} className="w-32 flex-shrink-0">
+                  {/* 日期头部 */}
+                  <div className={`h-12 border-b border-r border-white/5 flex flex-col items-center justify-center ${
+                    isToday ? 'bg-[#3B82F6]/10' : ''
+                  }`}>
+                    <span className={`text-sm font-medium ${isToday ? 'text-[#3B82F6]' : 'text-white'}`}>
+                      {weekDays[dayIndex]}
+                    </span>
+                    <span className="text-xs text-[#71717A]">{format(date, "MM/dd")}</span>
+                  </div>
+
+                  {/* 时间格 */}
+                  <div className="relative">
+                    {hours.map(hour => (
+                      <div key={hour} className="h-16 border-b border-r border-white/5"></div>
+                    ))}
+
+                    {/* 事件 */}
+                    {dayEvents.map((event) => {
+                      const config = typeConfig[event.type] || typeConfig.onetime;
+                      const Icon = config.icon;
+                      const eventDate = new Date(event.startTime);
+                      const hour = eventDate.getHours();
+                      const minute = eventDate.getMinutes();
+                      const top = hour * 64 + (minute / 60) * 64;
+
+                      return (
+                        <motion.div
+                          key={event._id}
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          onClick={() => onSelectEvent(event)}
+                          className="absolute left-1 right-1 p-2 rounded-lg cursor-pointer text-xs overflow-hidden hover:opacity-90 transition-opacity"
+                          style={{
+                            top,
+                            height: 60,
+                            backgroundColor: config.bgColor,
+                            borderLeft: `3px solid ${config.color}`,
+                          }}
+                        >
+                          <div className="flex items-center gap-1">
+                            <Icon className="w-3 h-3 flex-shrink-0" style={{ color: config.color }} />
+                            <span className="font-medium truncate" style={{ color: config.color }}>
+                              {event.title}
+                            </span>
+                          </div>
+                          <div className="text-white/60 mt-0.5">
+                            {format(eventDate, "HH:mm")}
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+const weekDays = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
+
 // 事件卡片
 function EventCard({ event, onClick }: { event: Event; onClick: () => void }) {
   const config = typeConfig[event.type] || typeConfig.onetime;
@@ -493,9 +703,9 @@ function EventCard({ event, onClick }: { event: Event; onClick: () => void }) {
 
   return (
     <motion.div
-      whileHover={{ scale: 1.02 }}
+      whileHover={{ scale: 1.02, x: 2 }}
       onClick={onClick}
-      className="p-2 rounded-lg text-xs cursor-pointer transition-all"
+      className="p-2 rounded-lg text-xs cursor-pointer transition-all group"
       style={{ 
         backgroundColor: config.bgColor,
         borderLeft: `2px solid ${config.color}`
@@ -504,7 +714,7 @@ function EventCard({ event, onClick }: { event: Event; onClick: () => void }) {
       <div className="flex items-center gap-1"
       >
         <Icon className="w-3 h-3 flex-shrink-0" style={{ color: config.color }} />
-        <span className="font-medium truncate" style={{ color: config.color }}
+        <span className="font-medium truncate group-hover:text-white transition-colors" style={{ color: config.color }}
         >
           {event.title}
         </span>
@@ -514,6 +724,37 @@ function EventCard({ event, onClick }: { event: Event; onClick: () => void }) {
         {format(new Date(event.startTime), "HH:mm")}
       </div>
     </motion.div>
+  );
+}
+
+// 迷你趋势图
+function MiniTrendChart({ color }: { color: string }) {
+  const points = [10, 25, 20, 35, 30, 45, 40];
+  const max = Math.max(...points);
+  const min = Math.min(...points);
+  const range = max - min || 1;
+
+  return (
+    <svg viewBox="0 0 100 40" className="w-full h-full" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id={`trendGradient-${color.replace('#', '')}`} x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor={color} stopOpacity="0.3" />
+          <stop offset="100%" stopColor={color} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <polygon
+        points={`0,40 ${points.map((p, i) => `${(i / (points.length - 1)) * 100},${40 - ((p - min) / range) * 30 - 5}`).join(' ')} 100,40`}
+        fill={`url(#trendGradient-${color.replace('#', '')})`}
+      />
+      <polyline
+        fill="none"
+        stroke={color}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        points={points.map((p, i) => `${(i / (points.length - 1)) * 100},${40 - ((p - min) / range) * 30 - 5}`).join(' ')}
+      />
+    </svg>
   );
 }
 

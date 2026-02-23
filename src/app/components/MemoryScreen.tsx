@@ -417,50 +417,65 @@ export default function MemoryScreen({ memories = mockMemories }: MemoryScreenPr
   );
 }
 
-// 记忆卡片（网格视图）
-function MemoryCard({ memory, index, onClick }: { 
-  memory: Memory; 
+// 记忆卡片（网格视图）- 优化版
+function MemoryCard({ memory, index, onClick }: {
+  memory: Memory;
   index: number;
   onClick: () => void;
 }) {
   const Icon = typeIcons[memory.type];
   const colors = typeColors[memory.type];
-  
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      transition={{ delay: index * 0.03 }}
-      whileHover={{ y: -4 }}
+      layout
+      initial={{ opacity: 0, y: 20, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.9, y: -10 }}
+      transition={{ delay: index * 0.03, type: "spring", stiffness: 300, damping: 25 }}
+      whileHover={{
+        y: -6,
+        scale: 1.02,
+        boxShadow: `0 12px 40px rgba(0, 0, 0, 0.4), 0 0 30px ${colors.light}`
+      }}
       onClick={onClick}
       className="console-card p-5 cursor-pointer group relative overflow-hidden"
     >
-      {/* 类型指示条 */}
-      <div 
+      {/* 类型指示条 - 增强 */}
+      <motion.div
         className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r"
-        style={{ backgroundImage: `linear-gradient(to right, ${colors.primary}, transparent)` }}
+        style={{ backgroundImage: `linear-gradient(to right, ${colors.primary}, ${colors.primary}80, transparent)` }}
+        initial={{ scaleX: 0 }}
+        animate={{ scaleX: 1 }}
+        transition={{ delay: index * 0.03 + 0.1, duration: 0.4 }}
       />
 
-      {/* 背景渐变 */}
-      <div className={`absolute inset-0 bg-gradient-to-br ${colors.gradient} opacity-0 group-hover:opacity-5 transition-opacity`} />
+      {/* 背景渐变 - 增强 */}
+      <div className={`absolute inset-0 bg-gradient-to-br ${colors.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
+      <div className="absolute -top-20 -right-20 w-40 h-40 bg-gradient-to-br from-white/5 to-transparent rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
       {/* 头部 */}
-      <div className="flex items-start justify-between mb-3 relative z-10"
+      <div className="flex items-start justify-between mb-4 relative z-10"
       >
-        <div 
-          className="w-11 h-11 rounded-xl flex items-center justify-center"
+        <motion.div
+          className="w-12 h-12 rounded-xl flex items-center justify-center"
           style={{ backgroundColor: colors.bg }}
+          whileHover={{ scale: 1.1, rotate: 5 }}
+          transition={{ type: "spring", stiffness: 400 }}
         >
-          <Icon className="w-5 h-5" style={{ color: colors.primary }} />
-        </div>
-        <div className="flex items-center gap-2"
+          <Icon className="w-6 h-6" style={{ color: colors.primary }} />
+        </motion.div>
+        <div className="flex flex-col items-end gap-2"
         >
-          <span 
+          <span
             className="text-xs px-2.5 py-1 rounded-lg font-medium"
             style={{ backgroundColor: colors.light, color: colors.primary }}
           >
             {typeLabels[memory.type]}
+          </span>
+          <span className="text-[10px] text-[#52525B]"
+          >
+            {new Date(memory.updatedAt).toLocaleDateString()}
           </span>
         </div>
       </div>
@@ -479,15 +494,16 @@ function MemoryCard({ memory, index, onClick }: {
       <div className="flex items-center justify-between mt-4 pt-4 border-t border-white/5 relative z-10"
       >
         {/* 标签 */}
-        <div className="flex flex-wrap gap-1"
+        <div className="flex flex-wrap gap-1.5"
         >
           {memory.tags.slice(0, 2).map((tag: string) => (
-            <span 
+            <motion.span
               key={tag}
-              className="text-[10px] px-2 py-1 rounded-md bg-white/5 text-[#71717A]"
+              whileHover={{ scale: 1.05 }}
+              className="text-[10px] px-2 py-1 rounded-md bg-white/5 text-[#71717A] border border-white/5 hover:bg-white/10 hover:border-white/10 transition-all"
             >
               #{tag}
-            </span>
+            </motion.span>
           ))}
           {memory.tags.length > 2 && (
             <span className="text-[10px] px-2 py-1 rounded-md bg-white/5 text-[#71717A]"
@@ -497,18 +513,13 @@ function MemoryCard({ memory, index, onClick }: {
           )}
         </div>
 
-        {/* 重要性 */}
-        <div className="flex items-center gap-1"
+        {/* 重要性 - 增强 */}
+        <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-white/5"
         >
-          <Star className="w-3 h-3 text-[#F59E0B]" />
-          <span className="text-xs text-[#71717A]">{memory.importance}</span>
+          <Star className="w-3 h-3 text-[#F59E0B] fill-[#F59E0B]" />
+          <span className="text-xs font-medium text-white">{memory.importance}</span>
+          <span className="text-[10px] text-[#52525B]">/10</span>
         </div>
-      </div>
-
-      {/* 更新时间 */}
-      <div className="absolute top-4 right-4 text-[10px] text-[#52525B]"
-      >
-        {new Date(memory.updatedAt).toLocaleDateString()}
       </div>
     </motion.div>
   );
