@@ -810,18 +810,28 @@ function DashboardView() {
       className="space-y-6"
     >
       {/* 欢迎横幅 */}
-      <div className="console-card p-6 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-[#3B82F6]/10 via-[#8B5CF6]/10 to-transparent" />
-        <div className="absolute top-0 right-0 w-64 h-64 bg-[#3B82F6]/5 rounded-full blur-3xl" />
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="console-card p-6 relative overflow-hidden"
+      >
+        <div className="absolute inset-0 bg-gradient-to-r from-[#3B82F6]/8 via-[#8B5CF6]/5 to-transparent" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-[#3B82F6]/5 rounded-full blur-3xl opacity-60" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#8B5CF6]/5 rounded-full blur-3xl opacity-40" />
         <div className="relative z-10">
           <div className="flex items-center gap-2 mb-2">
-            <Sparkles className="w-5 h-5 text-[#F59E0B]" />
+            <motion.div
+              animate={{ rotate: [0, 10, -10, 0] }}
+              transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+            >
+              <Sparkles className="w-5 h-5 text-[#F59E0B]" />
+            </motion.div>
             <span className="text-sm text-[#F59E0B] font-medium">早安</span>
           </div>
           <h2 className="text-2xl font-bold mb-2">欢迎回来，Hourglass</h2>
           <p className="text-[#71717A]">系统运行正常，今日有 5 个定时任务待执行。</p>
         </div>
-      </div>
+      </motion.div>
 
       {/* 指标卡片 */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -1179,7 +1189,7 @@ function DashboardView() {
   );
 }
 
-// 指标卡片组件
+// 指标卡片组件 - v3.0 优化版
 function MetricCard({ 
   title, 
   value, 
@@ -1201,11 +1211,35 @@ function MetricCard({
   subtitle?: string;
   showCountUp?: boolean;
 }) {
-  const colorMap: Record<string, { bg: string; text: string; chart: string; gradient: string }> = {
-    blue: { bg: "bg-[#3B82F6]/10", text: "text-[#3B82F6]", chart: "#3B82F6", gradient: "from-[#3B82F6] to-[#60A5FA]" },
-    purple: { bg: "bg-[#8B5CF6]/10", text: "text-[#8B5CF6]", chart: "#8B5CF6", gradient: "from-[#8B5CF6] to-[#A78BFA]" },
-    green: { bg: "bg-[#10B981]/10", text: "text-[#10B981]", chart: "#10B981", gradient: "from-[#10B981] to-[#34D399]" },
-    cyan: { bg: "bg-[#06B6D4]/10", text: "text-[#06B6D4]", chart: "#06B6D4", gradient: "from-[#06B6D4] to-[#22D3EE]" },
+  const colorMap: Record<string, { bg: string; text: string; chart: string; gradient: string; glow: string }> = {
+    blue: { 
+      bg: "bg-[#3B82F6]/10", 
+      text: "text-[#60A5FA]",
+      chart: "#3B82F6", 
+      gradient: "from-[#3B82F6] to-[#60A5FA]",
+      glow: "rgba(59, 130, 246, 0.3)"
+    },
+    purple: { 
+      bg: "bg-[#8B5CF6]/10", 
+      text: "text-[#A78BFA]",
+      chart: "#8B5CF6", 
+      gradient: "from-[#8B5CF6] to-[#A78BFA]",
+      glow: "rgba(139, 92, 246, 0.3)"
+    },
+    green: { 
+      bg: "bg-[#10B981]/10", 
+      text: "text-[#34D399]",
+      chart: "#10B981", 
+      gradient: "from-[#10B981] to-[#34D399]",
+      glow: "rgba(16, 185, 129, 0.3)"
+    },
+    cyan: { 
+      bg: "bg-[#06B6D4]/10", 
+      text: "text-[#22D3EE]",
+      chart: "#06B6D4", 
+      gradient: "from-[#06B6D4] to-[#22D3EE]",
+      glow: "rgba(6, 182, 212, 0.3)"
+    },
   };
 
   const colors = colorMap[color];
@@ -1213,18 +1247,31 @@ function MetricCard({
 
   return (
     <motion.div 
-      className="console-card p-5 relative overflow-hidden group"
-      whileHover={{ y: -4, scale: 1.02 }}
-      transition={{ duration: 0.2 }}
+      className="console-card p-5 relative overflow-hidden group cursor-pointer"
+      whileHover={{ y: -6, scale: 1.02 }}
+      transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
     >
-      <div className={`absolute inset-0 bg-gradient-to-br ${colors.gradient} opacity-0 group-hover:opacity-5 transition-opacity`} />
-      <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-white/5 to-transparent rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
+      {/* 背景发光效果 */}
+      <div className={`absolute inset-0 bg-gradient-to-br ${colors.gradient} opacity-0 group-hover:opacity-[0.08] transition-opacity duration-500`} />
+      <div className="absolute -top-20 -right-20 w-40 h-40 bg-gradient-to-br from-white/5 to-transparent rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+      
+      {/* 顶部渐变条 */}
+      <motion.div 
+        className={`absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r ${colors.gradient}`}
+        initial={{ scaleX: 0 }}
+        animate={{ scaleX: 1 }}
+        transition={{ duration: 0.6, delay: 0.1 }}
+      />
       
       <div className="relative z-10">
         <div className="flex items-start justify-between mb-4">
-          <div className={`p-2.5 rounded-xl ${colors.bg} transition-transform group-hover:scale-110`}>
+          <motion.div 
+            className={`p-3 rounded-xl ${colors.bg} border border-${color}-500/20`}
+            whileHover={{ scale: 1.1, rotate: 3 }}
+            transition={{ type: "spring", stiffness: 400 }}
+          >
             <Icon className={`w-5 h-5 ${colors.text}`} />
-          </div>
+          </motion.div>
           <TrendIndicator value={value} trend={trend} />
         </div>
         
@@ -1237,10 +1284,12 @@ function MetricCard({
                 value
               )}
             </div>
-            <div className="metric-label mt-1">{title}</div>
-            {subtitle && <div className="text-xs text-[#52525B] mt-0.5">{subtitle}</div>}
+            <div className="metric-label mt-1.5">{title}</div>
+            {subtitle && <div className="text-xs text-[#52525B] mt-1">{subtitle}</div>}
           </div>
-          <MiniChart data={chart} color={colors.chart} />
+          <div className="opacity-60 group-hover:opacity-100 transition-opacity">
+            <MiniChart data={chart} color={colors.chart} />
+          </div>
         </div>
       </div>
     </motion.div>

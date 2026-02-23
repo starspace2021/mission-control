@@ -193,22 +193,22 @@ const teamData = {
   ]
 };
 
-// 状态指示器 - 增强版
+// 状态指示器 - v3.0 优化版
 function StatusIndicator({ status }: { status: string }) {
   const config = {
     online: {
       color: "#10B981",
-      bg: "rgba(16, 185, 129, 0.2)",
+      bg: "rgba(16, 185, 129, 0.15)",
       animate: false
     },
     working: {
       color: "#F59E0B",
-      bg: "rgba(245, 158, 11, 0.2)",
+      bg: "rgba(245, 158, 11, 0.15)",
       animate: true
     },
     offline: {
       color: "#71717A",
-      bg: "rgba(113, 113, 122, 0.2)",
+      bg: "rgba(113, 113, 122, 0.15)",
       animate: false
     }
   };
@@ -217,22 +217,30 @@ function StatusIndicator({ status }: { status: string }) {
 
   return (
     <div className="relative flex items-center justify-center w-6 h-6">
-      <div
+      <motion.div
         className="w-2.5 h-2.5 rounded-full"
-        style={{ backgroundColor: color, boxShadow: `0 0 8px ${color}` }}
+        style={{ 
+          backgroundColor: color, 
+          boxShadow: `0 0 10px ${color}, 0 0 20px ${color}40` 
+        }}
+        animate={animate ? {
+          scale: [1, 1.2, 1],
+          opacity: [1, 0.8, 1]
+        } : {}}
+        transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
       />
       {animate && (
         <>
           <motion.div
             className="absolute inset-0 rounded-full"
             style={{ backgroundColor: bg }}
-            animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
+            animate={{ scale: [1, 1.8, 1], opacity: [0.6, 0, 0.6] }}
             transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
           />
           <motion.div
             className="absolute w-4 h-4 rounded-full border-2"
             style={{ borderColor: color }}
-            animate={{ scale: [1, 1.8], opacity: [0.6, 0] }}
+            animate={{ scale: [1, 2.2], opacity: [0.5, 0] }}
             transition={{ duration: 1.5, repeat: Infinity, ease: "easeOut" }}
           />
         </>
@@ -241,7 +249,7 @@ function StatusIndicator({ status }: { status: string }) {
   );
 }
 
-// 领导卡片 - 增强版
+// 领导卡片 - v3.0 优化版
 function LeaderCard({
   name,
   role,
@@ -265,11 +273,9 @@ function LeaderCard({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -4, scale: 1.02 }}
-      className={`glass-card-enhanced p-6 relative overflow-hidden group ${isDirector
-        ? 'neon-glow'
-        : ''
-      }`}
+      whileHover={{ y: -6, scale: 1.02 }}
+      transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+      className={`console-card p-6 relative overflow-hidden group ${isDirector ? 'neon-glow' : ''}`}
     >
       {/* 背景渐变 */}
       <div className={`absolute inset-0 bg-gradient-to-br ${isDirector
@@ -278,19 +284,28 @@ function LeaderCard({
       } opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
 
       {/* 顶部装饰条 */}
-      <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${isDirector
-        ? 'from-amber-500 to-red-500'
-        : 'from-purple-500 to-blue-500'
-      }`} />
+      <motion.div 
+        className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${isDirector
+          ? 'from-amber-500 to-red-500'
+          : 'from-purple-500 to-blue-500'
+        }`}
+        initial={{ scaleX: 0 }}
+        animate={{ scaleX: 1 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+      />
 
       <div className="relative z-10">
         <div className="flex items-center gap-4">
-          <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shadow-lg ${isDirector
-            ? 'bg-gradient-to-br from-amber-500 to-red-500 shadow-amber-500/30'
-            : 'bg-gradient-to-br from-purple-500 to-blue-500 shadow-purple-500/30'
-          }`}>
+          <motion.div 
+            className={`w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shadow-lg ${isDirector
+              ? 'bg-gradient-to-br from-amber-500 to-red-500 shadow-amber-500/30'
+              : 'bg-gradient-to-br from-purple-500 to-blue-500 shadow-purple-500/30'
+            }`}
+            whileHover={{ scale: 1.1, rotate: 5 }}
+            transition={{ type: "spring", stiffness: 400 }}
+          >
             {avatar}
-          </div>
+          </motion.div>
           <div className="flex-1">
             <div className="flex items-center gap-2">
               <h3 className="text-xl font-bold text-white">{name}</h3>
@@ -302,7 +317,7 @@ function LeaderCard({
         </div>
 
         {/* 当前任务 */}
-        <div className="mt-4 p-3 bg-white/5 rounded-xl border border-white/5">
+        <div className="mt-4 p-3 bg-white/5 rounded-xl border border-white/5 group-hover:border-white/10 transition-colors">
           <div className="flex items-center gap-2 text-sm">
             <Monitor className="w-4 h-4 text-[#71717A]" />
             <span className="text-[#A1A1AA]">{currentTask}</span>
@@ -313,7 +328,7 @@ function LeaderCard({
   );
 }
 
-// 代理卡片 - 增强版
+// 代理卡片 - v3.0 优化版
 function AgentCard({ agent, deptColor }: { agent: any; deptColor: string }) {
   const isWorking = agent.status === "working";
 
@@ -322,26 +337,39 @@ function AgentCard({ agent, deptColor }: { agent: any; deptColor: string }) {
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       whileHover={{ y: -4, scale: 1.02 }}
-      className={`glass-card-enhanced p-4 relative overflow-hidden group ${isWorking ? 'neon-glow' : ''}`}
+      transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+      className={`console-card p-4 relative overflow-hidden group ${isWorking ? 'neon-glow' : ''}`}
     >
       {/* 工作中动画效果 */}
       {isWorking && (
-        <div className="absolute top-0 left-0 right-0 h-0.5 data-flow-effect" />
+        <motion.div 
+          className="absolute top-0 left-0 right-0 h-0.5"
+          style={{ background: `linear-gradient(90deg, transparent, ${deptColor}, transparent)` }}
+          animate={{ x: ['-100%', '100%'] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+        />
       )}
 
       {/* 左侧部门色条 */}
-      <div
+      <motion.div
         className="absolute left-0 top-0 bottom-0 w-1"
         style={{ backgroundColor: deptColor }}
+        initial={{ scaleY: 0 }}
+        animate={{ scaleY: 1 }}
+        transition={{ duration: 0.4, delay: 0.1 }}
       />
 
       <div className="flex items-start gap-3 pl-3">
-        <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${agent.gradient} flex items-center justify-center text-2xl shadow-lg`}>
+        <motion.div 
+          className={`w-12 h-12 rounded-xl bg-gradient-to-br ${agent.gradient} flex items-center justify-center text-2xl shadow-lg`}
+          whileHover={{ scale: 1.1, rotate: 3 }}
+          transition={{ type: "spring", stiffness: 400 }}
+        >
           {agent.avatar}
-        </div>
+        </motion.div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <h4 className="font-semibold text-white truncate">{agent.name}</h4>
+            <h4 className="font-semibold text-white truncate group-hover:text-[#3B82F6] transition-colors">{agent.name}</h4>
             <StatusIndicator status={agent.status} />
           </div>
           <p className="text-xs text-[#71717A]">{agent.anime}</p>
@@ -350,24 +378,32 @@ function AgentCard({ agent, deptColor }: { agent: any; deptColor: string }) {
       </div>
 
       {/* 当前任务 */}
-      <div className={`mt-3 p-2 rounded-lg text-xs truncate ${isWorking ? 'bg-[#F59E0B]/10 text-[#F59E0B]' : 'bg-white/5 text-[#A1A1AA]'}`}>
+      <div className={`mt-3 p-2.5 rounded-lg text-xs truncate transition-all ${isWorking ? 'bg-[#F59E0B]/10 text-[#FBBF24] border border-[#F59E0B]/20' : 'bg-white/5 text-[#A1A1AA]'}`}>
         {isWorking && (
-          <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#F59E0B] mr-2 animate-pulse" />
+          <motion.span 
+            className="inline-block w-1.5 h-1.5 rounded-full bg-[#F59E0B] mr-2"
+            animate={{ opacity: [1, 0.3, 1] }}
+            transition={{ duration: 1, repeat: Infinity }}
+          />
         )}
         {agent.currentTask}
       </div>
 
       {/* 工作中图标 */}
       {isWorking && (
-        <div className="absolute bottom-3 right-3">
-          <Monitor className="w-4 h-4 text-[#F59E0B] animate-pulse" />
-        </div>
+        <motion.div 
+          className="absolute bottom-3 right-3"
+          animate={{ opacity: [1, 0.4, 1] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+        >
+          <Monitor className="w-4 h-4 text-[#F59E0B]" />
+        </motion.div>
       )}
     </motion.div>
   );
 }
 
-// 部门区块 - 增强版
+// 部门区块 - v3.0 优化版
 function DepartmentSection({ dept }: { dept: any }) {
   const Icon = dept.icon;
 
@@ -375,7 +411,7 @@ function DepartmentSection({ dept }: { dept: any }) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="glass-card-enhanced overflow-hidden"
+      className="console-card overflow-hidden"
     >
       {/* 部门头部 */}
       <div
@@ -384,17 +420,22 @@ function DepartmentSection({ dept }: { dept: any }) {
       >
         {/* 背景装饰 */}
         <div
-          className="absolute inset-0 opacity-20"
-          style={{ background: `linear-gradient(135deg, ${dept.color}20, transparent)` }}
+          className="absolute inset-0 opacity-30"
+          style={{ background: `linear-gradient(135deg, ${dept.color}30, transparent)` }}
         />
 
         <div className="relative z-10 flex items-center gap-3">
-          <div
-            className="w-10 h-10 rounded-xl flex items-center justify-center text-xl shadow-lg"
-            style={{ backgroundColor: `${dept.color}30`, boxShadow: `0 4px 20px ${dept.color}30` }}
+          <motion.div
+            className="w-10 h-10 rounded-xl flex items-center justify-center text-xl"
+            style={{ 
+              backgroundColor: `${dept.color}30`, 
+              boxShadow: `0 4px 20px ${dept.color}40` 
+            }}
+            whileHover={{ scale: 1.1, rotate: 5 }}
+            transition={{ type: "spring", stiffness: 400 }}
           >
             <Icon className="w-5 h-5" style={{ color: dept.color }} />
-          </div>
+          </motion.div>
           <div>
             <h3 className="font-semibold text-white">{dept.name}</h3>
             <p className="text-xs text-[#71717A]">{dept.nameZh} · {dept.agents.length} 成员</p>
@@ -412,7 +453,7 @@ function DepartmentSection({ dept }: { dept: any }) {
   );
 }
 
-// 统计面板 - 增强版
+// 统计面板 - v3.0 优化版
 function StatsPanel() {
   const stats = [
     { label: "在线", value: 14, color: "#10B981", icon: Circle, bgColor: "rgba(16, 185, 129, 0.15)" },
@@ -428,24 +469,27 @@ function StatsPanel() {
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ delay: index * 0.1, type: "spring", stiffness: 300 }}
-          whileHover={{ y: -4, scale: 1.02 }}
+          whileHover={{ y: -6, scale: 1.03 }}
           className="console-card p-4 text-center group cursor-pointer"
         >
           <motion.div
-            className="w-12 h-12 rounded-xl mx-auto mb-3 flex items-center justify-center transition-transform group-hover:scale-110"
+            className="w-12 h-12 rounded-xl mx-auto mb-3 flex items-center justify-center transition-all duration-300"
             style={{ backgroundColor: stat.bgColor }}
+            whileHover={{ scale: 1.15, rotate: 5 }}
           >
             <stat.icon className="w-6 h-6" style={{ color: stat.color }} />
           </motion.div>
+          
           <motion.div
             className="text-2xl font-bold"
             style={{ color: stat.color }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 + 0.2 }}
           >
             {stat.value}
           </motion.div>
+          
           <div className="text-xs text-[#71717A] mt-1">{stat.label}</div>
         </motion.div>
       ))}
