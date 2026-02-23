@@ -1,0 +1,41 @@
+{
+  "last_updated": "2026-02-23T10:37:13.011756",
+  "executions": [
+    {
+      "task_id": "qq-mail-cleanup",
+      "task_name": "QQ邮箱清理",
+      "start_time": "2026-02-23T10:37:10.199902",
+      "end_time": "2026-02-23T10:37:10.300110",
+      "status": "success",
+      "exit_code": 0,
+      "stdout": "Task completed successfully",
+      "stderr": "",
+      "error_message": "",
+      "duration_ms": 100
+    },
+    {
+      "task_id": "qq-mail-cleanup",
+      "task_name": "QQ邮箱清理",
+      "start_time": "2026-02-23T10:37:10.300287",
+      "end_time": "2026-02-23T10:37:10.400646",
+      "status": "failed",
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "Error: Connection timeout",
+      "error_message": "Connection timeout after 30s",
+      "duration_ms": 100
+    },
+    {
+      "task_id": "memory-export",
+      "task_name": "记忆导出",
+      "start_time": "2026-02-23T10:37:12.911545",
+      "end_time": "2026-02-23T10:37:13.011743",
+      "status": "failed",
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "Error: Connection timeout",
+      "error_message": "Connection timeout after 30s",
+      "duration_ms": 100
+    }
+  ]
+}

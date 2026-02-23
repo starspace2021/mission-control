@@ -1,0 +1,245 @@
+{
+  "generated_at": "2026-02-23T10:37:12.910782",
+  "overall_status": "critical",
+  "departments": [
+    {
+      "name": "Africa Intel Department",
+      "status": "warning",
+      "tasks_total": 5,
+      "tasks_healthy": 0,
+      "tasks_warning": 5,
+      "tasks_critical": 0,
+      "checks": [
+        {
+          "name": "任务: africa-osint-daily-summary",
+          "status": "warning",
+          "message": "24小时内无执行记录",
+          "value": null,
+          "threshold": null,
+          "last_checked": "2026-02-23T10:37:12.910265"
+        },
+        {
+          "name": "任务: africa-osint-10am",
+          "status": "warning",
+          "message": "24小时内无执行记录",
+          "value": null,
+          "threshold": null,
+          "last_checked": "2026-02-23T10:37:12.910313"
+        },
+        {
+          "name": "任务: africa-osint-2pm",
+          "status": "warning",
+          "message": "24小时内无执行记录",
+          "value": null,
+          "threshold": null,
+          "last_checked": "2026-02-23T10:37:12.910348"
+        },
+        {
+          "name": "任务: africa-osint-5pm",
+          "status": "warning",
+          "message": "24小时内无执行记录",
+          "value": null,
+          "threshold": null,
+          "last_checked": "2026-02-23T10:37:12.910378"
+        },
+        {
+          "name": "任务: africa-osint-8pm",
+          "status": "warning",
+          "message": "24小时内无执行记录",
+          "value": null,
+          "threshold": null,
+          "last_checked": "2026-02-23T10:37:12.910427"
+        }
+      ]
+    },
+    {
+      "name": "US-China Policy Department",
+      "status": "warning",
+      "tasks_total": 3,
+      "tasks_healthy": 0,
+      "tasks_warning": 3,
+      "tasks_critical": 0,
+      "checks": [
+        {
+          "name": "任务: us-china-policy-morning",
+          "status": "warning",
+          "message": "24小时内无执行记录",
+          "value": null,
+          "threshold": null,
+          "last_checked": "2026-02-23T10:37:12.910466"
+        },
+        {
+          "name": "任务: us-china-policy-afternoon",
+          "status": "warning",
+          "message": "24小时内无执行记录",
+          "value": null,
+          "threshold": null,
+          "last_checked": "2026-02-23T10:37:12.910495"
+        },
+        {
+          "name": "任务: us-china-policy-evening",
+          "status": "warning",
+          "message": "24小时内无执行记录",
+          "value": null,
+          "threshold": null,
+          "last_checked": "2026-02-23T10:37:12.910522"
+        }
+      ]
+    },
+    {
+      "name": "Financial Intelligence Department",
+      "status": "warning",
+      "tasks_total": 3,
+      "tasks_healthy": 0,
+      "tasks_warning": 3,
+      "tasks_critical": 0,
+      "checks": [
+        {
+          "name": "任务: polymarket-morning",
+          "status": "warning",
+          "message": "24小时内无执行记录",
+          "value": null,
+          "threshold": null,
+          "last_checked": "2026-02-23T10:37:12.910552"
+        },
+        {
+          "name": "任务: polymarket-afternoon",
+          "status": "warning",
+          "message": "24小时内无执行记录",
+          "value": null,
+          "threshold": null,
+          "last_checked": "2026-02-23T10:37:12.910578"
+        },
+        {
+          "name": "任务: polymarket-evening",
+          "status": "warning",
+          "message": "24小时内无执行记录",
+          "value": null,
+          "threshold": null,
+          "last_checked": "2026-02-23T10:37:12.910604"
+        }
+      ]
+    },
+    {
+      "name": "Engineering Department",
+      "status": "warning",
+      "tasks_total": 2,
+      "tasks_healthy": 0,
+      "tasks_warning": 2,
+      "tasks_critical": 0,
+      "checks": [
+        {
+          "name": "任务: mission-control-ui-iter",
+          "status": "warning",
+          "message": "24小时内无执行记录",
+          "value": null,
+          "threshold": null,
+          "last_checked": "2026-02-23T10:37:12.910631"
+        },
+        {
+          "name": "任务: qa-assessment",
+          "status": "warning",
+          "message": "24小时内无执行记录",
+          "value": null,
+          "threshold": null,
+          "last_checked": "2026-02-23T10:37:12.910655"
+        }
+      ]
+    },
+    {
+      "name": "Memory & Admin Department",
+      "status": "critical",
+      "tasks_total": 3,
+      "tasks_healthy": 0,
+      "tasks_warning": 2,
+      "tasks_critical": 1,
+      "checks": [
+        {
+          "name": "任务: memory-export",
+          "status": "warning",
+          "message": "24小时内无执行记录",
+          "value": null,
+          "threshold": null,
+          "last_checked": "2026-02-23T10:37:12.910682"
+        },
+        {
+          "name": "任务: memory-cleanup",
+          "status": "warning",
+          "message": "24小时内无执行记录",
+          "value": null,
+          "threshold": null,
+          "last_checked": "2026-02-23T10:37:12.910732"
+        },
+        {
+          "name": "任务: qq-mail-cleanup",
+          "status": "critical",
+          "message": "最近执行失败: Connection timeout after 30s",
+          "value": "failed",
+          "threshold": null,
+          "last_checked": "2026-02-23T10:37:12.910764"
+        }
+      ]
+    }
+  ],
+  "system_checks": [
+    {
+      "name": "磁盘空间",
+      "status": "healthy",
+      "message": "磁盘空间正常: 22.3% 已使用，剩余 29.0GB",
+      "value": "22.3%",
+      "threshold": "80%",
+      "last_checked": "2026-02-23T10:37:11.740381"
+    },
+    {
+      "name": "内存使用",
+      "status": "healthy",
+      "message": "内存使用正常: 43.5% 已使用",
+      "value": "43.5%",
+      "threshold": "85%",
+      "last_checked": "2026-02-23T10:37:11.740464"
+    },
+    {
+      "name": "CPU负载",
+      "status": "healthy",
+      "message": "CPU负载正常: 1.5%",
+      "value": "1.5%",
+      "threshold": "70%",
+      "last_checked": "2026-02-23T10:37:12.740739"
+    },
+    {
+      "name": "系统负载",
+      "status": "healthy",
+      "message": "系统负载正常: 1.12 (1min)",
+      "value": "1.12",
+      "threshold": "2",
+      "last_checked": "2026-02-23T10:37:12.740782"
+    },
+    {
+      "name": "工作区大小",
+      "status": "healthy",
+      "message": "工作区正常: 660.9MB, 32631 个文件",
+      "value": "660.9MB",
+      "threshold": "1000MB",
+      "last_checked": "2026-02-23T10:37:12.907985"
+    },
+    {
+      "name": "Git状态",
+      "status": "warning",
+      "message": "有 54 个未提交的更改",
+      "value": 54,
+      "threshold": 0,
+      "last_checked": "2026-02-23T10:37:12.910131"
+    }
+  ],
+  "summary": {
+    "total_departments": 5,
+    "total_tasks": 16,
+    "healthy_tasks": 0,
+    "warning_tasks": 15,
+    "critical_tasks": 1,
+    "system_checks_total": 6,
+    "system_checks_healthy": 5,
+    "system_checks_warning": 1,
+    "system_checks_critical": 0
+  }
+}

@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenClaw 数字办公室</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: auto;
+        }
+
+        .header {
+            background: rgba(0,0,0,0.3);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            background: linear-gradient(90deg, #f39c12, #e74c3c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .status-bar {
+            display: flex;
+            gap: 30px;
+            font-size: 14px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .status-dot.online { background: #2ecc71; box-shadow: 0 0 10px #2ecc71; }
+        .status-dot.working { background: #f39c12; box-shadow: 0 0 10px #f39c12; }
+        .status-dot.offline { background: #95a5a6; }
+
+        .office-container {
+            padding: 40px;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 40px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        /* Director Section */
+        .director-section {
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 30px;
+            border: 2px solid rgba(243, 156, 18, 0.3);
+        }
+
+        .director-section h2 {
+            color: #f39c12;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+
+        .director-card {
+            background: linear-gradient(135deg, rgba(243,156,18,0.2), rgba(231,76,60,0.2));
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid rgba(243,156,18,0.5);
+        }
+
+        .director-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f39c12, #e74c3c);
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            border: 4px solid rgba(255,255,255,0.2);
+        }
+
+        .director-name {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .director-role {
+            color: #f39c12;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .director-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(46,204,113,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+        }
+
+        /* CAIO Section */
+        .caio-section {
+            margin-top: 30px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 30px;
+            border: 2px solid rgba(155, 89, 182, 0.3);
+        }
+
+        .caio-section h2 {
+            color: #9b59b6;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+
+        .caio-card {
+            background: linear-gradient(135deg, rgba(155,89,182,0.2), rgba(52,152,219,0.2));
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid rgba(155,89,182,0.5);
+        }
+
+        .caio-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #9b59b6, #3498db);
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            border: 4px solid rgba(255,255,255,0.2);
+        }
+
+        .caio-name {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .caio-role {
+            color: #9b59b6;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        /* Teams Section */
+        .teams-section {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .department {
+            background: rgba(255,255,255,0.03);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .department-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .department-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .department-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .department-count {
+            margin-left: auto;
+            background: rgba(255,255,255,0.1);
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 13px;
+        }
+
+        .agents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .agent-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .agent-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255,255,255,0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .agent-card.working::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #2ecc71, #f39c12, #e74c3c);
+            animation: working 2s linear infinite;
+        }
+
+        @keyframes working {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .agent-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            border: 3px solid rgba(255,255,255,0.2);
+            position: relative;
+        }
+
+        .agent-avatar::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 3px solid #1a1a2e;
+        }
+
+        .agent-avatar.online::after { background: #2ecc71; }
+        .agent-avatar.working::after { background: #f39c12; }
+        .agent-avatar.offline::after { background: #95a5a6; }
+
+        /* Anime-themed avatars */
+        .avatar-lucci { background: linear-gradient(135deg, #2c3e50, #34495e); }
+        .avatar-shikamaru { background: linear-gradient(135deg, #27ae60, #2ecc71); }
+        .avatar-piccolo { background: linear-gradient(135deg, #16a085, #1abc9c); }
+        .avatar-minato { background: linear-gradient(135deg, #f1c40f, #f39c12); }
+        .avatar-itachi { background: linear-gradient(135deg, #8e44ad, #9b59b6); }
+        .avatar-sanji { background: linear-gradient(135deg, #2c3e50, #ecf0f1); }
+        .avatar-bulma { background: linear-gradient(135deg, #3498db, #2980b9); }
+        .avatar-franky { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+        .avatar-kakashi { background: linear-gradient(135deg, #95a5a6, #7f8c8d); }
+        .avatar-tien { background: linear-gradient(135deg, #d35400, #e67e22); }
+        .avatar-chopper { background: linear-gradient(135deg, #e91e63, #ad1457); }
+        .avatar-krillin { background: linear-gradient(135deg, #ff9800, #f57c00); }
+
+        .agent-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .agent-anime {
+            font-size: 12px;
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 8px;
+        }
+
+        .agent-role {
+            font-size: 11px;
+            color: rgba(255,255,255,0.4);
+            line-height: 1.4;
+        }
+
+        .agent-status {
+            margin-top: 12px;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 11px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .agent-status.online {
+            background: rgba(46,204,113,0.2);
+            color: #2ecc71;
+        }
+
+        .agent-status.working {
+            background: rgba(243,156,18,0.2);
+            color: #f39c12;
+        }
+
+        .agent-status.offline {
+            background: rgba(149,165,166,0.2);
+            color: #95a5a6;
+        }
+
+        .current-task {
+            margin-top: 10px;
+            padding: 8px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            font-size: 11px;
+            color: rgba(255,255,255,0.7);
+            min-height: 40px;
+        }
+
+        /* Department colors */
+        .dept-intel .department-icon { background: rgba(231,76,60,0.2); color: #e74c3c; }
+        .dept-policy .department-icon { background: rgba(155,89,182,0.2); color: #9b59b6; }
+        .dept-market .department-icon { background: rgba(52,152,219,0.2); color: #3498db; }
+        .dept-eng .department-icon { background: rgba(46,204,113,0.2); color: #2ecc71; }
+        .dept-admin .department-icon { background: rgba(241,196,15,0.2); color: #f1c40f; }
+
+        /* Activity log */
+        .activity-log {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 350px;
+            background: rgba(0,0,0,0.8);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .activity-log h3 {
+            font-size: 14px;
+            margin-bottom: 15px;
+            color: rgba(255,255,255,0.8);
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 12px;
+        }
+
+        .activity-time {
+            color: rgba(255,255,255,0.4);
+            min-width: 50px;
+        }
+
+        .activity-agent {
+            color: #f39c12;
+            min-width: 80px;
+        }
+
+        .activity-action {
+            color: rgba(255,255,255,0.7);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🏴‍☠️⚡🍥 OpenClaw 数字办公室</h1>
+        <div class="status-bar">
+            <div class="status-item">
+                <div class="status-dot online"></div>
+                <span>在线: 14</span>
+            </div>
+            <div class="status-item">
+                <div class="status-dot working"></div>
+                <span>工作中: 5</span>
+            </div>
+            <div class="status-item">
+                <div class="status-dot offline"></div>
+                <span>离线: 0</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="office-container">
+        <!-- Left: Director & CAIO -->
+        <div class="left-panel">
+            <div class="director-section">
+                <h2>👑 Human Director</h2>
+                <div class="director-card">
+                    <div class="director-avatar">⚔️</div>
+                    <div class="director-name">Hourglass</div>
+                    <div class="director-role">团队指挥官</div>
+                    <div class="director-status">
+                        <div class="status-dot online"></div>
+                        <span>在线 - 监督中</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="caio-section">
+                <h2>🧠 Chief AI Officer</h2>
+                <div class="caio-card">
+                    <div class="caio-avatar">🔬</div>
+                    <div class="caio-name">侧影</div>
+                    <div class="caio-role">AI协调中枢</div>
+                    <div class="director-status">
+                        <div class="status-dot working"></div>
+                        <span>工作中 - 协调12个子代理</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Teams -->
+        <div class="teams-section">
+            <!-- Intel Department -->
+            <div class="department dept-intel">
+                <div class="department-header">
+                    <div class="department-icon">🕵️</div>
+                    <div class="department-title">Africa Intel Department 非洲情报部门</div>
+                    <div class="department-count">3 成员</div>
+                </div>
+                <div class="agents-grid">
+                    <div class="agent-card working">
+                        <div class="agent-avatar avatar-lucci working">🐆</div>
+                        <div class="agent-name">罗布·路奇</div>
+                        <div class="agent-anime">海贼王 · CP9</div>
+                        <div class="agent-role">Africa Intel Collector<br>非洲情报收集</div>
+                        <div class="agent-status working">
+                            <div class="status-dot working"></div>
+                            <span>工作中</span>
+                        </div>
+                        <div class="current-task">正在抓取非洲新闻源...</div>
+                    </div>
+                    <div class="agent-card online">
+                        <div class="agent-avatar avatar-shikamaru online">🦌</div>
+                        <div class="agent-name">奈良鹿丸</div>
+                        <div class="agent-anime">火影忍者 · 木叶</div>
+                        <div class="agent-role">Intel Analyst<br>情报分析</div>
+                        <div class="agent-status online">
+                            <div class="status-dot online"></div>
+                            <span>待命</span>
+                        </div>
+                        <div class="current-task">等待情报数据...</div>
+                    </div>
+                    <div class="agent-card online">
+                        <div class="agent-avatar avatar-piccolo online">👽</div>
+                        <div class="agent-name">比克</div>
+                        <div class="agent-anime">七龙珠 · 那美克星</div>
+                        <div class="agent-role">Risk Scoring Agent<br>风险评估</div>
+                        <div class="agent-status online">
+                            <div class="status-dot online"></div>
+                            <span>待命</span>
+                        </div>
+                        <div class="current-task">等待分析任务...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Policy Department -->
+            <div class="department dept-policy">
+                <div class="department-header">
+                    <div class="department-icon">📜</div>
+                    <div class="department-title">US-China Policy Department 中美政策部门</div>
+                    <div class="department-count">2 成员</div>
+                </div>
+                <div class="agents-grid">
+                    <div class="agent-card working">
+                        <div class="agent-avatar avatar-minato working">⚡</div>
+                        <div class="agent-name">波风水门</div>
+                        <div class="agent-anime">火影忍者 · 四代火影</div>
+                        <div class="agent-role">Policy Collector<br>政策收集</div>
+                        <div class="agent-status working">
+                            <div class="status-dot working"></div>
+                            <span>工作中</span>
+                        </div>
+                        <div class="current-task">抓取白宫最新声明...</div>
+                    </div>
+                    <div class="agent-card online">
+                        <div class="agent-avatar avatar-itachi online">👁️</div>
+                        <div class="agent-name">宇智波鼬</div>
+                        <div class="agent-anime">火影忍者 · 晓</div>
+                        <div class="agent-role">Policy Analyst<br>政策分析</div>
+                        <div class="agent-status online">
+                            <div class="status-dot online"></div>
+                            <span>待命</span>
+                        </div>
+                        <div class="current-task">等待政策数据...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Market Department -->
+            <div class="department dept-market">
+                <div class="department-header">
+                    <div class="department-icon">📊</div>
+                    <div class="department-title">Market Department 市场情报部门</div>
+                    <div class="department-count">2 成员</div>
+                </div>
+                <div class="agents-grid">
+                    <div class="agent-card working">
+                        <div class="agent-avatar avatar-sanji working">👞</div>
+                        <div class="agent-name">山治</div>
+                        <div class="agent-anime">海贼王 · 黑足</div>
+                        <div class="agent-role">Prediction Market Collector<br>预测市场收集</div>
+                        <div class="agent-status working">
+                            <div class="status-dot working"></div>
+                            <span>工作中</span>
+                        </div>
+                        <div class="current-task">抓取Polymarket数据...</div>
+                    </div>
+                    <div class="agent-card online">
+                        <div class="agent-avatar avatar-bulma online">🔧</div>
+                        <div class="agent-name">布尔玛</div>
+                        <div class="agent-anime">七龙珠 · 科学家</div>
+                        <div class="agent-role">Market Signal Analyst<br>市场信号分析</div>
+                        <div class="agent-status online">
+                            <div class="status-dot online"></div>
+                            <span>待命</span>
+                        </div>
+                        <div class="current-task">等待市场数据...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Engineering Department -->
+            <div class="department dept-eng">
+                <div class="department-header">
+                    <div class="department-icon">⚙️</div>
+                    <div class="department-title">Engineering Department 工程部门</div>
+                    <div class="department-count">3 成员</div>
+                </div>
+                <div class="agents-grid">
+                    <div class="agent-card working">
+                        <div class="agent-avatar avatar-franky working">🤖</div>
+                        <div class="agent-name">弗兰奇</div>
+                        <div class="agent-anime">海贼王 · 改造人</div>
+                        <div class="agent-role">UI Developer Agent<br>UI开发</div>
+                        <div class="agent-status working">
+                            <div class="status-dot working"></div>
+                            <span>工作中</span>
+                        </div>
+                        <div class="current-task">优化Mission Control UI...</div>
+                    </div>
+                    <div class="agent-card online">
+                        <div class="agent-avatar avatar-kakashi online">📖</div>
+                        <div class="agent-name">卡卡西</div>
+                        <div class="agent-anime">火影忍者 · 拷贝忍者</div>
+                        <div class="agent-role">Backend Developer Agent<br>后端开发</div>
+                        <div class="agent-status online">
+                            <div class="status-dot online"></div>
+                            <span>待命</span>
+                        </div>
+                        <div class="current-task">等待开发任务...</div>
+                    </div>
+                    <div class="agent-card online">
+                        <div class="agent-avatar avatar-tien online">👁️‍🗨️</div>
+                        <div class="agent-name">天津饭</div>
+                        <div class="agent-anime">七龙珠 · 三眼</div>
+                        <div class="agent-role">QA Agent<br>质量保证</div>
+                        <div class="agent-status online">
+                            <div class="status-dot online"></div>
+                            <span>待命</span>
+                        </div>
+                        <div class="current-task">等待质量评估任务...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Memory & Admin Department -->
+            <div class="department dept-admin">
+                <div class="department-header">
+                    <div class="department-icon">🗄️</div>
+                    <div class="department-title">Memory & Admin Department 记忆与管理</div>
+                    <div class="department-count">2 成员</div>
+                </div>
+                <div class="agents-grid">
+                    <div class="agent-card online">
+                        <div class="agent-avatar avatar-chopper online">🦌</div>
+                        <div class="agent-name">乔巴</div>
+                        <div class="agent-anime">海贼王 · 船医</div>
+                        <div class="agent-role">Memory Manager Agent<br>记忆管理</div>
+                        <div class="agent-status online">
+                            <div class="status-dot online"></div>
+                            <span>待命</span>
+                        </div>
+                        <div class="current-task">等待每日备份时间...</div>
+                    </div>
+                    <div class="agent-card working">
+                        <div class="agent-avatar avatar-krillin working">💪</div>
+                        <div class="agent-name">克林</div>
+                        <div class="agent-anime">七龙珠 · 地球战士</div>
+                        <div class="agent-role">System Maintenance Agent<br>系统维护</div>
+                        <div class="agent-status working">
+                            <div class="status-dot working"></div>
+                            <span>工作中</span>
+                        </div>
+                        <div class="current-task">清理QQ邮箱垃圾邮件...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Activity Log -->
+    <div class="activity-log">
+        <h3>📋 实时活动日志</h3>
+        <div class="activity-item">
+            <span class="activity-time">08:57</span>
+            <span class="activity-agent">侧影</span>
+            <span class="activity-action">更新了团队角色代号</span>
+        </div>
+        <div class="activity-item">
+            <span class="activity-time">08:34</span>
+            <span class="activity-agent">弗兰奇</span>
+            <span class="activity-action">完成了UI自动迭代</span>
+        </div>
+        <div class="activity-item">
+            <span class="activity-time">08:25</span>
+            <span class="activity-agent">侧影</span>
+            <span class="activity-action">重新发送美国对华政策日报</span>
+        </div>
+        <div class="activity-item">
+            <span class="activity-time">07:35</span>
+            <span class="activity-agent">天津饭</span>
+            <span class="activity-action">完成了首次质量评估</span>
+        </div>
+        <div class="activity-item">
+            <span class="activity-time">07:03</span>
+            <span class="activity-agent">波风水门</span>
+            <span class="activity-action">完成了美国对华政策监控日报</span>
+        </div>
+        <div class="activity-item">
+            <span class="activity-time">07:02</span>
+            <span class="activity-agent">罗布·路奇</span>
+            <span class="activity-action">完成了非洲涉华情报简报</span>
+        </div>
+        <div class="activity-item">
+            <span class="activity-time">06:00</span>
+            <span class="activity-agent">山治</span>
+            <span class="activity-action">完成了Polymarket每日简报</span>
+        </div>
+    </div>
+</body>
+</html>

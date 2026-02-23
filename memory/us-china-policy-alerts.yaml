@@ -1,0 +1,333 @@
+# US-China Policy Alert System Configuration
+# 美中政策实时告警系统配置
+# 部门: US-China Policy Department (波风水门、宇智波鼬)
+# 创建日期: 2026-02-23
+
+system:
+  name: "US-China Policy Alert System"
+  version: "1.0.0"
+  department: "US-China Policy Department"
+  maintainers:
+    - "波风水门"
+    - "宇智波鼬"
+  notification_channel: "feishu"  # 飞书通知渠道
+  check_interval: 300  # 检查间隔(秒)，默认5分钟
+  timezone: "Asia/Shanghai"
+
+# 数据源配置
+data_sources:
+  supreme_court:
+    name: "美国最高法院"
+    url: "https://www.supremecourt.gov/opinions/slipopinion/26"
+    rss: "https://www.supremecourt.gov/rss/opinions.xml"
+    type: "rss"
+    keywords:
+      - "China"
+      - "Chinese"
+      - "trade"
+      - "tariff"
+      - "sanction"
+      - "Huawei"
+      - "TikTok"
+      - "WeChat"
+      - " ByteDance"
+      - "semiconductor"
+      - "export control"
+    priority: "critical"
+    
+  bis_entity_list:
+    name: "BIS实体清单"
+    url: "https://www.bis.doc.gov/index.php/policy-guidance/lists-of-parties-of-concern/entity-list"
+    api_endpoint: "https://www.bis.doc.gov/api/entity-list/updates"
+    type: "api"
+    check_frequency: 3600  # 每小时检查一次
+    keywords:
+      - "China"
+      - "Chinese"
+      - "Beijing"
+      - "Shanghai"
+      - "Shenzhen"
+      - "Huawei"
+      - "SMIC"
+      - "DJI"
+      - "Hikvision"
+    priority: "high"
+    
+  federal_register:
+    name: "联邦公报"
+    url: "https://www.federalregister.gov/"
+    api_endpoint: "https://www.federalregister.gov/api/v1/documents.json"
+    type: "api"
+    agencies:
+      - "Bureau of Industry and Security"
+      - "Office of the United States Trade Representative"
+      - "Department of Commerce"
+      - "Department of Treasury"
+    keywords:
+      - "China"
+      - "tariff"
+      - "trade war"
+      - "export control"
+      - "sanction"
+      - "entity list"
+    priority: "high"
+    
+  whitehouse:
+    name: "白宫行政命令"
+    url: "https://www.whitehouse.gov/briefing-room/presidential-actions/"
+    rss: "https://www.whitehouse.gov/feed/"
+    type: "rss"
+    keywords:
+      - "China"
+      - "Chinese"
+      - "trade"
+      - "tariff"
+      - "sanction"
+      - "technology"
+      - "semiconductor"
+      - "AI"
+      - "artificial intelligence"
+    priority: "critical"
+    
+  ustr:
+    name: "美国贸易代表办公室"
+    url: "https://ustr.gov/"
+    rss: "https://ustr.gov/about-us/policy-offices/press-office/press-releases/rss.xml"
+    type: "rss"
+    keywords:
+      - "China"
+      - "Section 301"
+      - "tariff"
+      - "trade"
+      - "enforcement"
+      - "review"
+    priority: "high"
+    
+  treasury:
+    name: "财政部制裁"
+    url: "https://home.treasury.gov/policy-issues/financial-sanctions/recent-actions"
+    rss: "https://home.treasury.gov/rss.xml"
+    type: "rss"
+    keywords:
+      - "China"
+      - "Chinese"
+      - "Hong Kong"
+      - "SDN"
+      - "sanctions"
+    priority: "high"
+
+# 告警规则配置
+alert_rules:
+  # 规则1: 最高法院裁决
+  - id: "supreme_court_ruling"
+    name: "最高法院涉华裁决"
+    description: "监控最高法院发布的涉及中国的裁决"
+    source: "supreme_court"
+    trigger_conditions:
+      - type: "keyword_match"
+        keywords: ["China", "Chinese", "trade", "tariff"]
+        match_mode: "any"
+      - type: "new_document"
+        within_hours: 24
+    severity: "critical"
+    notification:
+      immediate: true
+      digest: false
+      template: "supreme_court_alert"
+      
+  # 规则2: BIS实体清单更新
+  - id: "bis_entity_update"
+    name: "BIS实体清单更新"
+    description: "监控商务部工业与安全局实体清单的增删改"
+    source: "bis_entity_list"
+    trigger_conditions:
+      - type: "data_change"
+        change_type: ["add", "remove", "modify"]
+      - type: "keyword_match"
+        keywords: ["China", "Chinese"]
+        match_mode: "any"
+    severity: "critical"
+    notification:
+      immediate: true
+      digest: false
+      template: "bis_alert"
+      
+  # 规则3: 关税政策变化
+  - id: "tariff_policy_change"
+    name: "关税政策变化"
+    description: "监控301条款关税调整、豁免更新等"
+    source: "ustr"
+    trigger_conditions:
+      - type: "keyword_match"
+        keywords: ["tariff", "Section 301", "exclusion", "review"]
+        match_mode: "any"
+      - type: "new_document"
+        within_hours: 48
+    severity: "high"
+    notification:
+      immediate: true
+      digest: true
+      template: "tariff_alert"
+      
+  # 规则4: 行政命令签署
+  - id: "executive_order"
+    name: "涉华行政命令"
+    description: "监控总统签署的涉及中国的行政命令"
+    source: "whitehouse"
+    trigger_conditions:
+      - type: "document_type"
+        types: ["Executive Order"]
+      - type: "keyword_match"
+        keywords: ["China", "Chinese", "trade", "technology", "sanction"]
+        match_mode: "any"
+    severity: "critical"
+    notification:
+      immediate: true
+      digest: false
+      template: "executive_order_alert"
+      
+  # 规则5: 财政部制裁
+  - id: "treasury_sanction"
+    name: "财政部新制裁"
+    description: "监控OFAC新增涉华制裁"
+    source: "treasury"
+    trigger_conditions:
+      - type: "new_document"
+        within_hours: 24
+      - type: "keyword_match"
+        keywords: ["China", "Chinese", "Hong Kong", "SDN"]
+        match_mode: "any"
+    severity: "high"
+    notification:
+      immediate: true
+      digest: false
+      template: "sanction_alert"
+      
+  # 规则6: 出口管制规则
+  - id: "export_control_rule"
+    name: "出口管制规则更新"
+    description: "监控EAR规则变化"
+    source: "federal_register"
+    trigger_conditions:
+      - type: "agency_match"
+        agencies: ["Bureau of Industry and Security"]
+      - type: "keyword_match"
+        keywords: ["export control", "EAR", "China", "advanced computing"]
+        match_mode: "any"
+    severity: "high"
+    notification:
+      immediate: true
+      digest: true
+      template: "export_control_alert"
+
+# 通知模板
+notification_templates:
+  supreme_court_alert:
+    title: "🚨 最高法院涉华裁决"
+    content: |
+      **告警类型**: 最高法院裁决
+      **案件**: {{case_name}}
+      **日期**: {{date}}
+      **摘要**: {{summary}}
+      **涉华要点**: {{china_related_points}}
+      **原文链接**: {{url}}
+      
+  bis_alert:
+    title: "🚨 BIS实体清单更新"
+    content: |
+      **告警类型**: 实体清单变更
+      **变更类型**: {{change_type}}
+      **实体名称**: {{entity_name}}
+      **国家/地区**: {{country}}
+      **新增限制**: {{restrictions}}
+      **生效日期**: {{effective_date}}
+      **联邦公报链接**: {{url}}
+      
+  tariff_alert:
+    title: "⚠️ 关税政策变化"
+    content: |
+      **告警类型**: 关税政策更新
+      **政策类型**: {{policy_type}}
+      **生效时间**: {{effective_date}}
+      **涉及产品**: {{products}}
+      **税率变化**: {{rate_change}}
+      **详细说明**: {{description}}
+      **官方链接**: {{url}}
+      
+  executive_order_alert:
+    title: "🚨 涉华行政命令"
+    content: |
+      **告警类型**: 总统行政命令
+      **命令编号**: {{eo_number}}
+      **标题**: {{title}}
+      **签署日期**: {{signing_date}}
+      **核心内容**: {{key_points}}
+      **对华影响**: {{china_impact}}
+      **全文链接**: {{url}}
+      
+  sanction_alert:
+    title: "🚨 财政部新制裁"
+    content: |
+      **告警类型**: OFAC制裁更新
+      **制裁类型**: {{sanction_type}}
+      **被制裁实体**: {{target_entities}}
+      **所属国家**: {{countries}}
+      **制裁理由**: {{reasoning}}
+      **生效日期**: {{effective_date}}
+      **公告链接**: {{url}}
+      
+  export_control_alert:
+    title: "⚠️ 出口管制规则更新"
+    content: |
+      **告警类型**: EAR规则变更
+      **规则编号**: {{rule_number}}
+      **标题**: {{title}}
+      **变更摘要**: {{summary}}
+      **对华影响**: {{china_impact}}
+      **公众评议截止**: {{comment_deadline}}
+      **链接**: {{url}}
+
+# 告警级别定义
+severity_levels:
+  critical:
+    name: "紧急"
+    color: "#FF0000"
+    notification_delay: 0  # 立即通知
+    channels: ["feishu", "email"]
+    
+  high:
+    name: "重要"
+    color: "#FF8C00"
+    notification_delay: 300  # 5分钟内
+    channels: ["feishu"]
+    
+  medium:
+    name: "一般"
+    color: "#FFD700"
+    notification_delay: 3600  # 1小时内汇总
+    channels: ["feishu"]
+    
+  low:
+    name: "提示"
+    color: "#00BFFF"
+    notification_delay: 86400  # 日报汇总
+    channels: ["feishu"]
+
+# 飞书通知配置
+feishu_config:
+  webhook_url: "${FEISHU_WEBHOOK_URL}"
+  secret: "${FEISHU_SECRET}"
+  at_all_for_critical: true
+  at_users: []  # 特定用户ID列表
+
+# 存储配置
+storage:
+  alert_history: "memory/alert_history.json"
+  state_file: "memory/alert_state.json"
+  log_file: "logs/us-china-policy-alerts.log"
+
+# 监控指标
+metrics:
+  enabled: true
+  prometheus_port: 9090
+  metrics_path: "/metrics"

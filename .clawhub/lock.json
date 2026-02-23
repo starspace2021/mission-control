@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "skills": {
+    "intelligence-suite": {
+      "version": "1.0.3",
+      "installedAt": 1771691660928
+    },
+    "academic-deep-research": {
+      "version": "1.0.0",
+      "installedAt": 1771698603960
+    }
+  }
+}

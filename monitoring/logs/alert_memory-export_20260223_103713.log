@@ -1,0 +1,16 @@
+
+🚨 **任务执行失败告警**
+
+**任务**: 记忆导出
+**任务ID**: memory-export
+**时间**: 2026-02-23 10:37:13
+**状态**: ❌ FAILED
+**退出码**: 1
+**错误**: Connection timeout after 30s
+
+**标准错误输出**:
+```
+Error: Connection timeout
+```
+
+请尽快检查任务配置和系统状态。
