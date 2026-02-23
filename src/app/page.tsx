@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   LayoutDashboard, 
   ClipboardList, 
   Calendar, 
   Brain,
+  Users,
   Terminal,
   Cpu,
   Wifi,
@@ -28,11 +29,16 @@ import {
   Sparkles,
   Command,
   Maximize2,
-  Minimize2
+  Minimize2,
+  BarChart3,
+  PieChart,
+  Target,
+  Layers
 } from "lucide-react";
 import TaskBoard from "./components/TaskBoard";
 import CalendarView from "./components/CalendarView";
 import MemoryScreen from "./components/MemoryScreen";
+import TeamView from "./components/TeamView";
 
 // 导航配置
 const navItems = [
@@ -40,6 +46,7 @@ const navItems = [
   { id: "tasks", label: "任务", icon: ClipboardList, shortcut: "2" },
   { id: "calendar", label: "日历", icon: Calendar, shortcut: "3" },
   { id: "memory", label: "记忆", icon: Brain, shortcut: "4" },
+  { id: "team", label: "团队", icon: Users, shortcut: "5" },
 ];
 
 // 模拟数据 - 现代控制台风格
@@ -73,7 +80,25 @@ const mockData = {
     { id: "2", action: "Polymarket 简报生成", time: "17:00", status: "success" },
     { id: "3", action: "美国对华政策监控启动", time: "18:30", status: "success" },
     { id: "4", action: "UI 自动迭代任务", time: "03:00", status: "scheduled" },
-  ]
+  ],
+  // 新增图表数据
+  chartData: {
+    donut: [
+      { label: "情报", value: 35, color: "#3B82F6" },
+      { label: "政策", value: 25, color: "#8B5CF6" },
+      { label: "市场", value: 20, color: "#10B981" },
+      { label: "工程", value: 15, color: "#F59E0B" },
+      { label: "其他", value: 5, color: "#EC4899" },
+    ],
+    radar: [
+      { label: "性能", value: 85 },
+      { label: "稳定性", value: 92 },
+      { label: "安全性", value: 78 },
+      { label: "可用性", value: 96 },
+      { label: "扩展性", value: 70 },
+    ],
+    area: [30, 45, 35, 50, 40, 60, 55, 70, 65, 80, 75, 85],
+  }
 };
 
 // 实时时钟
@@ -148,6 +173,43 @@ function MiniChart({ data, color = "#3B82F6" }: { data: number[]; color?: string
   );
 }
 
+// 迷你面积图组件
+function MiniAreaChart({ data, color = "#3B82F6" }: { data: number[]; color?: string }) {
+  const max = Math.max(...data);
+  const min = Math.min(...data);
+  const range = max - min || 1;
+  const points = data.map((value, i) => {
+    const x = (i / (data.length - 1)) * 100;
+    const y = 100 - ((value - min) / range) * 100;
+    return `${x},${y}`;
+  }).join(' ');
+  
+  const areaPoints = `0,100 ${points} 100,100`;
+  
+  return (
+    <svg viewBox="0 0 100 100" className="w-full h-16" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id={`areaGradient-${color.replace('#', '')}`} x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor={color} stopOpacity="0.3" />
+          <stop offset="100%" stopColor={color} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <polygon
+        points={areaPoints}
+        fill={`url(#areaGradient-${color.replace('#', '')})`}
+      />
+      <polyline
+        points={points}
+        fill="none"
+        stroke={color}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 // 环形进度组件
 function CircularProgress({ value, size = 40, strokeWidth = 3, color = "#3B82F6" }: { 
   value: number; 
@@ -193,6 +255,220 @@ function CircularProgress({ value, size = 40, strokeWidth = 3, color = "#3B82F6"
   );
 }
 
+// 环形图组件 (纯SVG实现)
+function DonutChart({ data, size = 120 }: { 
+  data: { label: string; value: number; color: string }[];
+  size?: number;
+}) {
+  const total = data.reduce((sum, item) => sum + item.value, 0);
+  const center = size / 2;
+  const radius = (size - 20) / 2;
+  const innerRadius = radius * 0.6;
+  
+  let currentAngle = -90; // 从顶部开始
+  
+  const segments = data.map((item) => {
+    const angle = (item.value / total) * 360;
+    const startAngle = currentAngle;
+    const endAngle = currentAngle + angle;
+    currentAngle += angle;
+    
+    const startRad = (startAngle * Math.PI) / 180;
+    const endRad = (endAngle * Math.PI) / 180;
+    
+    const x1 = center + radius * Math.cos(startRad);
+    const y1 = center + radius * Math.sin(startRad);
+    const x2 = center + radius * Math.cos(endRad);
+    const y2 = center + radius * Math.sin(endRad);
+    
+    const x3 = center + innerRadius * Math.cos(endRad);
+    const y3 = center + innerRadius * Math.sin(endRad);
+    const x4 = center + innerRadius * Math.cos(startRad);
+    const y4 = center + innerRadius * Math.sin(startRad);
+    
+    const largeArc = angle > 180 ? 1 : 0;
+    
+    const path = [
+      `M ${x1} ${y1}`,
+      `A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2}`,
+      `L ${x3} ${y3}`,
+      `A ${innerRadius} ${innerRadius} 0 ${largeArc} 0 ${x4} ${y4}`,
+      'Z'
+    ].join(' ');
+    
+    return { ...item, path, angle };
+  });
+  
+  return (
+    <div className="relative">
+      <svg width={size} height={size} className="transform rotate-[-90deg]">
+        {segments.map((segment, i) => (
+          <motion.path
+            key={segment.label}
+            d={segment.path}
+            fill={segment.color}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: i * 0.1, duration: 0.5 }}
+            className="hover:opacity-80 transition-opacity cursor-pointer"
+          />
+        ))}
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className="text-2xl font-bold">{total}</span>
+        <span className="text-xs text-[#71717A]">任务</span>
+      </div>
+    </div>
+  );
+}
+
+// 雷达图组件 (纯SVG实现)
+function RadarChart({ data, size = 140 }: { 
+  data: { label: string; value: number }[];
+  size?: number;
+}) {
+  const center = size / 2;
+  const radius = (size - 40) / 2;
+  const levels = 4;
+  const angleStep = (2 * Math.PI) / data.length;
+  
+  // 计算网格点
+  const gridPolygons = [];
+  for (let i = 1; i <= levels; i++) {
+    const r = (radius / levels) * i;
+    const points = data.map((_, j) => {
+      const angle = j * angleStep - Math.PI / 2;
+      return `${center + r * Math.cos(angle)},${center + r * Math.sin(angle)}`;
+    }).join(' ');
+    gridPolygons.push(points);
+  }
+  
+  // 计算数据点
+  const dataPoints = data.map((item, i) => {
+    const angle = i * angleStep - Math.PI / 2;
+    const r = (item.value / 100) * radius;
+    return {
+      x: center + r * Math.cos(angle),
+      y: center + r * Math.sin(angle),
+      label: item.label,
+      value: item.value,
+    };
+  });
+  
+  const dataPolygon = dataPoints.map(p => `${p.x},${p.y}`).join(' ');
+  
+  // 计算标签位置
+  const labels = data.map((item, i) => {
+    const angle = i * angleStep - Math.PI / 2;
+    const labelRadius = radius + 15;
+    return {
+      x: center + labelRadius * Math.cos(angle),
+      y: center + labelRadius * Math.sin(angle),
+      label: item.label,
+    };
+  });
+  
+  return (
+    <svg width={size} height={size} className="overflow-visible">
+      {/* 网格 */}
+      {gridPolygons.map((points, i) => (
+        <polygon
+          key={i}
+          points={points}
+          fill="none"
+          stroke="rgba(255,255,255,0.1)"
+          strokeWidth="1"
+        />
+      ))}
+      
+      {/* 轴线 */}
+      {data.map((_, i) => {
+        const angle = i * angleStep - Math.PI / 2;
+        const x = center + radius * Math.cos(angle);
+        const y = center + radius * Math.sin(angle);
+        return (
+          <line
+            key={i}
+            x1={center}
+            y1={center}
+            x2={x}
+            y2={y}
+            stroke="rgba(255,255,255,0.1)"
+            strokeWidth="1"
+          />
+        );
+      })}
+      
+      {/* 数据区域 */}
+      <motion.polygon
+        points={dataPolygon}
+        fill="rgba(59, 130, 246, 0.2)"
+        stroke="#3B82F6"
+        strokeWidth="2"
+        initial={{ opacity: 0, scale: 0 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        style={{ transformOrigin: 'center' }}
+      />
+      
+      {/* 数据点 */}
+      {dataPoints.map((point, i) => (
+        <motion.circle
+          key={i}
+          cx={point.x}
+          cy={point.y}
+          r="4"
+          fill="#3B82F6"
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ delay: i * 0.1 }}
+          className="hover:r-6 hover:fill-[#06B6D4] transition-all cursor-pointer"
+        />
+      ))}
+      
+      {/* 标签 */}
+      {labels.map((label, i) => (
+        <text
+          key={i}
+          x={label.x}
+          y={label.y}
+          textAnchor="middle"
+          dominantBaseline="middle"
+          fill="#71717A"
+          fontSize="10"
+          fontWeight="500"
+        >
+          {label.label}
+        </text>
+      ))}
+    </svg>
+  );
+}
+
+// 流量指示器组件
+function TrafficIndicator() {
+  return (
+    <div className="flex items-end gap-0.5 h-5">
+      {[0.3, 0.6, 0.4, 0.8, 0.5].map((height, i) => (
+        <motion.div
+          key={i}
+          className="w-1 bg-gradient-to-t from-[#10B981] to-[#06B6D4] rounded-full"
+          animate={{
+            height: [`${height * 100}%`, `${(height + 0.3) * 100}%`, `${height * 100}%`],
+            opacity: [0.5, 1, 0.5],
+          }}
+          transition={{
+            duration: 0.8,
+            repeat: Infinity,
+            delay: i * 0.1,
+            ease: "easeInOut",
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
 // 趋势指示器组件
 function TrendIndicator({ value, trend }: { value: string | number; trend: string }) {
   const isPositive = trend.startsWith('+');
@@ -214,6 +490,34 @@ function TrendIndicator({ value, trend }: { value: string | number; trend: strin
   );
 }
 
+// 数值计数动画组件
+function CountUp({ value, duration = 1 }: { value: number; duration?: number }) {
+  const [displayValue, setDisplayValue] = useState(0);
+  
+  useEffect(() => {
+    let startTime: number;
+    let animationFrame: number;
+    
+    const animate = (timestamp: number) => {
+      if (!startTime) startTime = timestamp;
+      const progress = Math.min((timestamp - startTime) / (duration * 1000), 1);
+      
+      // 使用 easeOutQuart 缓动函数
+      const easeProgress = 1 - Math.pow(1 - progress, 4);
+      setDisplayValue(Math.floor(easeProgress * value));
+      
+      if (progress < 1) {
+        animationFrame = requestAnimationFrame(animate);
+      }
+    };
+    
+    animationFrame = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animationFrame);
+  }, [value, duration]);
+  
+  return <span className="tabular-nums">{displayValue}</span>;
+}
+
 export default function MissionControl() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -227,7 +531,7 @@ export default function MissionControl() {
         e.preventDefault();
         setIsSearchOpen(true);
       }
-      if (e.key >= "1" && e.key <= "4") {
+      if (e.key >= "1" && e.key <= "5") {
         const index = parseInt(e.key) - 1;
         if (index < navItems.length) {
           setActiveTab(navItems[index].id);
@@ -393,6 +697,7 @@ export default function MissionControl() {
               {activeTab === "tasks" && <TasksView key="tasks" />}
               {activeTab === "calendar" && <CalendarViewWrapper key="calendar" />}
               {activeTab === "memory" && <MemoryView key="memory" />}
+              {activeTab === "team" && <TeamViewWrapper key="team" />}
             </AnimatePresence>
           </div>
         </main>
@@ -503,6 +808,7 @@ function DashboardView() {
           color="blue"
           chart={chartData1}
           subtitle="较昨日增加"
+          showCountUp
         />
         <MetricCard 
           title="定时任务" 
@@ -513,6 +819,7 @@ function DashboardView() {
           color="purple"
           chart={chartData2}
           subtitle="运行正常"
+          showCountUp
         />
         <MetricCard 
           title="记忆文档" 
@@ -523,6 +830,7 @@ function DashboardView() {
           color="green"
           chart={chartData1}
           subtitle="本周新增"
+          showCountUp
         />
         <MetricCard 
           title="成功率" 
@@ -533,7 +841,111 @@ function DashboardView() {
           color="cyan"
           chart={chartData2}
           subtitle="系统健康"
+          showCountUp={false}
         />
+      </div>
+
+      {/* 新增数据可视化区域 */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* 环形图 - 任务分布 */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="console-card p-5"
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#3B82F6]/20 to-[#3B82F6]/5 flex items-center justify-center">
+              <PieChart className="w-5 h-5 text-[#3B82F6]" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-white">任务分布</h3>
+              <p className="text-xs text-[#71717A]">按部门分类</p>
+            </div>
+          </div>
+          <div className="flex items-center justify-center py-4">
+            <DonutChart data={mockData.chartData.donut} size={140} />
+          </div>
+          <div className="grid grid-cols-2 gap-2 mt-4">
+            {mockData.chartData.donut.map((item) => (
+              <div key={item.label} className="flex items-center gap-2 text-xs">
+                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
+                <span className="text-[#71717A]">{item.label}</span>
+                <span className="text-white ml-auto">{item.value}%</span>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* 雷达图 - 系统健康度 */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="console-card p-5"
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#8B5CF6]/20 to-[#8B5CF6]/5 flex items-center justify-center">
+              <Target className="w-5 h-5 text-[#8B5CF6]" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-white">系统健康度</h3>
+              <p className="text-xs text-[#71717A]">综合评分</p>
+            </div>
+          </div>
+          <div className="flex items-center justify-center py-2">
+            <RadarChart data={mockData.chartData.radar} size={160} />
+          </div>
+          <div className="flex items-center justify-center gap-4 mt-2">
+            <div className="text-center">
+              <div className="text-xl font-bold text-[#3B82F6]">84.2</div>
+              <div className="text-xs text-[#71717A]">综合得分</div>
+            </div>
+            <div className="h-8 w-px bg-white/10" />
+            <div className="text-center">
+              <div className="text-xl font-bold text-[#10B981]">+2.4</div>
+              <div className="text-xs text-[#71717A]">较上周</div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* 实时流量监控 */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="console-card p-5"
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#10B981]/20 to-[#10B981]/5 flex items-center justify-center">
+              <BarChart3 className="w-5 h-5 text-[#10B981]" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-white">实时流量</h3>
+              <p className="text-xs text-[#71717A]">数据请求/秒</p>
+            </div>
+            <div className="ml-auto">
+              <TrafficIndicator />
+            </div>
+          </div>
+          <div className="py-2">
+            <MiniAreaChart data={[45, 52, 48, 60, 55, 68, 72, 65, 58, 62, 70, 75]} color="#10B981" />
+          </div>
+          <div className="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-white/5">
+            <div className="text-center">
+              <div className="text-lg font-semibold text-white">1.2K</div>
+              <div className="text-xs text-[#71717A]">请求/分</div>
+            </div>
+            <div className="text-center">
+              <div className="text-lg font-semibold text-[#10B981]">98ms</div>
+              <div className="text-xs text-[#71717A]">平均延迟</div>
+            </div>
+            <div className="text-center">
+              <div className="text-lg font-semibold text-[#3B82F6]">99.9%</div>
+              <div className="text-xs text-[#71717A]">可用性</div>
+            </div>
+          </div>
+        </motion.div>
       </div>
 
       {/* 主内容网格 */}
@@ -750,7 +1162,8 @@ function MetricCard({
   icon: Icon, 
   color,
   chart,
-  subtitle
+  subtitle,
+  showCountUp = false
 }: {
   title: string;
   value: string | number;
@@ -760,6 +1173,7 @@ function MetricCard({
   color: string;
   chart: number[];
   subtitle?: string;
+  showCountUp?: boolean;
 }) {
   const colorMap: Record<string, { bg: string; text: string; chart: string; gradient: string }> = {
     blue: { bg: "bg-[#3B82F6]/10", text: "text-[#3B82F6]", chart: "#3B82F6", gradient: "from-[#3B82F6] to-[#60A5FA]" },
@@ -769,17 +1183,20 @@ function MetricCard({
   };
 
   const colors = colorMap[color];
+  const numericValue = typeof value === 'number' ? value : parseFloat(value.toString().replace('%', ''));
 
   return (
     <motion.div 
       className="console-card p-5 relative overflow-hidden group"
-      whileHover={{ y: -2, scale: 1.01 }}
+      whileHover={{ y: -4, scale: 1.02 }}
       transition={{ duration: 0.2 }}
     >
       <div className={`absolute inset-0 bg-gradient-to-br ${colors.gradient} opacity-0 group-hover:opacity-5 transition-opacity`} />
+      <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-white/5 to-transparent rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
+      
       <div className="relative z-10">
         <div className="flex items-start justify-between mb-4">
-          <div className={`p-2.5 rounded-xl ${colors.bg}`}>
+          <div className={`p-2.5 rounded-xl ${colors.bg} transition-transform group-hover:scale-110`}>
             <Icon className={`w-5 h-5 ${colors.text}`} />
           </div>
           <TrendIndicator value={value} trend={trend} />
@@ -787,7 +1204,13 @@ function MetricCard({
         
         <div className="flex items-end justify-between">
           <div>
-            <div className="metric-value">{value}</div>
+            <div className="metric-value">
+              {showCountUp && typeof value === 'number' ? (
+                <CountUp value={numericValue} />
+              ) : (
+                value
+              )}
+            </div>
             <div className="metric-label mt-1">{title}</div>
             {subtitle && <div className="text-xs text-[#52525B] mt-0.5">{subtitle}</div>}
           </div>
@@ -801,12 +1224,12 @@ function MetricCard({
 // 任务视图
 function TasksView() {
   const [tasks] = useState([
-    { _id: "1", title: "非洲涉华情报收集", description: "自动收集并分析非洲涉华情报数据", status: "in_progress", priority: "high", assignee: "系统", tags: ["情报", "非洲"], dueDate: null },
-    { _id: "2", title: "Polymarket 监控", description: "Polymarket 市场数据实时监控", status: "in_progress", priority: "high", assignee: "系统", tags: ["市场", "预测"], dueDate: null },
-    { _id: "3", title: "美国对华政策监控", description: "追踪美国对华政策动态", status: "in_progress", priority: "high", assignee: "系统", tags: ["政策", "美国"], dueDate: null },
-    { _id: "4", title: "QQ邮箱自动清理", description: "自动清理过期邮件", status: "todo", priority: "medium", assignee: "系统", tags: ["自动化", "邮件"], dueDate: Date.now() + 86400000 },
-    { _id: "5", title: "Mission Control UI 优化", description: "改进用户界面和交互体验", status: "todo", priority: "medium", assignee: "开发者", tags: ["UI", "开发"], dueDate: Date.now() + 172800000 },
-    { _id: "6", title: "卫星遥感报告", description: "生成卫星遥感经济分析报告", status: "done", priority: "high", assignee: "系统", tags: ["报告", "卫星"], dueDate: null },
+    { _id: "1", title: "非洲涉华情报收集", description: "自动收集并分析非洲涉华情报数据", status: "in_progress", priority: "high", assignee: "系统", tags: ["情报", "非洲"], dueDate: null, progress: 75 },
+    { _id: "2", title: "Polymarket 监控", description: "Polymarket 市场数据实时监控", status: "in_progress", priority: "high", assignee: "系统", tags: ["市场", "预测"], dueDate: null, progress: 60 },
+    { _id: "3", title: "美国对华政策监控", description: "追踪美国对华政策动态", status: "in_progress", priority: "high", assignee: "系统", tags: ["政策", "美国"], dueDate: null, progress: 80 },
+    { _id: "4", title: "QQ邮箱自动清理", description: "自动清理过期邮件", status: "todo", priority: "medium", assignee: "系统", tags: ["自动化", "邮件"], dueDate: Date.now() + 86400000, progress: 0 },
+    { _id: "5", title: "Mission Control UI 优化", description: "改进用户界面和交互体验", status: "todo", priority: "medium", assignee: "开发者", tags: ["UI", "开发"], dueDate: Date.now() + 172800000, progress: 45 },
+    { _id: "6", title: "卫星遥感报告", description: "生成卫星遥感经济分析报告", status: "done", priority: "high", assignee: "系统", tags: ["报告", "卫星"], dueDate: null, progress: 100 },
   ]);
 
   return (
@@ -842,6 +1265,19 @@ function MemoryView() {
       exit={{ opacity: 0, y: -20 }}
     >
       <MemoryScreen />
+    </motion.div>
+  );
+}
+
+// 团队视图
+function TeamViewWrapper() {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+    >
+      <TeamView />
     </motion.div>
   );
 }
