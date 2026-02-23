@@ -20,16 +20,28 @@ import {
   Clock3,
   AlertCircle,
   LayoutGrid,
-  List
+  List,
+  MapPin,
+  Users,
+  Tag,
+  Sparkles,
+  ArrowRight,
+  Bell,
+  Info
 } from "lucide-react";
 
 interface Event {
   _id: string;
   title: string;
   startTime: number;
+  endTime?: number;
   type: string;
   description?: string;
   status?: string;
+  location?: string;
+  attendees?: string[];
+  tags?: string[];
+  priority?: 'high' | 'medium' | 'low';
 }
 
 // 模拟事件数据
@@ -38,93 +50,125 @@ const mockEvents: Event[] = [
     _id: "1",
     title: "非洲情报简报",
     startTime: new Date().setHours(20, 0, 0, 0),
+    endTime: new Date().setHours(20, 30, 0, 0),
     type: "cron",
     description: "自动收集并生成非洲涉华情报简报",
     status: "pending",
+    priority: 'high',
+    tags: ["情报", "自动化"],
   },
   {
     _id: "2",
     title: "Polymarket 盘中简报",
     startTime: new Date().setHours(20, 0, 0, 0),
+    endTime: new Date().setHours(20, 15, 0, 0),
     type: "cron",
     description: "Polymarket 市场数据监控",
     status: "pending",
+    priority: 'medium',
+    tags: ["市场", "数据"],
   },
   {
     _id: "3",
     title: "美国对华政策晚间简报",
     startTime: new Date().setHours(20, 0, 0, 0),
+    endTime: new Date().setHours(20, 45, 0, 0),
     type: "cron",
     description: "晚间对华政策新闻汇总",
     status: "pending",
+    priority: 'high',
+    tags: ["政策", "新闻"],
   },
   {
     _id: "4",
     title: "美国对华政策夜间简报",
     startTime: new Date(Date.now() + 86400000).setHours(0, 0, 0, 0),
+    endTime: new Date(Date.now() + 86400000).setHours(0, 30, 0, 0),
     type: "cron",
     description: "夜间对华政策监控",
     status: "scheduled",
+    priority: 'medium',
   },
   {
     _id: "5",
     title: "美国对华政策日报",
     startTime: new Date(Date.now() + 86400000).setHours(7, 0, 0, 0),
+    endTime: new Date(Date.now() + 86400000).setHours(7, 30, 0, 0),
     type: "cron",
     description: "早间对华政策日报",
     status: "scheduled",
+    priority: 'high',
+    tags: ["日报", "政策"],
   },
   {
     _id: "6",
     title: "QQ邮箱清理",
     startTime: new Date(Date.now() + 172800000).setHours(6, 16, 0, 0),
+    endTime: new Date(Date.now() + 172800000).setHours(6, 20, 0, 0),
     type: "cron",
     description: "自动清理QQ邮箱",
     status: "scheduled",
+    priority: 'low',
   },
   {
     _id: "7",
     title: "UI自动迭代任务",
     startTime: new Date().setHours(7, 24, 0, 0),
+    endTime: new Date().setHours(8, 0, 0, 0),
     type: "maintenance",
     description: "Mission Control UI 自动优化迭代",
     status: "running",
+    priority: 'high',
+    tags: ["UI", "开发"],
   },
   {
     _id: "8",
     title: "系统维护",
     startTime: new Date(Date.now() + 259200000).setHours(2, 0, 0, 0),
+    endTime: new Date(Date.now() + 259200000).setHours(4, 0, 0, 0),
     type: "maintenance",
     description: "定期系统维护",
     status: "scheduled",
+    priority: 'medium',
+    tags: ["维护"],
   },
 ];
 
-const typeConfig: Record<string, { color: string; bgColor: string; label: string; icon: React.ElementType }> = {
+const typeConfig: Record<string, { color: string; bgColor: string; label: string; icon: React.ElementType; gradient: string }> = {
   cron: { 
     color: "#10B981", 
     bgColor: "rgba(16, 185, 129, 0.1)",
     label: "定时任务", 
-    icon: Repeat 
+    icon: Repeat,
+    gradient: "from-[#10B981] to-[#34D399]"
   },
   onetime: { 
     color: "#3B82F6", 
     bgColor: "rgba(59, 130, 246, 0.1)",
     label: "单次任务", 
-    icon: Zap 
+    icon: Zap,
+    gradient: "from-[#3B82F6] to-[#60A5FA]"
   },
   recurring: { 
     color: "#8B5CF6", 
     bgColor: "rgba(139, 92, 246, 0.1)",
     label: "循环任务", 
-    icon: Clock 
+    icon: Clock,
+    gradient: "from-[#8B5CF6] to-[#A78BFA]"
   },
   maintenance: {
     color: "#F59E0B",
     bgColor: "rgba(245, 158, 11, 0.1)",
     label: "系统维护",
-    icon: CheckCircle2
+    icon: CheckCircle2,
+    gradient: "from-[#F59E0B] to-[#FBBF24]"
   },
+};
+
+const priorityConfig: Record<string, { color: string; bgColor: string; label: string }> = {
+  high: { color: "#EF4444", bgColor: "rgba(239, 68, 68, 0.1)", label: "高优先级" },
+  medium: { color: "#F59E0B", bgColor: "rgba(245, 158, 11, 0.1)", label: "中优先级" },
+  low: { color: "#3B82F6", bgColor: "rgba(59, 130, 246, 0.1)", label: "低优先级" },
 };
 
 export default function CalendarView() {
@@ -132,6 +176,8 @@ export default function CalendarView() {
   const [viewMode, setViewMode] = useState<"day" | "week" | "month" | "timeline">("week");
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedType, setSelectedType] = useState<string>("all");
+  const [hoveredDate, setHoveredDate] = useState<Date | null>(null);
 
   const weekDays = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
 
@@ -170,7 +216,8 @@ export default function CalendarView() {
   const getEventsForDate = (date: Date) => {
     return mockEvents.filter((e) => 
       isSameDay(new Date(e.startTime), date) &&
-      (searchQuery === "" || e.title.toLowerCase().includes(searchQuery.toLowerCase()))
+      (searchQuery === "" || e.title.toLowerCase().includes(searchQuery.toLowerCase())) &&
+      (selectedType === "all" || e.type === selectedType)
     );
   };
 
@@ -302,6 +349,19 @@ export default function CalendarView() {
 
           <div className="flex items-center gap-3"
           >
+            {/* 类型筛选 */}
+            <select
+              value={selectedType}
+              onChange={(e) => setSelectedType(e.target.value)}
+              className="px-3 py-2 bg-[#1A1A24] border border-white/10 rounded-lg text-sm text-white focus:border-[#3B82F6]/50 focus:outline-none"
+            >
+              <option value="all">全部类型</option>
+              <option value="cron">定时任务</option>
+              <option value="onetime">单次任务</option>
+              <option value="recurring">循环任务</option>
+              <option value="maintenance">系统维护</option>
+            </select>
+
             {/* 搜索 */}
             <div className="relative"
             >
@@ -346,6 +406,8 @@ export default function CalendarView() {
                 getEventDensity={getEventDensity}
                 onSelectEvent={setSelectedEvent}
                 weekDays={weekDays}
+                hoveredDate={hoveredDate}
+                setHoveredDate={setHoveredDate}
               />
             )}
           </AnimatePresence>
@@ -374,6 +436,7 @@ export default function CalendarView() {
                 const config = typeConfig[event.type] || typeConfig.onetime;
                 const Icon = config.icon;
                 const isToday = isDateToday(new Date(event.startTime));
+                const priority = event.priority ? priorityConfig[event.priority] : null;
                 
                 return (
                   <motion.div
@@ -395,10 +458,18 @@ export default function CalendarView() {
                       
                       <div className="flex-1 min-w-0"
                       >
-                        <h4 className="text-sm font-medium text-white truncate group-hover:text-[#3B82F6] transition-colors"
-                        >
-                          {event.title}
-                        </h4>
+                        <div className="flex items-center gap-2">
+                          <h4 className="text-sm font-medium text-white truncate group-hover:text-[#3B82F6] transition-colors"
+                          >
+                            {event.title}
+                          </h4>
+                          {priority && (
+                            <div 
+                              className="w-2 h-2 rounded-full flex-shrink-0"
+                              style={{ backgroundColor: priority.color }}
+                            />
+                          )}
+                        </div>
                         <p className="text-xs text-[#71717A] mt-0.5 line-clamp-1"
                         >
                           {event.description}
@@ -418,6 +489,20 @@ export default function CalendarView() {
                             {isToday ? '今天' : format(new Date(event.startTime), "MM/dd HH:mm")}
                           </span>
                         </div>
+
+                        {/* 标签 */}
+                        {event.tags && event.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-2">
+                            {event.tags.map(tag => (
+                              <span 
+                                key={tag}
+                                className="text-[10px] px-1.5 py-0.5 rounded bg-white/5 text-[#71717A]"
+                              >
+                                #{tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </motion.div>
@@ -479,7 +564,9 @@ function CalendarGridView({
   getEventsForDate,
   getEventDensity,
   onSelectEvent,
-  weekDays
+  weekDays,
+  hoveredDate,
+  setHoveredDate
 }: {
   viewDates: Date[];
   viewMode: string;
@@ -488,6 +575,8 @@ function CalendarGridView({
   getEventDensity: (date: Date) => number;
   onSelectEvent: (event: Event) => void;
   weekDays: string[];
+  hoveredDate: Date | null;
+  setHoveredDate: (date: Date | null) => void;
 }) {
   return (
     <motion.div
@@ -517,6 +606,7 @@ function CalendarGridView({
           const isToday = isDateToday(date);
           const isCurrentMonth = isSameMonth(date, currentDate);
           const density = getEventDensity(date);
+          const isHovered = hoveredDate && isSameDay(date, hoveredDate);
           
           // 根据事件密度设置背景色
           const densityBg = density === 0 ? '' :
@@ -530,14 +620,23 @@ function CalendarGridView({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: index * 0.01 }}
-              whileHover={{ backgroundColor: 'rgba(255,255,255,0.06)' }}
+              onMouseEnter={() => setHoveredDate(date)}
+              onMouseLeave={() => setHoveredDate(null)}
               className={`min-h-[140px] p-3 border-r border-b border-white/5 last:border-r-0 
                          ${!isCurrentMonth && viewMode === "month" ? "bg-white/[0.02]" : ""}
                          ${isToday ? "bg-gradient-to-br from-[#3B82F6]/15 to-transparent ring-1 ring-[#3B82F6]/30" : densityBg} 
-                         transition-all duration-200 cursor-pointer`}
+                         transition-all duration-200 cursor-pointer relative group`}
             >
+              {/* 悬停效果背景 */}
+              <motion.div 
+                className="absolute inset-0 bg-white/5 pointer-events-none"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: isHovered ? 1 : 0 }}
+                transition={{ duration: 0.2 }}
+              />
+
               {/* 日期数字 - 增强 */}
-              <div className={`flex items-center gap-2 mb-3 ${
+              <div className={`flex items-center gap-2 mb-3 relative z-10 ${
                 isToday ? "text-[#3B82F6]" : "text-white/70"
               }`}
               >
@@ -558,7 +657,7 @@ function CalendarGridView({
               </div>
 
               {/* 事件列表 - 增强 */}
-              <div className="space-y-1.5"
+              <div className="space-y-1.5 relative z-10"
               >
                 {dayEvents.slice(0, 4).map((event) => (
                   <EventCard 
@@ -568,11 +667,23 @@ function CalendarGridView({
                   />
                 ))}
                 {dayEvents.length > 4 && (
-                  <div className="text-[10px] text-[#71717A] text-center py-1">
+                  <motion.div 
+                    className="text-[10px] text-[#71717A] text-center py-1 bg-white/5 rounded cursor-pointer hover:bg-white/10 transition-colors"
+                    whileHover={{ scale: 1.02 }}
+                  >
                     +{dayEvents.length - 4} 更多
-                  </div>
+                  </motion.div>
                 )}
               </div>
+
+              {/* 快速添加按钮 - 悬停显示 */}
+              <motion.button
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: isHovered ? 1 : 0, scale: isHovered ? 1 : 0.8 }}
+                className="absolute bottom-2 right-2 w-6 h-6 rounded-full bg-[#3B82F6]/20 hover:bg-[#3B82F6]/40 flex items-center justify-center transition-colors z-20"
+              >
+                <Plus className="w-3 h-3 text-[#3B82F6]" />
+              </motion.button>
             </motion.div>
           );
         })}
@@ -631,7 +742,7 @@ function TimelineView({
               );
 
               return (
-                <div key={dayIndex} className="w-32 flex-shrink-0">
+                <div key={dayIndex} className="w-40 flex-shrink-0">
                   {/* 日期头部 */}
                   <div className={`h-12 border-b border-r border-white/5 flex flex-col items-center justify-center ${
                     isToday ? 'bg-[#3B82F6]/10' : ''
@@ -648,6 +759,18 @@ function TimelineView({
                       <div key={hour} className="h-16 border-b border-r border-white/5"></div>
                     ))}
 
+                    {/* 当前时间线指示器 */}
+                    {isToday && (
+                      <motion.div
+                        className="absolute left-0 right-0 h-0.5 bg-[#EF4444] z-20"
+                        style={{ top: `${(new Date().getHours() * 60 + new Date().getMinutes()) / 60 * 64}px` }}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                      >
+                        <div className="absolute -left-1 -top-1 w-2 h-2 rounded-full bg-[#EF4444]" />
+                      </motion.div>
+                    )}
+
                     {/* 事件 */}
                     {dayEvents.map((event) => {
                       const config = typeConfig[event.type] || typeConfig.onetime;
@@ -656,6 +779,10 @@ function TimelineView({
                       const hour = eventDate.getHours();
                       const minute = eventDate.getMinutes();
                       const top = hour * 64 + (minute / 60) * 64;
+                      const duration = event.endTime 
+                        ? (event.endTime - event.startTime) / (1000 * 60) 
+                        : 60;
+                      const height = Math.max((duration / 60) * 64 - 4, 40);
 
                       return (
                         <motion.div
@@ -663,22 +790,28 @@ function TimelineView({
                           initial={{ opacity: 0, scale: 0.9 }}
                           animate={{ opacity: 1, scale: 1 }}
                           onClick={() => onSelectEvent(event)}
-                          className="absolute left-1 right-1 p-2 rounded-lg cursor-pointer text-xs overflow-hidden hover:opacity-90 transition-opacity"
+                          className="absolute left-1 right-1 p-2 rounded-lg cursor-pointer overflow-hidden hover:opacity-90 transition-all group"
                           style={{
                             top,
-                            height: 60,
+                            height,
                             backgroundColor: config.bgColor,
                             borderLeft: `3px solid ${config.color}`,
                           }}
                         >
                           <div className="flex items-center gap-1">
                             <Icon className="w-3 h-3 flex-shrink-0" style={{ color: config.color }} />
-                            <span className="font-medium truncate" style={{ color: config.color }}>
+                            <span className="font-medium truncate text-xs" style={{ color: config.color }}>
                               {event.title}
                             </span>
                           </div>
-                          <div className="text-white/60 mt-0.5">
+                          <div className="text-white/60 mt-0.5 text-[10px]">
                             {format(eventDate, "HH:mm")}
+                            {event.endTime && ` - ${format(new Date(event.endTime), "HH:mm")}`}
+                          </div>
+                          
+                          {/* 悬停详情 */}
+                          <div className="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <span className="text-[10px] text-white">点击查看详情</span>
                           </div>
                         </motion.div>
                       );
@@ -700,12 +833,13 @@ const weekDays = ["周日", "周一", "周二", "周三", "周四", "周五", "�
 function EventCard({ event, onClick }: { event: Event; onClick: () => void }) {
   const config = typeConfig[event.type] || typeConfig.onetime;
   const Icon = config.icon;
+  const priority = event.priority ? priorityConfig[event.priority] : null;
 
   return (
     <motion.div
       whileHover={{ scale: 1.02, x: 2 }}
       onClick={onClick}
-      className="p-2 rounded-lg text-xs cursor-pointer transition-all group"
+      className="p-2 rounded-lg text-xs cursor-pointer transition-all group relative overflow-hidden"
       style={{ 
         backgroundColor: config.bgColor,
         borderLeft: `2px solid ${config.color}`
@@ -719,10 +853,19 @@ function EventCard({ event, onClick }: { event: Event; onClick: () => void }) {
           {event.title}
         </span>
       </div>
-      <div className="text-white/40 mt-0.5 font-mono text-[10px]"
+      <div className="text-white/40 mt-0.5 font-mono text-[10px] flex items-center gap-1"
       >
+        <Clock className="w-2.5 h-2.5" />
         {format(new Date(event.startTime), "HH:mm")}
       </div>
+
+      {/* 优先级指示器 */}
+      {priority && (
+        <div 
+          className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full"
+          style={{ backgroundColor: priority.color }}
+        />
+      )}
     </motion.div>
   );
 }
@@ -762,6 +905,7 @@ function MiniTrendChart({ color }: { color: string }) {
 function EventDetailModal({ event, onClose }: { event: Event; onClose: () => void }) {
   const config = typeConfig[event.type] || typeConfig.onetime;
   const Icon = config.icon;
+  const priority = event.priority ? priorityConfig[event.priority] : null;
 
   return (
     <motion.div
@@ -775,7 +919,7 @@ function EventDetailModal({ event, onClose }: { event: Event; onClose: () => voi
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="console-card w-full max-w-md overflow-hidden"
+        className="console-card w-full max-w-lg overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* 头部 */}
@@ -804,8 +948,16 @@ function EventDetailModal({ event, onClose }: { event: Event; onClose: () => voi
                   </span>
                   <span className="text-xs text-[#71717A]"
                   >
-                    {event.status === 'pending' ? '待执行' : '已计划'}
+                    {event.status === 'pending' ? '待执行' : event.status === 'running' ? '进行中' : '已计划'}
                   </span>
+                  {priority && (
+                    <span 
+                      className="text-xs px-2 py-0.5 rounded font-medium"
+                      style={{ backgroundColor: priority.bgColor, color: priority.color }}
+                    >
+                      {priority.label}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -832,9 +984,65 @@ function EventDetailModal({ event, onClose }: { event: Event; onClose: () => voi
               <div className="text-sm text-[#71717A]">时间</div>
               <div className="text-white font-medium">
                 {format(new Date(event.startTime), "yyyy年MM月dd日 HH:mm")}
+                {event.endTime && ` - ${format(new Date(event.endTime), "HH:mm")}`}
               </div>
             </div>
           </div>
+
+          {event.location && (
+            <div className="flex items-center gap-4"
+            >
+              <div className="w-10 h-10 rounded-xl bg-[#1A1A24] flex items-center justify-center"
+              >
+                <MapPin className="w-5 h-5 text-[#71717A]" />
+              </div>
+              <div>
+                <div className="text-sm text-[#71717A]">地点</div>
+                <div className="text-white font-medium">{event.location}</div>
+              </div>
+            </div>
+          )}
+
+          {event.attendees && event.attendees.length > 0 && (
+            <div className="flex items-center gap-4"
+            >
+              <div className="w-10 h-10 rounded-xl bg-[#1A1A24] flex items-center justify-center"
+              >
+                <Users className="w-5 h-5 text-[#71717A]" />
+              </div>
+              <div>
+                <div className="text-sm text-[#71717A]">参与者</div>
+                <div className="flex items-center gap-2">
+                  {event.attendees.map((attendee, i) => (
+                    <span key={i} className="text-white font-medium">{attendee}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {event.tags && event.tags.length > 0 && (
+            <div className="flex items-center gap-4"
+            >
+              <div className="w-10 h-10 rounded-xl bg-[#1A1A24] flex items-center justify-center"
+              >
+                <Tag className="w-5 h-5 text-[#71717A]" />
+              </div>
+              <div className="flex-1">
+                <div className="text-sm text-[#71717A]">标签</div>
+                <div className="flex flex-wrap gap-2 mt-1">
+                  {event.tags.map((tag) => (
+                    <span 
+                      key={tag}
+                      className="text-xs px-2.5 py-1 rounded-lg bg-white/5 text-[#A1A1AA] hover:bg-white/10 cursor-pointer transition-colors"
+                    >
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
 
           {event.description && (
             <div className="pt-4 border-t border-white/5"
