@@ -32,7 +32,13 @@ import {
   Eye,
   CheckSquare,
   Square,
-  ArrowRight
+  ArrowRight,
+  MessageSquare,
+  Paperclip,
+  Users,
+  Flag,
+  Sparkles,
+  Zap
 } from "lucide-react";
 
 interface Task {
@@ -46,6 +52,9 @@ interface Task {
   dueDate: number | null;
   progress?: number;
   createdAt?: number;
+  comments?: number;
+  attachments?: number;
+  subtasks?: { total: number; completed: number };
 }
 
 interface TaskBoardProps {
@@ -745,32 +754,40 @@ function TaskCard({
   onDragEnd?: () => void;
   onSelect?: () => void;
 }) {
-  const priorityColors: Record<string, { bg: string; text: string; border: string; glow: string; shadow: string }> = {
+  const priorityColors: Record<string, { bg: string; text: string; border: string; glow: string; shadow: string; gradient: string }> = {
     high: { 
       bg: "rgba(239, 68, 68, 0.1)", 
       text: "#EF4444",
       border: "rgba(239, 68, 68, 0.3)",
       glow: "rgba(239, 68, 68, 0.4)",
-      shadow: "0 8px 30px rgba(239, 68, 68, 0.2)"
+      shadow: "0 8px 30px rgba(239, 68, 68, 0.2)",
+      gradient: "from-red-500/10 to-transparent"
     },
     medium: { 
       bg: "rgba(245, 158, 11, 0.1)", 
       text: "#F59E0B",
       border: "rgba(245, 158, 11, 0.3)",
       glow: "rgba(245, 158, 11, 0.4)",
-      shadow: "0 8px 30px rgba(245, 158, 11, 0.2)"
+      shadow: "0 8px 30px rgba(245, 158, 11, 0.2)",
+      gradient: "from-amber-500/10 to-transparent"
     },
     low: { 
       bg: "rgba(59, 130, 246, 0.1)", 
       text: "#3B82F6",
       border: "rgba(59, 130, 246, 0.3)",
       glow: "rgba(59, 130, 246, 0.4)",
-      shadow: "0 8px 30px rgba(59, 130, 246, 0.2)"
+      shadow: "0 8px 30px rgba(59, 130, 246, 0.2)",
+      gradient: "from-blue-500/10 to-transparent"
     },
   };
 
   const priorityConfig = priorityColors[task.priority];
   const progress = task.progress || 0;
+
+  // 模拟额外元数据
+  const comments = task.comments || Math.floor(Math.random() * 8);
+  const attachments = task.attachments || Math.floor(Math.random() * 4);
+  const subtasks = task.subtasks || { total: Math.floor(Math.random() * 6) + 1, completed: Math.floor(Math.random() * 3) };
 
   return (
     <motion.div
@@ -819,6 +836,12 @@ function TaskCard({
           }}
         />
       )}
+
+      {/* 悬停时的渐变背景 */}
+      <div className={`absolute inset-0 bg-gradient-to-br ${priorityConfig.gradient} opacity-0 group-hover:opacity-[0.08] transition-opacity duration-500`} />
+      
+      {/* 右上角装饰 */}
+      <div className="absolute -top-10 -right-10 w-20 h-20 bg-gradient-to-br from-white/5 to-transparent rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
       {/* 选择框 */}
       <button
@@ -872,13 +895,37 @@ function TaskCard({
             </div>
             <div className="h-2 bg-[#1A1A24] rounded-full overflow-hidden">
               <motion.div 
-                className="h-full rounded-full"
+                className="h-full rounded-full relative"
                 style={{ backgroundColor: priorityConfig.text }}
                 initial={{ width: 0 }}
                 animate={{ width: `${progress}%` }}
                 transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
+              >
+                {/* 流动光效 */}
+                <div className="absolute inset-0 overflow-hidden rounded-full">
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                    animate={{ x: ['-100%', '100%'] }}
+                    transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
+                  />
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        )}
+        
+        {/* 子任务进度 */}
+        {subtasks.total > 0 && (
+          <div className="mt-3 flex items-center gap-2">
+            <div className="flex-1 h-1.5 bg-[#1A1A24] rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-gradient-to-r from-[#10B981] to-[#34D399] rounded-full"
+                style={{ width: `${(subtasks.completed / subtasks.total) * 100}%` }}
               />
             </div>
+            <span className="text-[10px] text-[#52525B]">
+              {subtasks.completed}/{subtasks.total}
+            </span>
           </div>
         )}
         
@@ -935,6 +982,22 @@ function TaskCard({
             ))}
           </div>
         )}
+
+        {/* 额外元信息 - 评论、附件 */}
+        <div className="flex items-center gap-3 mt-3 pt-3 border-t border-white/5">
+          <div className="flex items-center gap-1 text-[10px] text-[#52525B] hover:text-[#71717A] transition-colors cursor-pointer">
+            <MessageSquare className="w-3 h-3" />
+            <span>{comments}</span>
+          </div>
+          <div className="flex items-center gap-1 text-[10px] text-[#52525B] hover:text-[#71717A] transition-colors cursor-pointer">
+            <Paperclip className="w-3 h-3" />
+            <span>{attachments}</span>
+          </div>
+          <div className="flex items-center gap-1 text-[10px] text-[#52525B] ml-auto">
+            <Clock className="w-3 h-3" />
+            <span>{new Date(task.updatedAt || Date.now()).toLocaleDateString()}</span>
+          </div>
+        </div>
       </div>
     </motion.div>
   );
