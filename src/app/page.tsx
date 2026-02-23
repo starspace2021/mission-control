@@ -33,7 +33,18 @@ import {
   BarChart3,
   PieChart,
   Target,
-  Layers
+  Layers,
+  ArrowUpRight,
+  ArrowDownRight,
+  Minus,
+  Gauge,
+  Database,
+  Globe,
+  Shield,
+  Flame,
+  Play,
+  Pause,
+  RefreshCw
 } from "lucide-react";
 import TaskBoard from "./components/TaskBoard";
 import CalendarView from "./components/CalendarView";
@@ -98,6 +109,24 @@ const mockData = {
       { label: "扩展性", value: 70 },
     ],
     area: [30, 45, 35, 50, 40, 60, 55, 70, 65, 80, 75, 85],
+  },
+  // 新增系统指标
+  systemMetrics: {
+    requestsPerMin: 1247,
+    avgLatency: 98,
+    availability: 99.9,
+    errorRate: 0.1,
+    activeConnections: 42,
+    diskUsage: 68,
+    networkIn: 12.5,
+    networkOut: 8.3,
+  },
+  // 新增趋势数据
+  trends: {
+    tasks: { value: 12, direction: "up" as const },
+    success: { value: 2.3, direction: "up" as const },
+    latency: { value: 5, direction: "down" as const },
+    errors: { value: 0.5, direction: "down" as const },
   }
 };
 
@@ -495,10 +524,10 @@ function LiveCounter({ value, suffix = "" }: { value: number; suffix?: string })
   return <span className="tabular-nums">{displayValue}{suffix}</span>;
 }
 
-// 趋势指示器组件
-function TrendIndicator({ value, trend }: { value: string | number; trend: string }) {
-  const isPositive = trend.startsWith('+');
-  const isNeutral = trend === 'stable';
+// 趋势指示器组件 - 增强版
+function TrendIndicator({ trend }: { trend: { value: number; direction: "up" | "down" | "stable" } }) {
+  const isPositive = trend.direction === "up";
+  const isNeutral = trend.direction === "stable";
   
   return (
     <div className="flex items-center gap-1.5">
@@ -507,10 +536,10 @@ function TrendIndicator({ value, trend }: { value: string | number; trend: strin
         isNeutral ? 'bg-[#71717A]/10 text-[#71717A]' : 
         'bg-[#EF4444]/10 text-[#EF4444]'
       }`}>
-        {isPositive ? <TrendingUp className="w-3 h-3" /> : 
-         isNeutral ? <Activity className="w-3 h-3" /> : 
-         <TrendingUp className="w-3 h-3 rotate-180" />}
-        {trend}
+        {isPositive ? <ArrowUpRight className="w-3 h-3" /> : 
+         isNeutral ? <Minus className="w-3 h-3" /> : 
+         <ArrowDownRight className="w-3 h-3" />}
+        {trend.value}%
       </div>
     </div>
   );
@@ -797,7 +826,7 @@ function GlobalSearch({ onClose }: { onClose: () => void }) {
   );
 }
 
-// 仪表盘视图
+// 仪表盘视图 - 增强版
 function DashboardView() {
   const chartData1 = [30, 45, 35, 50, 40, 60, 55, 70, 65, 80, 75, 85];
   const chartData2 = [20, 30, 25, 35, 30, 40, 35, 45, 40, 50, 45, 55];
@@ -809,7 +838,7 @@ function DashboardView() {
       exit={{ opacity: 0, y: -20 }}
       className="space-y-6"
     >
-      {/* 欢迎横幅 */}
+      {/* 欢迎横幅 - 增强版 */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -833,24 +862,22 @@ function DashboardView() {
         </div>
       </motion.div>
 
-      {/* 指标卡片 */}
+      {/* 核心指标卡片 - 增强版 */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard 
           title="进行中任务" 
           value={mockData.stats.activeTasks} 
-          trend="+1" 
-          trendUp={true}
+          trend={mockData.trends.tasks}
           icon={ClipboardList} 
           color="blue"
           chart={chartData1}
-          subtitle="较昨日增加"
+          subtitle="较昨日"
           showCountUp
         />
         <MetricCard 
           title="定时任务" 
           value={mockData.stats.cronJobs} 
-          trend="stable" 
-          trendUp={null}
+          trend={{ value: 0, direction: "stable" }}
           icon={Clock} 
           color="purple"
           chart={chartData2}
@@ -860,8 +887,7 @@ function DashboardView() {
         <MetricCard 
           title="记忆文档" 
           value={mockData.stats.memories} 
-          trend="+3" 
-          trendUp={true}
+          trend={{ value: 3, direction: "up" }}
           icon={Brain} 
           color="green"
           chart={chartData1}
@@ -870,18 +896,53 @@ function DashboardView() {
         />
         <MetricCard 
           title="成功率" 
-          value={`${mockData.stats.successRate}%`} 
-          trend="+0.5%" 
-          trendUp={true}
+          value={mockData.stats.successRate} 
+          trend={{ value: 0.5, direction: "up" }}
           icon={Activity} 
           color="cyan"
           chart={chartData2}
           subtitle="系统健康"
           showCountUp={false}
+          suffix="%"
         />
       </div>
 
-      {/* 新增数据可视化区域 - 增强版 */}
+      {/* 新增系统指标卡片 */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <SystemMetricCard 
+          title="请求/分钟" 
+          value={mockData.systemMetrics.requestsPerMin}
+          trend={{ value: 12, direction: "up" }}
+          icon={Globe}
+          color="blue"
+        />
+        <SystemMetricCard 
+          title="平均延迟" 
+          value={mockData.systemMetrics.avgLatency}
+          suffix="ms"
+          trend={{ value: 5, direction: "down" }}
+          icon={Gauge}
+          color="green"
+        />
+        <SystemMetricCard 
+          title="可用性" 
+          value={mockData.systemMetrics.availability}
+          suffix="%"
+          trend={{ value: 0.1, direction: "up" }}
+          icon={Shield}
+          color="purple"
+        />
+        <SystemMetricCard 
+          title="磁盘使用" 
+          value={mockData.systemMetrics.diskUsage}
+          suffix="%"
+          trend={{ value: 2, direction: "up" }}
+          icon={Database}
+          color="yellow"
+        />
+      </div>
+
+      {/* 数据可视化区域 - 增强版 */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* 环形图 - 任务分布 */}
         <motion.div
@@ -1189,106 +1250,200 @@ function DashboardView() {
   );
 }
 
-// 指标卡片组件 - v3.0 优化版
+// 指标卡片组件 - v4.0 增强版
 function MetricCard({ 
   title, 
   value, 
-  trend, 
-  trendUp,
+  trend,
   icon: Icon, 
   color,
   chart,
   subtitle,
-  showCountUp = false
+  showCountUp = false,
+  suffix = ""
 }: {
   title: string;
-  value: string | number;
-  trend: string;
-  trendUp: boolean | null;
+  value: number;
+  trend: { value: number; direction: "up" | "down" | "stable" };
   icon: React.ComponentType<{ className?: string }>;
   color: string;
   chart: number[];
   subtitle?: string;
   showCountUp?: boolean;
+  suffix?: string;
 }) {
-  const colorMap: Record<string, { bg: string; text: string; chart: string; gradient: string; glow: string }> = {
+  const colorMap: Record<string, { bg: string; text: string; chart: string; gradient: string; glow: string; border: string }> = {
     blue: { 
       bg: "bg-[#3B82F6]/10", 
       text: "text-[#60A5FA]",
       chart: "#3B82F6", 
       gradient: "from-[#3B82F6] to-[#60A5FA]",
-      glow: "rgba(59, 130, 246, 0.3)"
+      glow: "rgba(59, 130, 246, 0.4)",
+      border: "rgba(59, 130, 246, 0.3)"
     },
     purple: { 
       bg: "bg-[#8B5CF6]/10", 
       text: "text-[#A78BFA]",
       chart: "#8B5CF6", 
       gradient: "from-[#8B5CF6] to-[#A78BFA]",
-      glow: "rgba(139, 92, 246, 0.3)"
+      glow: "rgba(139, 92, 246, 0.4)",
+      border: "rgba(139, 92, 246, 0.3)"
     },
     green: { 
       bg: "bg-[#10B981]/10", 
       text: "text-[#34D399]",
       chart: "#10B981", 
       gradient: "from-[#10B981] to-[#34D399]",
-      glow: "rgba(16, 185, 129, 0.3)"
+      glow: "rgba(16, 185, 129, 0.4)",
+      border: "rgba(16, 185, 129, 0.3)"
     },
     cyan: { 
       bg: "bg-[#06B6D4]/10", 
       text: "text-[#22D3EE]",
       chart: "#06B6D4", 
       gradient: "from-[#06B6D4] to-[#22D3EE]",
-      glow: "rgba(6, 182, 212, 0.3)"
+      glow: "rgba(6, 182, 212, 0.4)",
+      border: "rgba(6, 182, 212, 0.3)"
+    },
+    yellow: { 
+      bg: "bg-[#F59E0B]/10", 
+      text: "text-[#FBBF24]",
+      chart: "#F59E0B", 
+      gradient: "from-[#F59E0B] to-[#FBBF24]",
+      glow: "rgba(245, 158, 11, 0.4)",
+      border: "rgba(245, 158, 11, 0.3)"
     },
   };
 
   const colors = colorMap[color];
-  const numericValue = typeof value === 'number' ? value : parseFloat(value.toString().replace('%', ''));
 
   return (
     <motion.div 
       className="console-card p-5 relative overflow-hidden group cursor-pointer"
-      whileHover={{ y: -6, scale: 1.02 }}
-      transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+      whileHover={{ 
+        y: -8, 
+        scale: 1.03,
+        boxShadow: `0 20px 40px rgba(0, 0, 0, 0.4), 0 0 40px ${colors.glow}` 
+      }}
+      transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
     >
       {/* 背景发光效果 */}
-      <div className={`absolute inset-0 bg-gradient-to-br ${colors.gradient} opacity-0 group-hover:opacity-[0.08] transition-opacity duration-500`} />
-      <div className="absolute -top-20 -right-20 w-40 h-40 bg-gradient-to-br from-white/5 to-transparent rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+      <div className={`absolute inset-0 bg-gradient-to-br ${colors.gradient} opacity-0 group-hover:opacity-[0.12] transition-opacity duration-500`} />
+      <div className="absolute -top-24 -right-24 w-48 h-48 bg-gradient-to-br from-white/8 to-transparent rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
       
-      {/* 顶部渐变条 */}
+      {/* 顶部渐变条 - 增强 */}
       <motion.div 
-        className={`absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r ${colors.gradient}`}
+        className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${colors.gradient}`}
         initial={{ scaleX: 0 }}
         animate={{ scaleX: 1 }}
-        transition={{ duration: 0.6, delay: 0.1 }}
+        transition={{ duration: 0.8, delay: 0.1, ease: [0.4, 0, 0.2, 1] }}
+      />
+      
+      {/* 左侧边框发光 */}
+      <div 
+        className="absolute left-0 top-4 bottom-4 w-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        style={{ background: `linear-gradient(to bottom, transparent, ${colors.chart}, transparent)` }}
       />
       
       <div className="relative z-10">
         <div className="flex items-start justify-between mb-4">
           <motion.div 
-            className={`p-3 rounded-xl ${colors.bg} border border-${color}-500/20`}
-            whileHover={{ scale: 1.1, rotate: 3 }}
-            transition={{ type: "spring", stiffness: 400 }}
+            className={`p-3 rounded-xl ${colors.bg} border`}
+            style={{ borderColor: colors.border }}
+            whileHover={{ scale: 1.15, rotate: 5 }}
+            transition={{ type: "spring", stiffness: 400, damping: 15 }}
           >
             <Icon className={`w-5 h-5 ${colors.text}`} />
           </motion.div>
-          <TrendIndicator value={value} trend={trend} />
+          <TrendIndicator trend={trend} />
         </div>
         
         <div className="flex items-end justify-between">
           <div>
-            <div className="metric-value">
-              {showCountUp && typeof value === 'number' ? (
-                <CountUp value={numericValue} />
+            <motion.div 
+              className="metric-value"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.4 }}
+            >
+              {showCountUp ? (
+                <CountUp value={value} />
               ) : (
                 value
               )}
-            </div>
+              {suffix}
+            </motion.div>
             <div className="metric-label mt-1.5">{title}</div>
             {subtitle && <div className="text-xs text-[#52525B] mt-1">{subtitle}</div>}
           </div>
-          <div className="opacity-60 group-hover:opacity-100 transition-opacity">
+          <motion.div 
+            className="opacity-60 group-hover:opacity-100 transition-opacity"
+            whileHover={{ scale: 1.1 }}
+          >
             <MiniChart data={chart} color={colors.chart} />
+          </motion.div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+// 系统指标卡片 - 新增
+function SystemMetricCard({ 
+  title, 
+  value,
+  suffix = "",
+  trend,
+  icon: Icon, 
+  color
+}: {
+  title: string;
+  value: number;
+  suffix?: string;
+  trend: { value: number; direction: "up" | "down" | "stable" };
+  icon: React.ComponentType<{ className?: string }>;
+  color: string;
+}) {
+  const colorMap: Record<string, { bg: string; text: string; border: string }> = {
+    blue: { 
+      bg: "bg-[#3B82F6]/10", 
+      text: "text-[#60A5FA]",
+      border: "border-[#3B82F6]/30"
+    },
+    green: { 
+      bg: "bg-[#10B981]/10", 
+      text: "text-[#34D399]",
+      border: "border-[#10B981]/30"
+    },
+    purple: { 
+      bg: "bg-[#8B5CF6]/10", 
+      text: "text-[#A78BFA]",
+      border: "border-[#8B5CF6]/30"
+    },
+    yellow: { 
+      bg: "bg-[#F59E0B]/10", 
+      text: "text-[#FBBF24]",
+      border: "border-[#F59E0B]/30"
+    },
+  };
+
+  const colors = colorMap[color];
+
+  return (
+    <motion.div 
+      className="console-card p-4 relative overflow-hidden group cursor-pointer"
+      whileHover={{ y: -4, scale: 1.02 }}
+      transition={{ duration: 0.3 }}
+    >
+      <div className="flex items-center gap-3">
+        <div className={`p-2.5 rounded-xl ${colors.bg} border ${colors.border}`}>
+          <Icon className={`w-4 h-4 ${colors.text}`} />
+        </div>
+        <div className="flex-1">
+          <div className="text-xs text-[#71717A] mb-0.5">{title}</div>
+          <div className="flex items-center gap-2">
+            <span className="text-lg font-bold text-white">{value}{suffix}</span>
+            <TrendIndicator trend={trend} />
           </div>
         </div>
       </div>

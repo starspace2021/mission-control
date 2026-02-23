@@ -74,41 +74,53 @@ body {
   background-position: center top, center top, center top;
 }
 
-/* 现代卡片 - v3.0 优化版 */
+/* 现代卡片 - v4.0 增强版 */
 .console-card {
   background: linear-gradient(145deg, rgba(17, 17, 24, 0.98), rgba(20, 20, 28, 0.95));
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 14px;
-  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 
-    0 1px 3px rgba(0, 0, 0, 0.3),
-    0 4px 12px rgba(0, 0, 0, 0.2),
-    0 8px 24px rgba(0, 0, 0, 0.15);
+    0 2px 8px rgba(0, 0, 0, 0.4),
+    0 8px 24px rgba(0, 0, 0, 0.3),
+    0 16px 48px rgba(0, 0, 0, 0.2);
   position: relative;
   overflow: hidden;
 }
 
-.console-card::after {
+.console-card::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
   opacity: 0;
-  transition: opacity 0.35s ease;
+  transition: opacity 0.4s ease;
+}
+
+.console-card::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.05), transparent);
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.4s ease;
 }
 
 .console-card:hover {
-  border-color: rgba(59, 130, 246, 0.2);
+  border-color: rgba(59, 130, 246, 0.25);
   box-shadow: 
-    0 2px 6px rgba(0, 0, 0, 0.4),
-    0 8px 24px rgba(0, 0, 0, 0.3),
-    0 0 30px rgba(59, 130, 246, 0.06);
-  transform: translateY(-2px);
+    0 4px 12px rgba(0, 0, 0, 0.5),
+    0 16px 48px rgba(0, 0, 0, 0.4),
+    0 0 40px rgba(59, 130, 246, 0.08);
+  transform: translateY(-3px);
 }
 
+.console-card:hover::before,
 .console-card:hover::after {
   opacity: 1;
 }
@@ -177,23 +189,23 @@ body {
   box-shadow: 0 0 12px rgba(6, 182, 212, 0.1);
 }
 
-/* 指标数字 - v3.0 优化 */
+/* 指标数字 - v4.0 增强版 */
 .metric-value {
-  font-size: 28px;
-  font-weight: 700;
+  font-size: 32px;
+  font-weight: 800;
   letter-spacing: -0.03em;
-  color: var(--text-primary);
-  background: linear-gradient(135deg, #FFFFFF 0%, #E4E4E7 100%);
+  background: linear-gradient(135deg, #FFFFFF 0%, #E4E4E7 50%, #A1A1AA 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  text-shadow: 0 2px 10px rgba(255, 255, 255, 0.1);
 }
 
 .metric-label {
   font-size: 13px;
   color: var(--text-tertiary);
   font-weight: 500;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.02em;
 }
 
 /* 图表容器 */
@@ -229,44 +241,44 @@ body {
   border-bottom: none;
 }
 
-/* 优先级标签 - v3.0 优化 */
+/* 优先级标签 - v4.0 增强版 */
 .priority-high {
-  background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.08));
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.1));
   color: #F87171;
-  padding: 3px 10px;
-  border-radius: 6px;
+  padding: 4px 12px;
+  border-radius: 8px;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
-  border: 1px solid rgba(239, 68, 68, 0.25);
-  box-shadow: 0 0 8px rgba(239, 68, 68, 0.08);
+  letter-spacing: 0.04em;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .priority-medium {
-  background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.08));
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(245, 158, 11, 0.1));
   color: #FBBF24;
-  padding: 3px 10px;
-  border-radius: 6px;
+  padding: 4px 12px;
+  border-radius: 8px;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
-  border: 1px solid rgba(245, 158, 11, 0.25);
-  box-shadow: 0 0 8px rgba(245, 158, 11, 0.08);
+  letter-spacing: 0.04em;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .priority-low {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.08));
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(59, 130, 246, 0.1));
   color: #60A5FA;
-  padding: 3px 10px;
-  border-radius: 6px;
+  padding: 4px 12px;
+  border-radius: 8px;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
-  border: 1px solid rgba(59, 130, 246, 0.25);
-  box-shadow: 0 0 8px rgba(59, 130, 246, 0.08);
+  letter-spacing: 0.04em;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 /* 实时状态模块 */
@@ -1306,16 +1318,16 @@ body {
 
 /* ========== UI 迭代 v3.0 新增样式 ========== */
 
-/* 玻璃态卡片增强 - v3.0 优化版 */
+/* 玻璃态卡片增强 - v4.0 优化版 */
 .glass-card-enhanced {
-  background: linear-gradient(135deg, rgba(17, 17, 24, 0.95), rgba(26, 26, 36, 0.9));
+  background: linear-gradient(135deg, rgba(17, 17, 24, 0.95), rgba(26, 26, 36, 0.92));
   backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
   box-shadow: 
     0 2px 8px rgba(0, 0, 0, 0.4),
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    0 12px 40px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
@@ -1325,20 +1337,20 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, transparent 50%);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, transparent 50%);
   opacity: 0;
   transition: opacity 0.4s ease;
   pointer-events: none;
 }
 
 .glass-card-enhanced:hover {
-  border-color: rgba(59, 130, 246, 0.25);
+  border-color: rgba(59, 130, 246, 0.3);
   box-shadow: 
     0 4px 16px rgba(0, 0, 0, 0.5),
-    0 16px 48px rgba(0, 0, 0, 0.4),
-    0 0 40px rgba(59, 130, 246, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  transform: translateY(-3px);
+    0 20px 60px rgba(0, 0, 0, 0.45),
+    0 0 50px rgba(59, 130, 246, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transform: translateY(-4px);
 }
 
 .glass-card-enhanced:hover::before {
