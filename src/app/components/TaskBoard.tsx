@@ -52,6 +52,7 @@ interface Task {
   dueDate: number | null;
   progress?: number;
   createdAt?: number;
+  updatedAt?: number;
   comments?: number;
   attachments?: number;
   subtasks?: { total: number; completed: number };

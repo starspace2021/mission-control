@@ -2110,3 +2110,346 @@ body {
     animation: none;
   }
 }
+
+/* ========== v6.0 UI迭代新增样式 ========== */
+
+/* 任务卡片增强效果 */
+.task-card-enhanced {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.task-card-enhanced:hover {
+  transform: translateY(-6px) scale(1.02);
+}
+
+/* 拖拽时的3D效果 */
+.dragging-3d {
+  transform: scale(1.05) rotate(3deg) translateY(-8px);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+/* 进度条流动光效 */
+@keyframes progress-flow-light {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.progress-flow::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  animation: progress-flow-light 1.5s ease-in-out infinite;
+}
+
+/* 子任务进度指示器 */
+.subtask-indicator {
+  position: relative;
+  overflow: hidden;
+}
+
+.subtask-indicator::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.2), transparent);
+  animation: subtask-pulse 2s ease-in-out infinite;
+}
+
+@keyframes subtask-pulse {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 1; }
+}
+
+/* 日历网格悬停效果 */
+.calendar-cell-hover {
+  position: relative;
+  overflow: hidden;
+}
+
+.calendar-cell-hover::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.calendar-cell-hover:hover::before {
+  opacity: 1;
+}
+
+/* 事件卡片优先级指示器 */
+.event-priority-indicator {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  box-shadow: 0 0 8px currentColor;
+}
+
+/* 时间线当前时间指示器 */
+.timeline-current-time {
+  position: relative;
+}
+
+.timeline-current-time::before {
+  content: '';
+  position: absolute;
+  left: -4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8px;
+  height: 8px;
+  background: #EF4444;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #EF4444;
+  animation: time-pulse 2s ease-in-out infinite;
+}
+
+@keyframes time-pulse {
+  0%, 100% { box-shadow: 0 0 5px #EF4444; }
+  50% { box-shadow: 0 0 15px #EF4444, 0 0 25px #EF4444; }
+}
+
+/* 标签云动画 */
+.tag-cloud-animated {
+  animation: tag-float 3s ease-in-out infinite;
+}
+
+@keyframes tag-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+/* 搜索高亮效果 */
+.search-highlight {
+  background: linear-gradient(120deg, rgba(59, 130, 246, 0.3) 0%, rgba(139, 92, 246, 0.3) 100%);
+  color: white;
+  padding: 0 2px;
+  border-radius: 2px;
+  font-weight: 500;
+}
+
+/* 记忆卡片悬停光晕 */
+.memory-card-glow {
+  position: relative;
+}
+
+.memory-card-glow::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  background: linear-gradient(135deg, var(--glow-color, rgba(59, 130, 246, 0.3)), transparent 60%);
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  filter: blur(8px);
+}
+
+.memory-card-glow:hover::after {
+  opacity: 1;
+}
+
+/* 重要度指示器动画 */
+.importance-bar {
+  transition: all 0.3s ease;
+}
+
+.importance-bar:hover {
+  transform: scaleY(1.2);
+}
+
+/* 快速操作按钮 */
+.quick-action-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.quick-action-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(255,255,255,0.2) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.quick-action-btn:hover::before {
+  opacity: 1;
+}
+
+.quick-action-btn:active {
+  transform: scale(0.95);
+}
+
+/* 响应式卡片网格 */
+@screen md {
+  .memory-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@screen xl {
+  .memory-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* 平滑滚动 */
+.smooth-scroll {
+  scroll-behavior: smooth;
+}
+
+/* 焦点样式优化 */
+.focus-ring-enhanced:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3), 0 0 0 6px rgba(59, 130, 246, 0.1);
+}
+
+/* 选中状态 */
+.selected-state {
+  position: relative;
+}
+
+.selected-state::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border: 2px solid #3B82F6;
+  border-radius: inherit;
+  opacity: 0.5;
+  animation: selected-pulse 2s ease-in-out infinite;
+}
+
+@keyframes selected-pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.8; }
+}
+
+/* 空状态动画 */
+.empty-state-animated {
+  animation: empty-float 4s ease-in-out infinite;
+}
+
+@keyframes empty-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-5px) rotate(1deg); }
+  75% { transform: translateY(-3px) rotate(-1deg); }
+}
+
+/* 加载骨架屏 */
+.skeleton-shimmer {
+  background: linear-gradient(90deg, 
+    rgba(255,255,255,0.03) 0%, 
+    rgba(255,255,255,0.08) 50%, 
+    rgba(255,255,255,0.03) 100%);
+  background-size: 200% 100%;
+  animation: skeleton-move 1.5s ease-in-out infinite;
+}
+
+@keyframes skeleton-move {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* 工具提示增强 */
+.tooltip-enhanced {
+  position: relative;
+}
+
+.tooltip-enhanced::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) scale(0.9);
+  padding: 6px 12px;
+  background: rgba(17, 17, 24, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+  z-index: 100;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
+}
+
+.tooltip-enhanced:hover::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) scale(1);
+}
+
+/* 批量操作栏 */
+.batch-actions {
+  animation: slide-up-fade 0.3s ease-out;
+}
+
+@keyframes slide-up-fade {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 统计卡片趋势指示器 */
+.trend-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.trend-indicator.up {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34D399;
+}
+
+.trend-indicator.down {
+  background: rgba(239, 68, 68, 0.2);
+  color: #F87171;
+}
+
+/* 折叠面板动画 */
+.collapse-content {
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+}
+
+.collapse-content.collapsed {
+  max-height: 0;
+  opacity: 0;
+}
+
+.collapse-content.expanded {
+  max-height: 500px;
+  opacity: 1;
+}
+
+/* 复制成功反馈 */
+.copy-feedback {
+  animation: copy-success 0.3s ease-out;
+}
+
+@keyframes copy-success {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
