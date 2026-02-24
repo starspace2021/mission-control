@@ -210,13 +210,13 @@ export default function MemoryScreen({ memories = mockMemories }: MemoryScreenPr
   const [sortBy, setSortBy] = useState<"updated" | "importance" | "title" | "created">("updated");
   const [showTagCloud, setShowTagCloud] = useState(true);
 
-  // 搜索高亮处理 - v10 优化版
+  // 搜索高亮处理 - v4 优化版
   const highlightText = (text: string, query: string) => {
     if (!query) return text;
     const parts = text.split(new RegExp(`(${query})`, 'gi'));
     return parts.map((part, i) =>
       part.toLowerCase() === query.toLowerCase() ?
-        <mark key={i} className="search-highlight-v10">{part}</mark> :
+        <mark key={i} className="search-highlight-v4">{part}</mark> :
         part
     );
   };
@@ -284,7 +284,7 @@ export default function MemoryScreen({ memories = mockMemories }: MemoryScreenPr
       exit={{ opacity: 0, y: -20 }}
       className="space-y-5"
     >
-      {/* 统计卡片 - v10 优化版 */}
+      {/* 统计卡片 - v4 优化版 */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4"
       >
         {[
@@ -299,7 +299,7 @@ export default function MemoryScreen({ memories = mockMemories }: MemoryScreenPr
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.08 }}
             whileHover={{ y: -3, scale: 1.01, boxShadow: `0 0 25px ${stat.color}15` }}
-            className={`glass-card-v4 p-4 flex items-center gap-3 cursor-pointer transition-all memory-card-glow-v10 ${
+            className={`glass-card-v4 p-4 flex items-center gap-3 cursor-pointer transition-all memory-card-glow-v4 ${
               selectedType === stat.type ? 'ring-2' : ''
             }`}
             style={{ 
@@ -322,7 +322,7 @@ export default function MemoryScreen({ memories = mockMemories }: MemoryScreenPr
         ))}
       </div>
 
-      {/* 搜索和筛选栏 - v10 优化版 */}
+      {/* 搜索和筛选栏 - v4 优化版 */}
       <div className="glass-card-v4 p-4"
       >
         <div className="flex flex-col lg:flex-row gap-3"
@@ -410,7 +410,7 @@ export default function MemoryScreen({ memories = mockMemories }: MemoryScreenPr
           </button>
         </div>
 
-        {/* 标签云 - v10 优化版 */}
+        {/* 标签云 - v4 优化版 */}
         <div className="mt-3">
           <button
             onClick={() => setShowTagCloud(!showTagCloud)}
@@ -429,7 +429,7 @@ export default function MemoryScreen({ memories = mockMemories }: MemoryScreenPr
                 exit={{ height: 0, opacity: 0 }}
                 className="overflow-hidden"
               >
-                <div className="flex flex-wrap items-center gap-1.5 p-3 bg-[#1A1A24]/50 rounded-xl border border-white/5"
+                <div className="flex flex-wrap items-center gap-1.5 p-3 bg-[#1A1A24]/50 rounded-xl border border-white/5 tag-cloud-v4"
                 >
                   {tagCloudData.map(({ tag, count, size }, index) => (
                     <motion.button
@@ -443,7 +443,7 @@ export default function MemoryScreen({ memories = mockMemories }: MemoryScreenPr
                       }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => toggleTag(tag)}
-                      className={`px-2.5 py-1 rounded-lg transition-all flex items-center gap-1 tag-cloud-v10-item ${
+                      className={`px-2.5 py-1 rounded-lg transition-all flex items-center gap-1 tag-cloud-v4-item ${
                         selectedTags.includes(tag)
                           ? "bg-gradient-to-r from-[#3B82F6]/20 to-[#8B5CF6]/15 text-[#3B82F6] border border-[#3B82F6]/30"
                           : "bg-white/5 text-[#A1A1AA] hover:bg-white/10 border border-transparent"
@@ -530,7 +530,7 @@ export default function MemoryScreen({ memories = mockMemories }: MemoryScreenPr
           </AnimatePresence>
         </div>
       ) : (
-        <div className="glass-card-v3 overflow-hidden"
+        <div className="glass-card-v4 overflow-hidden"
         >
           <div className="divide-y divide-white/5"
           >
@@ -593,7 +593,7 @@ function MemoryCard({
         boxShadow: `0 20px 50px rgba(0, 0, 0, 0.4), 0 0 40px ${colors.glow}`
       }}
       onClick={onClick}
-      className="console-card p-5 cursor-pointer group relative overflow-hidden"
+      className="glass-card-v4 p-5 cursor-pointer group relative overflow-hidden memory-card-glow-v4"
     >
       {/* 类型指示条 - 增强 */}
       <motion.div

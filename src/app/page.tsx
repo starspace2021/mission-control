@@ -1373,8 +1373,8 @@ function DashboardView() {
           </div>
         </div>
 
-        {/* 今日日程 - 增强版 */}
-        <div className="console-card overflow-hidden">
+        {/* 今日日程 - 增强版 v4 */}
+        <div className="glass-card-v4 overflow-hidden">
           <div className="p-5 border-b border-white/5">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#8B5CF6]/20 to-[#8B5CF6]/5 flex items-center justify-center">
@@ -1417,8 +1417,8 @@ function DashboardView() {
 
       {/* 活动日志 + 部门活跃度 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* 活动日志 - 增强版 */}
-        <div className="console-card overflow-hidden">
+        {/* 活动日志 - 增强版 v4 */}
+        <div className="glass-card-v4 overflow-hidden">
           <div className="p-5 border-b border-white/5 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#06B6D4]/20 to-[#06B6D4]/5 flex items-center justify-center">
@@ -1463,8 +1463,8 @@ function DashboardView() {
           </div>
         </div>
 
-        {/* 部门活跃度 - 增强版 */}
-        <div className="console-card overflow-hidden">
+        {/* 部门活跃度 - 增强版 v4 */}
+        <div className="glass-card-v4 overflow-hidden">
           <div className="p-5 border-b border-white/5 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#EC4899]/20 to-[#EC4899]/5 flex items-center justify-center">
@@ -1525,12 +1525,12 @@ function DashboardView() {
         </div>
       </div>
 
-      {/* 系统负载热力图 - 增强版 */}
+      {/* 系统负载热力图 - 增强版 v4 */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
-        className="console-card p-5"
+        className="glass-card-v4 p-5"
       >
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
@@ -1637,14 +1637,14 @@ function MetricCard({
 
   return (
     <motion.div 
-      className={`console-card p-5 relative overflow-hidden group cursor-pointer ${className}`}
+      className={`glass-card-v4 p-5 relative overflow-hidden group cursor-pointer metric-card-dense ${className}`}
       style={{ '--accent-color': colors.chart } as React.CSSProperties}
       whileHover={{ 
-        y: -8, 
-        scale: 1.03,
-        boxShadow: `0 20px 40px rgba(0, 0, 0, 0.4), 0 0 40px ${colors.glow}` 
+        y: -6, 
+        scale: 1.02,
+        boxShadow: `0 16px 35px rgba(0, 0, 0, 0.4), 0 0 35px ${colors.glow}` 
       }}
-      transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+      transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
     >
       {/* 背景发光效果 */}
       <div className={`absolute inset-0 bg-gradient-to-br ${colors.gradient} opacity-0 group-hover:opacity-[0.12] transition-opacity duration-500`} />
@@ -1750,7 +1750,7 @@ function SystemMetricCard({
 
   return (
     <motion.div 
-      className="console-card p-4 relative overflow-hidden group cursor-pointer"
+      className="glass-card-v4 p-4 relative overflow-hidden group cursor-pointer"
       whileHover={{ y: -4, scale: 1.02 }}
       transition={{ duration: 0.3 }}
     >
@@ -1849,7 +1849,7 @@ function HeatmapChart({ data }: { data: { day: string; hour: number; value: numb
                     onMouseEnter={() => setHoveredCell({ day, hour })}
                     onMouseLeave={() => setHoveredCell(null)}
                     onClick={() => setSelectedCell({ day, hour, value })}
-                    className={`flex-1 h-8 rounded cursor-pointer relative group heatmap-cell-enhanced ${
+                    className={`flex-1 h-8 rounded cursor-pointer relative group heatmap-cell-v4 ${
                       isSelected ? 'ring-2 ring-[#3B82F6] ring-offset-2 ring-offset-[#0A0A0F]' : ''
                     }`}
                     style={{ 
