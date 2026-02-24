@@ -2837,6 +2837,209 @@ body {
   margin-bottom: 12px;
 }
 
+/* ========== v8.0 UI迭代新增样式 - 2026-02-24 ========== */
+
+/* 玻璃态卡片 v2 - 增强版 */
+.glass-card-v2 {
+  background: linear-gradient(135deg, rgba(17, 17, 24, 0.98), rgba(26, 26, 36, 0.95));
+  backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.4),
+    0 12px 40px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-card-v2::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, transparent 50%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+.glass-card-v2:hover {
+  border-color: rgba(59, 130, 246, 0.3);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.5),
+    0 20px 60px rgba(0, 0, 0, 0.45),
+    0 0 50px rgba(59, 130, 246, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transform: translateY(-3px);
+}
+
+.glass-card-v2:hover::before {
+  opacity: 1;
+}
+
+/* 渐变文字 v2 - 增强版 */
+.gradient-text-v2 {
+  background: linear-gradient(135deg, #3B82F6, #8B5CF6, #EC4899, #F59E0B);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradient-shift-v2 6s ease infinite;
+  text-shadow: 0 2px 10px rgba(59, 130, 246, 0.2);
+}
+
+@keyframes gradient-shift-v2 {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* 页面过渡动画 */
+.page-transition-enter {
+  animation: page-enter 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* 加载状态增强 */
+.loading-state {
+  position: relative;
+  overflow: hidden;
+}
+
+.loading-state::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(59, 130, 246, 0.1) 50%, 
+    transparent 100%);
+  background-size: 200% 100%;
+  animation: loading-sweep 1.5s ease-in-out infinite;
+}
+
+@keyframes loading-sweep {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* 实时数据指示器 */
+.live-indicator-v2 {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.live-indicator-v2::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  background: #10B981;
+  border-radius: 50%;
+  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  animation: live-pulse-v2 2s ease-out infinite;
+}
+
+@keyframes live-pulse-v2 {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+/* 统计卡片布局优化 */
+.stat-grid-v2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+@media (min-width: 1280px) {
+  .stat-grid-v2 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* 交互反馈增强 */
+.interactive-feedback {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.interactive-feedback:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.interactive-feedback:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* 数据可视化容器 */
+.chart-container-v2 {
+  background: linear-gradient(145deg, rgba(17, 17, 24, 0.98), rgba(20, 20, 28, 0.95));
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.chart-container-v2::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+}
+
+/* 响应式断点优化 */
+@media (max-width: 1024px) {
+  .glass-card-v2 {
+    border-radius: 14px;
+  }
+  
+  .stat-grid-v2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .stat-grid-v2 {
+    grid-template-columns: 1fr;
+  }
+  
+  .glass-card-v2 {
+    border-radius: 12px;
+  }
+}
+
+/* 减少动画偏好 */
+@media (prefers-reduced-motion: reduce) {
+  .gradient-text-v2,
+  .page-transition-enter,
+  .loading-state::after,
+  .live-indicator-v2::before {
+    animation: none;
+  }
+  
+  .glass-card-v2,
+  .interactive-feedback {
+    transition: none;
+  }
+}
+
 /* ========== v7.0 UI迭代新增样式 - 2026-02-24 ========== */
 
 /* 热力图增强样式 */

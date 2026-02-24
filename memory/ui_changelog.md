@@ -1,77 +1,87 @@
-# UI 更新日志
+# Mission Control UI 更新日志 (Changelog)
 
-## v2026.02.23-2
+## [1.2.0] - 2026-02-24
 
-### 优化内容
-- **Dashboard 组件全面升级**
-  - 新增计数动画组件 (CountUp)，数字增长更流畅
-  - 新增趋势指示器组件 (TrendIndicator)，显示数据变化趋势
-  - 新增迷你面积图组件 (MiniAreaChart)，数据可视化更丰富
-  - 新增环形进度组件 (CircularProgress)，系统指标更直观
-  - 新增实时流量指示器 (TrafficIndicator)，动态展示网络状态
-  - 新增欢迎横幅组件 (WelcomeBanner)，根据时间自动切换问候语
-  - 新增统计卡片组件 (StatCard)，带悬停动画和微交互
-  - 新增系统指标卡片 (SystemMetricCard)，展示 CPU/内存/网络/安全状态
-  - 新增任务趋势图表 (TaskTrendChart)，7天数据柱状图展示
-  - 新增部门负载图表 (DepartmentLoadChart)，带进度动画
-  - 新增实时流量监控 (TrafficMonitor)，面积图展示
-  - 新增最近活动组件 (RecentActivity)，带滑入动画
-  - 新增系统资源监控 (SystemResources)，实时性能展示
+### ✨ 新增功能
+- **样式系统 v8.0**
+  - 玻璃态卡片 v2 (`glass-card-v2`) - 增强版毛玻璃效果
+  - 渐变文字 v2 (`gradient-text-v2`) - 更流畅的动画
+  - 页面进入动画 (`page-transition-enter`)
+  - 实时数据指示器 v2 (`live-indicator-v2`)
+  - 加载状态指示器 (`loading-state`)
 
-- **全局样式系统增强 (globals.css)**
-  - 新增动态网格背景动画 (.grid-bg-animated)
-  - 增强卡片悬停效果，添加发光和位移动画
-  - 新增增强版实时状态指示器 (.live-dot-enhanced)
-  - 新增指标值发光动画 (.metric-value-animated)
-  - 新增空状态浮动动画 (.empty-state-icon)
-  - 新增骨架屏加载动画 (.skeleton)
-  - 增强导航图标动画效果
-  - 新增微交互按钮样式 (.btn-micro)
-  - 增强进度条流动效果
-  - 新增标签悬停缩放效果
-  - 增强工具提示样式 (.tooltip-enhanced)
-  - 新增多种动画关键帧：
-    - 网格脉冲动画 (grid-pulse)
-    - 增强脉冲动画 (pulse-enhanced, pulse-ring)
-    - 指标发光动画 (metric-glow)
-    - 空状态浮动 (empty-state-float)
-    - 骨架屏加载 (skeleton-loading)
-    - 导航图标脉冲 (nav-icon-pulse)
-  - 添加减少动画偏好支持 (prefers-reduced-motion)
-  - 添加打印样式支持
+### 🎨 视觉优化
+- **交互反馈增强**
+  - 悬停上浮效果优化
+  - 点击缩放反馈
+  - 更精细的阴影层次
 
-### 技术改进
-- 使用 Framer Motion 实现流畅的组件动画
-- 所有数值指标添加计数动画效果
-- 图表组件添加路径绘制动画
-- 卡片组件添加悬停发光和位移效果
-- 统一使用 glass-card-enhanced 玻璃态卡片样式
-- 优化响应式断点，适配各种屏幕尺寸
+- **响应式布局**
+  - 统计网格自适应优化
+  - 平板端两列布局
+  - 移动端单列布局
 
-### 性能优化
-- 使用 CSS transform 和 opacity 实现硬件加速动画
-- 添加 will-change 属性优化动画性能
-- 使用 requestAnimationFrame 实现流畅计数动画
-- 添加 reduced-motion 媒体查询支持无障碍访问
+### ♿ 无障碍支持
+- 添加 `prefers-reduced-motion` 媒体查询
+- 为所有动画提供禁用选项
 
-### 构建信息
-- 构建时间: 2026-02-23 23:30
-- 构建状态: ✅ 成功
-- Next.js 版本: 16.1.6
+### 🔧 技术改进
+- 构建配置优化
+- 静态导出配置完善
 
-## v2026.02.23-1
+### 📦 构建
+- ✅ 构建成功
+- ✅ 静态导出完成
+- ✅ 输出目录: `dist/`
 
-### 优化内容
-- 重构 Dashboard 组件，移除外部图表库依赖
-- 新增统一数据层 (mockData.ts)
-- 修复 TypeScript 类型定义问题
-- 优化动画效果和性能
+---
 
-### 技术改进
-- 使用 Framer Motion 替代 recharts
-- 统一数据管理
-- 修复类型推断问题
+## [1.1.0] - 2026-02-23
 
-### 构建信息
-- 构建时间: 2026-02-23 21:41
-- 构建状态: ✅ 成功
+### ✨ 新增功能
+- **Dashboard 组件增强**
+  - 添加环形进度条组件 `CircularProgress`
+  - 添加趋势指示器组件 `TrendIndicator`
+  - 指标卡片支持副标题显示
+
+- **动画效果**
+  - 脉冲光环动画 (`pulse-ring`)
+  - 悬浮抬升效果 (`hover-lift`)
+  - 渐变文字动画 (`animate-gradient-text`)
+  - 扫描线效果 (`scanline`)
+
+### 🎨 视觉优化
+- **TaskBoard 空状态**
+  - 改进空状态动画效果
+  - 添加渐变背景和提示文字
+  
+- **数据更新**
+  - CalendarView 添加 UI 自动迭代任务
+  - MemoryScreen 添加 UI 自动迭代日志
+
+### 🔧 技术改进
+- 所有动画使用 GPU 加速属性（transform、opacity）
+- 统一趋势显示组件
+- 优化组件类型定义
+
+### 📦 构建
+- 构建成功，无错误
+- 静态导出完成
+
+---
+
+## [1.0.0] - 2026-02-22
+
+### ✨ 初始版本
+- Dashboard 仪表盘视图
+- TaskBoard 任务看板（看板/列表双视图）
+- CalendarView 日历视图（日/周/月三视图）
+- MemoryScreen 记忆系统（网格/列表双视图）
+- 全局搜索功能
+- 键盘快捷键支持
+- 响应式布局
+- 深色控制台主题
+
+---
+
+*格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)*
