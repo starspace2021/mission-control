@@ -207,6 +207,315 @@ body {
   opacity: 1;
 }
 
+/* ========== v10.0 UI迭代新增样式 - 2026-02-24 ========== */
+
+/* 玻璃态卡片 v4 - 统一优化版 */
+.glass-card-v4 {
+  background: linear-gradient(145deg, rgba(17, 17, 24, 0.98), rgba(22, 22, 30, 0.96));
+  backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  box-shadow: 
+    0 2px 6px rgba(0, 0, 0, 0.35),
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 0.5px 0 rgba(255, 255, 255, 0.05);
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-card-v4::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.03) 0%, transparent 40%);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+}
+
+.glass-card-v4:hover {
+  border-color: rgba(59, 130, 246, 0.2);
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.4),
+    0 16px 48px rgba(0, 0, 0, 0.35),
+    0 0 40px rgba(59, 130, 246, 0.06),
+    inset 0 0.5px 0 rgba(255, 255, 255, 0.08);
+  transform: translateY(-2px);
+}
+
+.glass-card-v4:hover::before {
+  opacity: 1;
+}
+
+/* 玻璃态卡片 v3 - 最终优化版 */
+.glass-card-v3 {
+  background: linear-gradient(145deg, rgba(17, 17, 24, 0.98), rgba(22, 22, 30, 0.96));
+  backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
+  box-shadow: 
+    0 2px 6px rgba(0, 0, 0, 0.35),
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 0.5px 0 rgba(255, 255, 255, 0.05);
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-card-v3::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.03) 0%, transparent 40%);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+}
+
+.glass-card-v3:hover {
+  border-color: rgba(59, 130, 246, 0.2);
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.4),
+    0 16px 48px rgba(0, 0, 0, 0.35),
+    0 0 40px rgba(59, 130, 246, 0.06),
+    inset 0 0.5px 0 rgba(255, 255, 255, 0.08);
+  transform: translateY(-2px);
+}
+
+.glass-card-v3:hover::before {
+  opacity: 1;
+}
+
+/* 实时数据指示器 v3 */
+.live-indicator-v3 {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.live-indicator-v3::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: linear-gradient(135deg, #10B981, #34D399);
+  border-radius: 50%;
+  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6);
+  animation: live-pulse-v3 2s ease-out infinite;
+}
+
+@keyframes live-pulse-v3 {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); }
+  70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+/* 页面过渡动画 v3 */
+.page-transition-v3 {
+  animation: page-enter-v3 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes page-enter-v3 {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.995);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* 统计卡片优化 */
+.stat-card-v3 {
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card-v3::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent-color, #3B82F6), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.stat-card-v3:hover::after {
+  opacity: 1;
+}
+
+/* 看板卡片优化 */
+.kanban-card-v3 {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.kanban-card-v3:hover {
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35), 0 0 25px var(--accent-glow, rgba(59, 130, 246, 0.15));
+}
+
+.kanban-card-v3.dragging {
+  opacity: 0.95;
+  transform: scale(1.03) rotate(2deg) translateY(-8px);
+  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.45);
+  cursor: grabbing;
+  z-index: 1000;
+}
+
+/* 空状态优化 */
+.empty-state-v3 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  color: var(--text-tertiary);
+}
+
+.empty-state-v3-icon {
+  width: 56px;
+  height: 56px;
+  margin-bottom: 16px;
+  opacity: 0.4;
+  animation: empty-float-v3 4s ease-in-out infinite;
+}
+
+@keyframes empty-float-v3 {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(2deg); }
+}
+
+/* 日历单元格优化 */
+.calendar-cell-v3 {
+  position: relative;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.calendar-cell-v3:hover {
+  background: rgba(59, 130, 246, 0.06);
+  transform: scale(1.01);
+  z-index: 5;
+}
+
+/* 事件卡片优先级指示器 */
+.event-priority-v3 {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  box-shadow: 0 0 6px currentColor;
+}
+
+/* 时间线当前时间指示器 */
+.timeline-current-v3 {
+  position: relative;
+}
+
+.timeline-current-v3::before {
+  content: '';
+  position: absolute;
+  left: -5px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 10px;
+  height: 10px;
+  background: #EF4444;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #EF4444, 0 0 16px #EF4444;
+  animation: time-pulse-v3 2s ease-in-out infinite;
+}
+
+@keyframes time-pulse-v3 {
+  0%, 100% { box-shadow: 0 0 8px #EF4444, 0 0 16px #EF4444; }
+  50% { box-shadow: 0 0 12px #EF4444, 0 0 24px #EF4444; }
+}
+
+/* 标签云优化 */
+.tag-cloud-v3 {
+  position: relative;
+}
+
+.tag-cloud-v3-item {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.tag-cloud-v3-item:hover {
+  transform: scale(1.06) translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+/* 搜索高亮优化 */
+.search-highlight-v3 {
+  background: linear-gradient(120deg, rgba(59, 130, 246, 0.35) 0%, rgba(139, 92, 246, 0.25) 100%);
+  color: white;
+  padding: 0 2px;
+  border-radius: 3px;
+  font-weight: 500;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* 记忆卡片悬停光晕 */
+.memory-card-glow-v3 {
+  position: relative;
+}
+
+.memory-card-glow-v3::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  background: linear-gradient(135deg, var(--glow-color, rgba(59, 130, 246, 0.25)), transparent 50%);
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  filter: blur(6px);
+}
+
+.memory-card-glow-v3:hover::after {
+  opacity: 1;
+}
+
+/* 响应式断点优化 */
+@media (max-width: 1024px) {
+  .glass-card-v3 {
+    border-radius: 12px;
+  }
+}
+
+@media (max-width: 640px) {
+  .glass-card-v3 {
+    border-radius: 10px;
+  }
+  
+  .kanban-card-v3:hover {
+    transform: translateY(-4px) scale(1.01);
+  }
+}
+
+/* 减少动画偏好 */
+@media (prefers-reduced-motion: reduce) {
+  .live-indicator-v3::before,
+  .page-transition-v3,
+  .empty-state-v3-icon,
+  .timeline-current-v3::before {
+    animation: none;
+  }
+  
+  .glass-card-v3,
+  .kanban-card-v3,
+  .tag-cloud-v3-item {
+    transition: none;
+  }
+}
+
 /* 数据卡片 - 高信息密度 */
 .data-card {
   background: var(--bg-secondary);
@@ -2837,9 +3146,237 @@ body {
   margin-bottom: 12px;
 }
 
-/* ========== v8.0 UI迭代新增样式 - 2026-02-24 ========== */
+/* ========== v10.0 UI迭代新增样式 - 2026-02-24 ========== */
 
-/* 玻璃态卡片 v2 - 增强版 */
+/* 玻璃态卡片 v4 - 优化版 */
+.glass-card-v4 {
+  background: linear-gradient(145deg, rgba(17, 17, 24, 0.98), rgba(22, 22, 30, 0.96));
+  backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.4),
+    0 12px 40px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-card-v4::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.04) 0%, transparent 50%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+.glass-card-v4:hover {
+  border-color: rgba(59, 130, 246, 0.25);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.5),
+    0 20px 60px rgba(0, 0, 0, 0.45),
+    0 0 50px rgba(59, 130, 246, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transform: translateY(-3px);
+}
+
+.glass-card-v4:hover::before {
+  opacity: 1;
+}
+
+/* 统计卡片优化 v10 */
+.stat-card-v10 {
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card-v10::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent-color, #3B82F6), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.stat-card-v10:hover::after {
+  opacity: 1;
+}
+
+/* 看板卡片优化 v10 */
+.kanban-card-v10 {
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.kanban-card-v10:hover {
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35), 0 0 25px var(--accent-glow, rgba(59, 130, 246, 0.15));
+}
+
+.kanban-card-v10.dragging {
+  opacity: 0.95;
+  transform: scale(1.03) rotate(2deg) translateY(-8px);
+  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.45);
+  cursor: grabbing;
+  z-index: 1000;
+}
+
+/* 空状态优化 v10 */
+.empty-state-v10 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  color: var(--text-tertiary);
+}
+
+.empty-state-v10-icon {
+  width: 56px;
+  height: 56px;
+  margin-bottom: 16px;
+  opacity: 0.4;
+  animation: empty-float-v10 4s ease-in-out infinite;
+}
+
+@keyframes empty-float-v10 {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(2deg); }
+}
+
+/* 日历单元格优化 v10 */
+.calendar-cell-v10 {
+  position: relative;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.calendar-cell-v10:hover {
+  background: rgba(59, 130, 246, 0.06);
+  transform: scale(1.01);
+  z-index: 5;
+}
+
+/* 事件卡片优先级指示器 v10 */
+.event-priority-v10 {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  box-shadow: 0 0 6px currentColor;
+}
+
+/* 时间线当前时间指示器 v10 */
+.timeline-current-v10 {
+  position: relative;
+}
+
+.timeline-current-v10::before {
+  content: '';
+  position: absolute;
+  left: -5px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 10px;
+  height: 10px;
+  background: #EF4444;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #EF4444, 0 0 16px #EF4444;
+  animation: time-pulse-v10 2s ease-in-out infinite;
+}
+
+@keyframes time-pulse-v10 {
+  0%, 100% { box-shadow: 0 0 8px #EF4444, 0 0 16px #EF4444; }
+  50% { box-shadow: 0 0 12px #EF4444, 0 0 24px #EF4444; }
+}
+
+/* 标签云优化 v10 */
+.tag-cloud-v10 {
+  position: relative;
+}
+
+.tag-cloud-v10-item {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.tag-cloud-v10-item:hover {
+  transform: scale(1.06) translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+/* 搜索高亮优化 v10 */
+.search-highlight-v10 {
+  background: linear-gradient(120deg, rgba(59, 130, 246, 0.35) 0%, rgba(139, 92, 246, 0.25) 100%);
+  color: white;
+  padding: 0 2px;
+  border-radius: 3px;
+  font-weight: 500;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* 记忆卡片悬停光晕 v10 */
+.memory-card-glow-v10 {
+  position: relative;
+}
+
+.memory-card-glow-v10::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  background: linear-gradient(135deg, var(--glow-color, rgba(59, 130, 246, 0.25)), transparent 50%);
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  filter: blur(6px);
+}
+
+.memory-card-glow-v10:hover::after {
+  opacity: 1;
+}
+
+/* 响应式断点优化 v10 */
+@media (max-width: 1024px) {
+  .glass-card-v4 {
+    border-radius: 12px;
+  }
+}
+
+@media (max-width: 640px) {
+  .glass-card-v4 {
+    border-radius: 10px;
+  }
+  
+  .kanban-card-v10:hover {
+    transform: translateY(-4px) scale(1.01);
+  }
+}
+
+/* 减少动画偏好 v10 */
+@media (prefers-reduced-motion: reduce) {
+  .empty-state-v10-icon,
+  .timeline-current-v10::before {
+    animation: none;
+  }
+  
+  .glass-card-v4,
+  .kanban-card-v10,
+  .tag-cloud-v10-item {
+    transition: none;
+  }
+}
+
+/* ========== v9.0 UI迭代新增样式 - 2026-02-24 ========== */
+
+/* 玻璃态卡片 v2 - 统一版本 */
 .glass-card-v2 {
   background: linear-gradient(135deg, rgba(17, 17, 24, 0.98), rgba(26, 26, 36, 0.95));
   backdrop-filter: blur(24px) saturate(180%);
@@ -2877,6 +3414,92 @@ body {
 .glass-card-v2:hover::before {
   opacity: 1;
 }
+
+/* 页面过渡动画优化 */
+.page-transition-enter {
+  animation: page-enter 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.page-transition-exit {
+  animation: page-exit 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes page-exit {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.98);
+  }
+}
+
+/* 页面切换滑动动画 */
+.page-slide-enter {
+  animation: page-slide-in 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes page-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* 响应式断点增强 */
+@media (max-width: 1280px) {
+  .glass-card-v2 {
+    border-radius: 14px;
+  }
+  
+  .stat-grid-v2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .glass-card-v2 {
+    border-radius: 12px;
+  }
+  
+  .stat-grid-v2 {
+    grid-template-columns: 1fr;
+  }
+  
+  .page-transition-enter {
+    animation-duration: 0.3s;
+  }
+}
+
+@media (max-width: 480px) {
+  .glass-card-v2 {
+    border-radius: 10px;
+  }
+}
+
+@media (min-width: 1536px) {
+  .glass-card-v2 {
+    border-radius: 18px;
+  }
+}
+
+/* ========== v8.0 UI迭代新增样式 - 2026-02-24 ========== */
 
 /* 渐变文字 v2 - 增强版 */
 .gradient-text-v2 {
@@ -2933,7 +3556,7 @@ body {
   100% { background-position: 200% 0; }
 }
 
-/* 实时数据指示器 */
+/* 实时数据指示器 - v9 增强版 */
 .live-indicator-v2 {
   position: relative;
   display: inline-flex;
@@ -2957,7 +3580,13 @@ body {
   100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
 }
 
-/* 统计卡片布局优化 */
+.live-indicator-v2 .live-text {
+  font-size: 12px;
+  color: #10B981;
+  font-weight: 500;
+}
+
+/* 统计卡片布局优化 v2 */
 .stat-grid-v2 {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -2970,7 +3599,7 @@ body {
   }
 }
 
-/* 交互反馈增强 */
+/* 交互反馈增强 v2 */
 .interactive-feedback {
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -2984,7 +3613,7 @@ body {
   transform: translateY(0) scale(0.98);
 }
 
-/* 数据可视化容器 */
+/* 数据可视化容器 v2 */
 .chart-container-v2 {
   background: linear-gradient(145deg, rgba(17, 17, 24, 0.98), rgba(20, 20, 28, 0.95));
   border: 1px solid rgba(255, 255, 255, 0.06);
@@ -3004,31 +3633,12 @@ body {
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
 }
 
-/* 响应式断点优化 */
-@media (max-width: 1024px) {
-  .glass-card-v2 {
-    border-radius: 14px;
-  }
-  
-  .stat-grid-v2 {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 640px) {
-  .stat-grid-v2 {
-    grid-template-columns: 1fr;
-  }
-  
-  .glass-card-v2 {
-    border-radius: 12px;
-  }
-}
-
 /* 减少动画偏好 */
 @media (prefers-reduced-motion: reduce) {
   .gradient-text-v2,
   .page-transition-enter,
+  .page-transition-exit,
+  .page-slide-enter,
   .loading-state::after,
   .live-indicator-v2::before {
     animation: none;
@@ -3274,5 +3884,371 @@ body {
   
   .tag-cloud-item::before {
     display: none;
+  }
+}
+
+/* ========== v10.0 UI迭代新增样式 - 2026-02-24 ========== */
+
+/* 看板卡片优化 v4 - 增强拖拽体验 */
+.kanban-card-v4 {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, box-shadow;
+}
+
+.kanban-card-v4:hover {
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35), 0 0 25px var(--accent-glow, rgba(59, 130, 246, 0.15));
+}
+
+.kanban-card-v4.dragging {
+  opacity: 0.95;
+  transform: scale(1.03) rotate(2deg) translateY(-8px);
+  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.45);
+  cursor: grabbing;
+  z-index: 1000;
+}
+
+/* 空状态优化 v4 */
+.empty-state-v4 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  color: var(--text-tertiary);
+}
+
+.empty-state-v4-icon {
+  width: 64px;
+  height: 64px;
+  margin-bottom: 20px;
+  opacity: 0.5;
+  animation: empty-float-v4 5s ease-in-out infinite;
+}
+
+@keyframes empty-float-v4 {
+  0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.5; }
+  50% { transform: translateY(-12px) rotate(3deg); opacity: 0.7; }
+}
+
+/* 日历单元格优化 v4 */
+.calendar-cell-v4 {
+  position: relative;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.calendar-cell-v4:hover {
+  background: rgba(59, 130, 246, 0.08);
+  transform: scale(1.02);
+  z-index: 10;
+}
+
+.calendar-cell-v4::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(59, 130, 246, 0.12) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.calendar-cell-v4:hover::before {
+  opacity: 1;
+}
+
+/* 事件卡片优先级指示器 v4 */
+.event-priority-v4 {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  box-shadow: 0 0 8px currentColor;
+  transition: all 0.2s ease;
+}
+
+.event-card-v4:hover .event-priority-v4 {
+  transform: scale(1.3);
+  box-shadow: 0 0 12px currentColor;
+}
+
+/* 时间线当前时间指示器 v4 */
+.timeline-current-v4 {
+  position: relative;
+}
+
+.timeline-current-v4::before {
+  content: '';
+  position: absolute;
+  left: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 12px;
+  height: 12px;
+  background: #EF4444;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #EF4444, 0 0 16px #EF4444;
+  animation: time-pulse-v4 2s ease-in-out infinite;
+}
+
+@keyframes time-pulse-v4 {
+  0%, 100% { box-shadow: 0 0 8px #EF4444, 0 0 16px #EF4444; transform: translateY(-50%) scale(1); }
+  50% { box-shadow: 0 0 12px #EF4444, 0 0 24px #EF4444; transform: translateY(-50%) scale(1.1); }
+}
+
+/* 标签云优化 v4 */
+.tag-cloud-v4 {
+  position: relative;
+}
+
+.tag-cloud-v4-item {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.tag-cloud-v4-item::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.5s ease;
+}
+
+.tag-cloud-v4-item:hover::after {
+  transform: translateX(100%);
+}
+
+.tag-cloud-v4-item:hover {
+  transform: scale(1.06) translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+/* 搜索高亮优化 v4 */
+.search-highlight-v4 {
+  background: linear-gradient(120deg, rgba(59, 130, 246, 0.4) 0%, rgba(139, 92, 246, 0.3) 100%);
+  color: white;
+  padding: 0 3px;
+  border-radius: 4px;
+  font-weight: 500;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.3);
+}
+
+/* 记忆卡片悬停光晕 v4 */
+.memory-card-glow-v4 {
+  position: relative;
+}
+
+.memory-card-glow-v4::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(135deg, var(--glow-color, rgba(59, 130, 246, 0.3)), transparent 60%);
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  filter: blur(10px);
+}
+
+.memory-card-glow-v4:hover::after {
+  opacity: 1;
+}
+
+/* 筛选器UI优化 v4 */
+.filter-btn-v4 {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.filter-btn-v4::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(59, 130, 246, 0.2) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.filter-btn-v4:hover::before {
+  opacity: 1;
+}
+
+.filter-btn-v4.active {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: rgba(59, 130, 246, 0.4);
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.15);
+}
+
+/* 弹窗动画优化 v4 */
+.modal-enter-v4 {
+  animation: modal-enter-v4 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes modal-enter-v4 {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* 指标卡片布局优化 - 高信息密度 */
+.metric-card-dense {
+  padding: 16px;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 8px;
+}
+
+.metric-card-dense .metric-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.metric-card-dense .metric-value {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.metric-card-dense .metric-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* 热力图交互优化 v4 */
+.heatmap-cell-v4 {
+  position: relative;
+  overflow: visible !important;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.heatmap-cell-v4::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.4), rgba(139, 92, 246, 0.25));
+  opacity: 0;
+  z-index: -1;
+  transition: opacity 0.3s ease;
+  filter: blur(6px);
+}
+
+.heatmap-cell-v4:hover::before {
+  opacity: 1;
+}
+
+.heatmap-cell-v4:hover {
+  transform: scale(1.15);
+  z-index: 100;
+  box-shadow: 0 0 25px currentColor;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* 系统状态显示优化 v4 */
+.system-status-v4 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  transition: all 0.3s ease;
+}
+
+.system-status-v4:hover {
+  background: rgba(16, 185, 129, 0.15);
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+}
+
+.system-status-v4 .status-dot {
+  width: 8px;
+  height: 8px;
+  background: #10B981;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #10B981;
+  animation: status-pulse-v4 2s ease-in-out infinite;
+}
+
+@keyframes status-pulse-v4 {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.9); }
+}
+
+/* 响应式断点优化 v4 */
+@media (max-width: 1024px) {
+  .glass-card-v4,
+  .glass-card-v3 {
+    border-radius: 12px;
+  }
+  
+  .kanban-card-v4:hover {
+    transform: translateY(-4px) scale(1.01);
+  }
+  
+  .metric-card-dense .metric-value {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 640px) {
+  .glass-card-v4,
+  .glass-card-v3 {
+    border-radius: 10px;
+  }
+  
+  .kanban-card-v4:hover {
+    transform: translateY(-3px) scale(1.01);
+  }
+  
+  .metric-card-dense {
+    padding: 12px;
+  }
+  
+  .metric-card-dense .metric-value {
+    font-size: 22px;
+  }
+  
+  .empty-state-v4-icon {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+/* 减少动画偏好 v4 */
+@media (prefers-reduced-motion: reduce) {
+  .kanban-card-v4,
+  .empty-state-v4-icon,
+  .calendar-cell-v4::before,
+  .timeline-current-v4::before,
+  .tag-cloud-v4-item::after,
+  .memory-card-glow-v4::after,
+  .heatmap-cell-v4::before,
+  .system-status-v4 .status-dot {
+    animation: none;
+    transition: none;
+  }
+  
+  .kanban-card-v4:hover,
+  .calendar-cell-v4:hover,
+  .tag-cloud-v4-item:hover {
+    transform: none;
   }
 }

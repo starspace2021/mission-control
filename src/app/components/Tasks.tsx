@@ -64,26 +64,26 @@ function TaskCard({
   return (
     <motion.div 
       layout
-      initial={{ opacity: 0, y: 20, scale: 0.95 }}
+      initial={{ opacity: 0, y: 15, scale: 0.96 }}
       animate={{ 
-        opacity: isDragging ? 0.9 : 1, 
-        y: isDragging ? -10 : 0,
-        scale: isDragging ? 1.05 : 1,
-        rotate: isDragging ? 3 : 0,
+        opacity: isDragging ? 0.92 : 1, 
+        y: isDragging ? -6 : 0,
+        scale: isDragging ? 1.03 : 1,
+        rotate: isDragging ? 2 : 0,
       }}
-      exit={{ opacity: 0, scale: 0.9 }}
-      transition={{ type: "spring", stiffness: 300, damping: 25 }}
+      exit={{ opacity: 0, scale: 0.92 }}
+      transition={{ type: "spring", stiffness: 350, damping: 25 }}
       whileHover={{ 
-        y: -8, 
-        scale: 1.02,
-        boxShadow: `0 20px 40px rgba(0, 0, 0, 0.4), 0 0 30px ${priority.glow.replace('shadow-', '').replace('/20', '/30')}`
+        y: -5, 
+        scale: 1.01,
+        boxShadow: `0 14px 32px rgba(0, 0, 0, 0.35), 0 0 20px ${priority.glow.replace('shadow-', '').replace('/20', '/25')}`
       }}
       onClick={onClick}
-      className={`console-card p-4 cursor-grab group relative overflow-hidden kanban-card ${
+      className={`glass-card-v3 p-4 cursor-grab group relative overflow-hidden kanban-card-v3 ${
         isDragging ? 'cursor-grabbing z-50' : ''
       }`}
       style={{
-        borderLeftWidth: '4px',
+        borderLeftWidth: '3px',
         borderLeftColor: task.priority === 'high' ? '#EF4444' : task.priority === 'medium' ? '#F59E0B' : '#3B82F6'
       }}
       draggable
@@ -265,13 +265,13 @@ export default function Tasks() {
                   <motion.div 
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="flex flex-col items-center justify-center py-12 text-[#52525B]"
+                    className="flex flex-col items-center justify-center py-12 text-[#52525B] empty-state-v3"
                   >
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] flex items-center justify-center mb-4 border border-white/5">
-                      <Plus className="w-6 h-6 opacity-50" />
+                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] flex items-center justify-center mb-4 border border-white/5">
+                      <Plus className="w-5 h-5 opacity-40" />
                     </div>
                     <span className="text-sm font-medium">No tasks</span>
-                    <span className="text-xs mt-1 opacity-60">Drag tasks here</span>
+                    <span className="text-xs mt-1 opacity-50">Drag tasks here</span>
                   </motion.div>
                 )}
               </div>

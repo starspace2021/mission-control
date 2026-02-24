@@ -2,11 +2,11 @@
 
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Search, 
-  Brain, 
-  FileText, 
-  Calendar, 
+import {
+  Search,
+  Brain,
+  FileText,
+  Calendar,
   Settings,
   Clock,
   Tag,
@@ -61,30 +61,30 @@ const typeIcons: Record<string, React.ElementType> = {
 };
 
 const typeColors: Record<string, { primary: string; bg: string; light: string; gradient: string; glow: string }> = {
-  long_term: { 
-    primary: "#8B5CF6", 
-    bg: "rgba(139, 92, 246, 0.15)", 
+  long_term: {
+    primary: "#8B5CF6",
+    bg: "rgba(139, 92, 246, 0.15)",
     light: "rgba(139, 92, 246, 0.1)",
     gradient: "from-[#8B5CF6] to-[#A78BFA]",
     glow: "rgba(139, 92, 246, 0.3)"
   },
-  daily: { 
-    primary: "#06B6D4", 
-    bg: "rgba(6, 182, 212, 0.15)", 
+  daily: {
+    primary: "#06B6D4",
+    bg: "rgba(6, 182, 212, 0.15)",
     light: "rgba(6, 182, 212, 0.1)",
     gradient: "from-[#06B6D4] to-[#22D3EE]",
     glow: "rgba(6, 182, 212, 0.3)"
   },
-  project: { 
-    primary: "#10B981", 
-    bg: "rgba(16, 185, 129, 0.15)", 
+  project: {
+    primary: "#10B981",
+    bg: "rgba(16, 185, 129, 0.15)",
     light: "rgba(16, 185, 129, 0.1)",
     gradient: "from-[#10B981] to-[#34D399]",
     glow: "rgba(16, 185, 129, 0.3)"
   },
-  system: { 
-    primary: "#F59E0B", 
-    bg: "rgba(245, 158, 11, 0.15)", 
+  system: {
+    primary: "#F59E0B",
+    bg: "rgba(245, 158, 11, 0.15)",
     light: "rgba(245, 158, 11, 0.1)",
     gradient: "from-[#F59E0B] to-[#FBBF24]",
     glow: "rgba(245, 158, 11, 0.3)"
@@ -209,21 +209,20 @@ export default function MemoryScreen({ memories = mockMemories }: MemoryScreenPr
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sortBy, setSortBy] = useState<"updated" | "importance" | "title" | "created">("updated");
   const [showTagCloud, setShowTagCloud] = useState(true);
-  const [searchFocused, setSearchFocused] = useState(false);
 
-  // 搜索高亮处理
+  // 搜索高亮处理 - v10 优化版
   const highlightText = (text: string, query: string) => {
     if (!query) return text;
     const parts = text.split(new RegExp(`(${query})`, 'gi'));
-    return parts.map((part, i) => 
-      part.toLowerCase() === query.toLowerCase() ? 
-        <mark key={i} className="bg-[#3B82F6]/30 text-white px-0.5 rounded">{part}</mark> : 
+    return parts.map((part, i) =>
+      part.toLowerCase() === query.toLowerCase() ?
+        <mark key={i} className="search-highlight-v10">{part}</mark> :
         part
     );
   };
 
   const filteredMemories = memories.filter((memory) => {
-    const matchesSearch = 
+    const matchesSearch =
       memory.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       memory.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
       memory.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
@@ -251,10 +250,8 @@ export default function MemoryScreen({ memories = mockMemories }: MemoryScreenPr
       .map(([tag, count]) => ({ tag, count, size: Math.min(count * 2 + 10, 20) }));
   }, [memories]);
 
-  const allTags = Array.from(new Set(memories.flatMap(m => m.tags)));
-
   const toggleTag = (tag: string) => {
-    setSelectedTags(prev => 
+    setSelectedTags(prev =>
       prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
     );
   };
@@ -265,7 +262,7 @@ export default function MemoryScreen({ memories = mockMemories }: MemoryScreenPr
     setSelectedTags([]);
   };
 
-  const avgImportance = filteredMemories.length > 0 
+  const avgImportance = filteredMemories.length > 0
     ? (filteredMemories.reduce((acc, m) => acc + m.importance, 0) / filteredMemories.length).toFixed(1)
     : "0";
 
@@ -285,9 +282,9 @@ export default function MemoryScreen({ memories = mockMemories }: MemoryScreenPr
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className="space-y-6"
+      className="space-y-5"
     >
-      {/* 统计卡片 - 增强版 */}
+      {/* 统计卡片 - v10 优化版 */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4"
       >
         {[
@@ -300,70 +297,65 @@ export default function MemoryScreen({ memories = mockMemories }: MemoryScreenPr
             key={stat.label}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.1 }}
-            whileHover={{ y: -4, scale: 1.02, boxShadow: `0 0 30px ${stat.color}20` }}
-            className={`console-card p-4 flex items-center gap-3 cursor-pointer transition-all ${
+            transition={{ delay: i * 0.08 }}
+            whileHover={{ y: -3, scale: 1.01, boxShadow: `0 0 25px ${stat.color}15` }}
+            className={`glass-card-v4 p-4 flex items-center gap-3 cursor-pointer transition-all memory-card-glow-v10 ${
               selectedType === stat.type ? 'ring-2' : ''
             }`}
-            style={{ borderColor: selectedType === stat.type ? stat.color : undefined }}
+            style={{ 
+              borderColor: selectedType === stat.type ? stat.color : undefined,
+              '--glow-color': `${stat.color}40`
+            } as React.CSSProperties}
             onClick={() => setSelectedType(selectedType === stat.type ? "all" : stat.type)}
           >
-            <div 
-              className="w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110"
-              style={{ backgroundColor: `${stat.color}20` }}
+            <div
+              className="w-9 h-9 rounded-xl flex items-center justify-center"
+              style={{ backgroundColor: `${stat.color}15` }}
             >
-              <stat.icon className="w-5 h-5" style={{ color: stat.color }} />
+              <stat.icon className="w-4 h-4" style={{ color: stat.color }} />
             </div>
             <div>
-              <div className="text-2xl font-bold">{stat.value}</div>
+              <div className="text-xl font-bold">{stat.value}</div>
               <div className="text-xs text-[#71717A]">{stat.label}</div>
-            </div>
-            <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
-              <div 
-                className="w-2 h-2 rounded-full"
-                style={{ backgroundColor: stat.color }}
-              />
             </div>
           </motion.div>
         ))}
       </div>
 
-      {/* 搜索和筛选栏 - 增强版 */}
-      <div className="console-card p-5"
+      {/* 搜索和筛选栏 - v10 优化版 */}
+      <div className="glass-card-v4 p-4"
       >
-        <div className="flex flex-col lg:flex-row gap-4"
+        <div className="flex flex-col lg:flex-row gap-3"
         >
-          {/* 搜索 - 增强版 */}
-          <div className={`flex-1 relative transition-all duration-300 ${searchFocused ? 'flex-[1.2]' : ''}`}
+          {/* 搜索 */}
+          <div className="flex-1 relative"
           >
-            <Search className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${searchFocused ? 'text-[#3B82F6]' : 'text-[#71717A]'}`} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#71717A]" />
             <input
               type="text"
               placeholder="搜索记忆..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              onFocus={() => setSearchFocused(true)}
-              onBlur={() => setSearchFocused(false)}
-              className="w-full pl-12 pr-10 py-3 bg-[#1A1A24] border border-white/10 rounded-xl 
-                         text-white placeholder:text-[#52525B] focus:border-[#3B82F6]/50 
-                         focus:outline-none transition-all focus:ring-2 focus:ring-[#3B82F6]/20"
+              className="w-full pl-9 pr-8 py-2.5 bg-[#1A1A24] border border-white/10 rounded-xl
+                         text-white placeholder:text-[#52525B] focus:border-[#3B82F6]/50
+                         focus:outline-none transition-all text-sm"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-white/10 rounded-lg transition-colors"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 hover:bg-white/10 rounded-lg transition-colors"
               >
-                <X className="w-4 h-4 text-[#71717A]" />
+                <X className="w-3.5 h-3.5 text-[#71717A]" />
               </button>
             )}
           </div>
-          
+
           {/* 类型筛选 */}
           <select
             value={selectedType}
             onChange={(e) => setSelectedType(e.target.value)}
-            className="px-4 py-3 bg-[#1A1A24] border border-white/10 rounded-xl 
-                       text-white focus:border-[#3B82F6]/50 focus:outline-none hover:border-white/20 transition-colors"
+            className="px-3 py-2.5 bg-[#1A1A24] border border-white/10 rounded-xl
+                       text-white focus:border-[#3B82F6]/50 focus:outline-none text-sm"
           >
             <option value="all">全部类型</option>
             <option value="long_term">长期记忆</option>
@@ -371,64 +363,64 @@ export default function MemoryScreen({ memories = mockMemories }: MemoryScreenPr
             <option value="project">项目文档</option>
             <option value="system">系统文档</option>
           </select>
-          
+
           {/* 排序 */}
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as any)}
-            className="px-4 py-3 bg-[#1A1A24] border border-white/10 rounded-xl 
-                       text-white focus:border-[#3B82F6]/50 focus:outline-none hover:border-white/20 transition-colors"
+            className="px-3 py-2.5 bg-[#1A1A24] border border-white/10 rounded-xl
+                       text-white focus:border-[#3B82F6]/50 focus:outline-none text-sm"
           >
             <option value="updated">最近更新</option>
             <option value="importance">重要度</option>
             <option value="title">名称</option>
             <option value="created">创建时间</option>
           </select>
-          
+
           {/* 视图切换 */}
           <div className="flex bg-[#1A1A24] rounded-xl p-1"
           >
             <button
               onClick={() => setViewMode("grid")}
-              className={`p-2.5 rounded-lg transition-all ${
-                viewMode === "grid" 
-                  ? "bg-gradient-to-r from-[#3B82F6] to-[#8B5CF6] text-white" 
+              className={`p-2 rounded-lg transition-all ${
+                viewMode === "grid"
+                  ? "bg-gradient-to-r from-[#3B82F6] to-[#8B5CF6] text-white"
                   : "text-[#71717A] hover:text-white"
               }`}
             >
-              <Grid3X3 className="w-5 h-5" />
+              <Grid3X3 className="w-4 h-4" />
             </button>
             <button
               onClick={() => setViewMode("list")}
-              className={`p-2.5 rounded-lg transition-all ${
-                viewMode === "list" 
-                  ? "bg-gradient-to-r from-[#3B82F6] to-[#8B5CF6] text-white" 
+              className={`p-2 rounded-lg transition-all ${
+                viewMode === "list"
+                  ? "bg-gradient-to-r from-[#3B82F6] to-[#8B5CF6] text-white"
                   : "text-[#71717A] hover:text-white"
               }`}
             >
-              <List className="w-5 h-5" />
+              <List className="w-4 h-4" />
             </button>
           </div>
-          
+
           {/* 新建按钮 */}
-          <button className="btn-primary flex items-center gap-2 px-5"
+          <button className="btn-primary flex items-center gap-1.5 px-4 py-2.5 text-sm"
           >
             <Plus className="w-4 h-4" />
             新建
           </button>
         </div>
 
-        {/* 标签云 - 增强版 */}
-        <div className="mt-4">
+        {/* 标签云 - v10 优化版 */}
+        <div className="mt-3">
           <button
             onClick={() => setShowTagCloud(!showTagCloud)}
-            className="flex items-center gap-2 text-sm text-[#71717A] hover:text-white transition-colors mb-3"
+            className="flex items-center gap-1.5 text-xs text-[#71717A] hover:text-white transition-colors mb-2"
           >
-            <Hash className="w-4 h-4" />
+            <Hash className="w-3.5 h-3.5" />
             标签云
             {showTagCloud ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
           </button>
-          
+
           <AnimatePresence>
             {showTagCloud && (
               <motion.div
@@ -437,68 +429,32 @@ export default function MemoryScreen({ memories = mockMemories }: MemoryScreenPr
                 exit={{ height: 0, opacity: 0 }}
                 className="overflow-hidden"
               >
-                <div className="flex flex-wrap items-center gap-2 p-4 bg-[#1A1A24]/50 rounded-xl border border-white/5 tag-cloud-container"
+                <div className="flex flex-wrap items-center gap-1.5 p-3 bg-[#1A1A24]/50 rounded-xl border border-white/5"
                 >
                   {tagCloudData.map(({ tag, count, size }, index) => (
                     <motion.button
                       key={tag}
-                      initial={{ opacity: 0, scale: 0, rotate: -10 }}
-                      animate={{ 
-                        opacity: 1, 
-                        scale: 1,
-                        rotate: 0,
-                        y: [0, -3, 0]
-                      }}
-                      transition={{ 
-                        delay: index * 0.03,
-                        y: {
-                          delay: index * 0.03 + 0.5,
-                          duration: 2,
-                          repeat: Infinity,
-                          repeatDelay: Math.random() * 2
-                        }
-                      }}
-                      whileHover={{ 
-                        scale: 1.15, 
-                        y: -4,
-                        boxShadow: '0 10px 30px rgba(59, 130, 246, 0.3)'
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: index * 0.02 }}
+                      whileHover={{
+                        scale: 1.06,
+                        y: -2,
                       }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => toggleTag(tag)}
-                      className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 tag-cloud-item ${
+                      className={`px-2.5 py-1 rounded-lg transition-all flex items-center gap-1 tag-cloud-v10-item ${
                         selectedTags.includes(tag)
-                          ? "bg-gradient-to-r from-[#3B82F6]/20 to-[#8B5CF6]/20 text-[#3B82F6] border border-[#3B82F6]/30 shadow-lg shadow-blue-500/20"
-                          : "bg-white/5 text-[#A1A1AA] hover:bg-white/10 border border-transparent hover:border-white/10"
+                          ? "bg-gradient-to-r from-[#3B82F6]/20 to-[#8B5CF6]/15 text-[#3B82F6] border border-[#3B82F6]/30"
+                          : "bg-white/5 text-[#A1A1AA] hover:bg-white/10 border border-transparent"
                       }`}
-                      style={{ 
-                        fontSize: `${Math.max(11, size * 0.6)}px`,
-                        animationDelay: `${index * 0.1}s`
-                      }}
+                      style={{ fontSize: `${Math.max(10, size * 0.55)}px` }}
                     >
-                      <motion.span
-                        animate={{ rotate: selectedTags.includes(tag) ? 360 : 0 }}
-                        transition={{ duration: 0.3 }}
-                      >
-                        #
-                      </motion.span>
+                      <span>#</span>
                       <span>{tag}</span>
-                      <motion.span 
-                        className="text-[10px] opacity-60"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 0.6 }}
-                        transition={{ delay: index * 0.03 + 0.2 }}
-                      >
+                      <span className="text-[10px] opacity-50">
                         ({count})
-                      </motion.span>
-                      {selectedTags.includes(tag) && (
-                        <motion.span
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          className="ml-1"
-                        >
-                          <Sparkles className="w-3 h-3 text-[#3B82F6]" />
-                        </motion.span>
-                      )}
+                      </span>
                     </motion.button>
                   ))}
                 </div>
@@ -509,13 +465,13 @@ export default function MemoryScreen({ memories = mockMemories }: MemoryScreenPr
 
         {/* 已选标签 */}
         {(selectedTags.length > 0 || searchQuery || selectedType !== "all") && (
-          <div className="flex items-center gap-2 mt-4 pt-4 border-t border-white/5"
+          <div className="flex items-center gap-2 mt-3 pt-3 border-t border-white/5"
           >
-            <span className="text-sm text-[#71717A]">已筛选:</span>
+            <span className="text-xs text-[#71717A]">已筛选:</span>
             {selectedTags.map(tag => (
-              <span 
+              <span
                 key={tag}
-                className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-[#3B82F6]/20 text-[#3B82F6] text-xs"
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-[#3B82F6]/15 text-[#3B82F6] text-xs"
               >
                 #{tag}
                 <button onClick={() => toggleTag(tag)} className="hover:text-white">
@@ -525,7 +481,7 @@ export default function MemoryScreen({ memories = mockMemories }: MemoryScreenPr
             ))}
             <button
               onClick={clearFilters}
-              className="text-sm text-[#71717A] hover:text-white transition-colors flex items-center gap-1 ml-auto"
+              className="text-xs text-[#71717A] hover:text-white transition-colors flex items-center gap-1 ml-auto"
             >
               <RefreshCw className="w-3 h-3" />
               清除筛选
@@ -534,24 +490,24 @@ export default function MemoryScreen({ memories = mockMemories }: MemoryScreenPr
         )}
       </div>
 
-      {/* 统计栏 - 增强版 */}
-      <div className="flex flex-wrap items-center justify-between gap-4 text-sm"
+      {/* 统计栏 */}
+      <div className="flex flex-wrap items-center justify-between gap-4 text-xs"
       >
-        <div className="flex items-center gap-6"
+        <div className="flex items-center gap-4"
         >
           <span className="text-[#71717A]"
           >
             共 <span className="text-white font-medium">{filteredMemories.length}</span> 条记忆
           </span>
-          <div className="flex items-center gap-2 text-[#71717A]"
+          <div className="flex items-center gap-1.5 text-[#71717A]"
           >
-            <BarChart3 className="w-4 h-4" />
+            <BarChart3 className="w-3.5 h-3.5" />
             <span>平均重要度: <span className="text-white font-medium">{avgImportance}</span>/10</span>
           </div>
         </div>
-        <div className="flex items-center gap-4 text-[#71717A]"
+        <div className="flex items-center gap-3 text-[#71717A]"
         >
-          <Clock className="w-4 h-4" />
+          <Clock className="w-3.5 h-3.5" />
           <span>最近更新: {new Date(Math.max(...memories.map(m => m.updatedAt))).toLocaleDateString()}</span>
         </div>
       </div>
@@ -562,9 +518,9 @@ export default function MemoryScreen({ memories = mockMemories }: MemoryScreenPr
         >
           <AnimatePresence>
             {filteredMemories.map((memory, index) => (
-              <MemoryCard 
-                key={memory._id} 
-                memory={memory} 
+              <MemoryCard
+                key={memory._id}
+                memory={memory}
                 index={index}
                 onClick={() => setSelectedMemory(memory)}
                 searchQuery={searchQuery}
@@ -574,15 +530,15 @@ export default function MemoryScreen({ memories = mockMemories }: MemoryScreenPr
           </AnimatePresence>
         </div>
       ) : (
-        <div className="console-card overflow-hidden"
+        <div className="glass-card-v3 overflow-hidden"
         >
           <div className="divide-y divide-white/5"
           >
             <AnimatePresence>
               {filteredMemories.map((memory, index) => (
-                <MemoryListItem 
-                  key={memory._id} 
-                  memory={memory} 
+                <MemoryListItem
+                  key={memory._id}
+                  memory={memory}
                   index={index}
                   onClick={() => setSelectedMemory(memory)}
                   searchQuery={searchQuery}
@@ -597,9 +553,9 @@ export default function MemoryScreen({ memories = mockMemories }: MemoryScreenPr
       {/* 详情弹窗 */}
       <AnimatePresence>
         {selectedMemory && (
-          <MemoryDetailModal 
-            memory={selectedMemory} 
-            onClose={() => setSelectedMemory(null)} 
+          <MemoryDetailModal
+            memory={selectedMemory}
+            onClose={() => setSelectedMemory(null)}
           />
         )}
       </AnimatePresence>
@@ -608,9 +564,9 @@ export default function MemoryScreen({ memories = mockMemories }: MemoryScreenPr
 }
 
 // 记忆卡片（网格视图）- 优化版
-function MemoryCard({ 
-  memory, 
-  index, 
+function MemoryCard({
+  memory,
+  index,
   onClick,
   searchQuery,
   highlightText
@@ -724,14 +680,14 @@ function MemoryCard({
 }
 
 // 记忆列表项（列表视图）- 优化版
-function MemoryListItem({ 
-  memory, 
-  index, 
+function MemoryListItem({
+  memory,
+  index,
   onClick,
   searchQuery,
   highlightText
-}: { 
-  memory: Memory; 
+}: {
+  memory: Memory;
   index: number;
   onClick: () => void;
   searchQuery: string;
@@ -739,7 +695,7 @@ function MemoryListItem({
 }) {
   const Icon = typeIcons[memory.type];
   const colors = typeColors[memory.type];
-  
+
   return (
     <motion.div
       initial={{ opacity: 0, x: -20 }}
@@ -749,13 +705,13 @@ function MemoryListItem({
       onClick={onClick}
       className="p-4 hover:bg-white/[0.02] cursor-pointer transition-all group flex items-center gap-4"
     >
-      <div 
+      <div
         className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
         style={{ backgroundColor: colors.bg }}
       >
         <Icon className="w-5 h-5" style={{ color: colors.primary }} />
       </div>
-      
+
       <div className="flex-1 min-w-0"
       >
         <h4 className="font-medium text-white group-hover:text-[#3B82F6] transition-colors truncate"
@@ -767,7 +723,7 @@ function MemoryListItem({
           {highlightText(memory.content, searchQuery)}
         </p>
       </div>
-      
+
       <div className="flex items-center gap-4"
       >
         <div className="flex gap-1 hidden lg:flex"
@@ -779,20 +735,20 @@ function MemoryListItem({
             </span>
           ))}
         </div>
-        
-        <span 
+
+        <span
           className="text-xs px-2 py-1 rounded font-medium"
           style={{ backgroundColor: colors.light, color: colors.primary }}
         >
           {typeLabels[memory.type]}
         </span>
-        
+
         <div className="flex items-center gap-1 text-[#71717A]"
         >
           <Star className="w-3 h-3 text-[#F59E0B]" />
           <span className="text-xs">{memory.importance}</span>
         </div>
-        
+
         <span className="text-xs text-[#52525B] w-20 text-right"
         >
           {new Date(memory.updatedAt).toLocaleDateString()}
@@ -830,7 +786,7 @@ function MemoryDetailModal({ memory, onClose }: { memory: Memory; onClose: () =>
         onClick={(e) => e.stopPropagation()}
       >
         {/* 头部 */}
-        <div 
+        <div
           className="p-6 border-b border-white/5 sticky top-0 bg-[#111118]/95 backdrop-blur-sm"
           style={{ borderColor: `${colors.primary}30` }}
         >
@@ -838,7 +794,7 @@ function MemoryDetailModal({ memory, onClose }: { memory: Memory; onClose: () =>
           >
             <div className="flex items-center gap-4"
             >
-              <div 
+              <div
                 className="w-14 h-14 rounded-2xl flex items-center justify-center"
                 style={{ backgroundColor: colors.bg }}
               >
@@ -847,7 +803,7 @@ function MemoryDetailModal({ memory, onClose }: { memory: Memory; onClose: () =>
               <div>
                 <h2 className="text-xl font-semibold text-white">{memory.title}</h2>
                 <div className="flex items-center gap-2 mt-2">
-                  <span 
+                  <span
                     className="text-xs px-2.5 py-1 rounded-lg font-medium"
                     style={{ backgroundColor: colors.light, color: colors.primary }}
                   >
@@ -866,10 +822,10 @@ function MemoryDetailModal({ memory, onClose }: { memory: Memory; onClose: () =>
                 </div>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-2"
             >
-              <button 
+              <button
                 onClick={handleCopy}
                 className="p-2 hover:bg-white/5 rounded-lg transition-colors text-[#71717A] hover:text-white"
                 title="复制内容"
@@ -940,7 +896,7 @@ function MemoryDetailModal({ memory, onClose }: { memory: Memory; onClose: () =>
             <div className="flex flex-wrap gap-2"
             >
               {memory.tags.map((tag) => (
-                <motion.span 
+                <motion.span
                   key={tag}
                   whileHover={{ scale: 1.05 }}
                   className="px-3 py-1.5 rounded-lg bg-white/5 text-[#A1A1AA] text-sm hover:bg-white/10 cursor-pointer transition-colors border border-white/5"
@@ -963,15 +919,15 @@ function MemoryDetailModal({ memory, onClose }: { memory: Memory; onClose: () =>
               <div className="flex gap-1"
               >
                 {Array.from({ length: 10 }).map((_, i) => (
-                  <motion.div 
+                  <motion.div
                     key={i}
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ delay: i * 0.05 }}
                     className="w-4 h-8 rounded-sm transition-all cursor-pointer hover:scale-110"
-                    style={{ 
-                      backgroundColor: i < memory.importance 
-                        ? colors.primary 
+                    style={{
+                      backgroundColor: i < memory.importance
+                        ? colors.primary
                         : "rgba(255,255,255,0.1)"
                     }}
                   />
@@ -1015,7 +971,7 @@ function MemoryDetailModal({ memory, onClose }: { memory: Memory; onClose: () =>
             <Archive className="w-4 h-4" />
             归档
           </button>
-          <button 
+          <button
             className="px-4 py-2 text-sm bg-gradient-to-r from-[#3B82F6] to-[#8B5CF6] hover:from-[#2563EB] hover:to-[#7C3AED] text-white rounded-lg transition-all shadow-lg shadow-blue-500/20 flex items-center gap-1"
           >
             <Sparkles className="w-4 h-4" />

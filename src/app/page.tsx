@@ -1129,7 +1129,7 @@ function DashboardView() {
         </div>
       </motion.div>
 
-      {/* 核心指标卡片 - 增强版 */}
+      {/* 核心指标卡片 - v10 优化版 */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard 
           title="进行中任务" 
@@ -1140,6 +1140,7 @@ function DashboardView() {
           chart={chartData1}
           subtitle="较昨日 +12%"
           showCountUp
+          className="stat-card-v10"
         />
         <MetricCard 
           title="定时任务" 
@@ -1150,6 +1151,7 @@ function DashboardView() {
           chart={chartData2}
           subtitle="全部运行正常"
           showCountUp
+          className="stat-card-v10"
         />
         <MetricCard 
           title="记忆文档" 
@@ -1160,6 +1162,7 @@ function DashboardView() {
           chart={chartData1}
           subtitle="本周新增 3 条"
           showCountUp
+          className="stat-card-v10"
         />
         <MetricCard 
           title="成功率" 
@@ -1171,6 +1174,7 @@ function DashboardView() {
           subtitle="系统健康"
           showCountUp={false}
           suffix="%"
+          className="stat-card-v10"
         />
       </div>
 
@@ -1562,7 +1566,7 @@ function DashboardView() {
   );
 }
 
-// 指标卡片组件 - v4.0 增强版
+// 指标卡片组件 - v10.0 优化版
 function MetricCard({ 
   title, 
   value, 
@@ -1572,7 +1576,8 @@ function MetricCard({
   chart,
   subtitle,
   showCountUp = false,
-  suffix = ""
+  suffix = "",
+  className = ""
 }: {
   title: string;
   value: number;
@@ -1583,6 +1588,7 @@ function MetricCard({
   subtitle?: string;
   showCountUp?: boolean;
   suffix?: string;
+  className?: string;
 }) {
   const colorMap: Record<string, { bg: string; text: string; chart: string; gradient: string; glow: string; border: string }> = {
     blue: { 
@@ -1631,7 +1637,8 @@ function MetricCard({
 
   return (
     <motion.div 
-      className="console-card p-5 relative overflow-hidden group cursor-pointer"
+      className={`console-card p-5 relative overflow-hidden group cursor-pointer ${className}`}
+      style={{ '--accent-color': colors.chart } as React.CSSProperties}
       whileHover={{ 
         y: -8, 
         scale: 1.03,

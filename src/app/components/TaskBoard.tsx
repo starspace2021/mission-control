@@ -293,8 +293,8 @@ export default function TaskBoard({ tasks }: TaskBoardProps) {
         </motion.div>
       </div>
 
-      {/* 工具栏 - 增强版 */}
-      <div className="console-card p-4">
+      {/* 工具栏 - 增强版 v4 */}
+      <div className="glass-card-v4 p-4">
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
           <div className="flex items-center gap-4 flex-1 w-full lg:w-auto flex-wrap">
             {/* 搜索 */}
@@ -320,9 +320,9 @@ export default function TaskBoard({ tasks }: TaskBoardProps) {
             {/* 筛选器展开按钮 */}
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all ${
+              className={`filter-btn-v4 flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all ${
                 showFilters || selectedPriority !== "all" || selectedTags.length > 0
-                  ? "bg-[#3B82F6]/20 text-[#3B82F6] border border-[#3B82F6]/30"
+                  ? "bg-[#3B82F6]/20 text-[#3B82F6] border border-[#3B82F6]/30 active"
                   : "bg-[#1A1A24] text-[#71717A] hover:text-white border border-white/10"
               }`}
             >
@@ -520,8 +520,8 @@ export default function TaskBoard({ tasks }: TaskBoardProps) {
             return (
               <div 
                 key={column.id} 
-                className={`console-card min-h-[500px] flex flex-col transition-all duration-300 ${
-                  isDragOver ? 'ring-2 ring-[#3B82F6]/50 bg-[#3B82F6]/5' : ''
+                className={`glass-card-v4 min-h-[500px] flex flex-col transition-all duration-300 ${
+                  isDragOver ? 'ring-2 ring-[#3B82F6]/50 bg-[#3B82F6]/5 drop-zone-active' : ''
                 }`}
                 style={{ backgroundColor: 'rgba(17, 17, 24, 0.6)' }}
                 onDragOver={(e) => {
@@ -590,13 +590,13 @@ export default function TaskBoard({ tasks }: TaskBoardProps) {
                     <motion.div 
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      className="flex flex-col items-center justify-center py-12 text-[#52525B]"
+                      className="empty-state-v4"
                     >
-                      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] flex items-center justify-center mb-4 border border-white/5">
+                      <div className="empty-state-v4-icon w-16 h-16 rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] flex items-center justify-center border border-white/5">
                         <Plus className="w-6 h-6 opacity-50" />
                       </div>
-                      <span className="text-sm font-medium">暂无任务</span>
-                      <span className="text-xs mt-1 opacity-60">点击添加新任务</span>
+                      <span className="text-sm font-medium text-[#71717A]">暂无任务</span>
+                      <span className="text-xs mt-1 text-[#52525B]">点击添加新任务</span>
                     </motion.div>
                   )}
                 </div>
@@ -795,14 +795,14 @@ function TaskCard({
       layout
       initial={{ opacity: 0, y: 20, scale: 0.95 }}
       animate={{ 
-        opacity: isDragging ? 0.85 : 1, 
-        y: isDragging ? -12 : 0,
-        scale: isDragging ? 1.08 : 1,
-        rotate: isDragging ? 4 : 0,
+        opacity: isDragging ? 0.92 : 1, 
+        y: isDragging ? -10 : 0,
+        scale: isDragging ? 1.05 : 1,
+        rotate: isDragging ? 2 : 0,
         boxShadow: isDragging 
-          ? `${priorityConfig.shadow}, 0 0 60px ${priorityConfig.glow}` 
+          ? `${priorityConfig.shadow}, 0 0 50px ${priorityConfig.glow}` 
           : isSelected 
-            ? `0 0 0 2px ${priorityConfig.text}, 0 0 20px ${priorityConfig.glow}` 
+            ? `0 0 0 2px ${priorityConfig.text}, 0 0 25px ${priorityConfig.glow}` 
             : undefined,
         zIndex: isDragging ? 1000 : isSelected ? 10 : 1,
       }}
@@ -815,15 +815,15 @@ function TaskCard({
         mass: 1
       }}
       whileHover={{ 
-        scale: isDragging ? 1.08 : 1.04, 
-        y: isDragging ? -12 : -8,
+        scale: isDragging ? 1.05 : 1.03, 
+        y: isDragging ? -10 : -6,
         boxShadow: isDragging 
           ? undefined 
-          : `${priorityConfig.shadow}, 0 0 40px ${priorityConfig.glow}`,
+          : `${priorityConfig.shadow}, 0 0 35px ${priorityConfig.glow}`,
         borderColor: priorityConfig.border
       }}
-      className={`console-card p-4 cursor-grab group relative overflow-hidden transition-all duration-300 ${
-        isDragging ? 'cursor-grabbing ring-2' : ''
+      className={`kanban-card-v4 glass-card-v4 p-4 cursor-grab group relative overflow-hidden ${
+        isDragging ? 'cursor-grabbing ring-2 dragging-enhanced' : ''
       } ${isSelected ? 'ring-2' : ''}`}
       style={{ 
         borderLeftWidth: '4px',

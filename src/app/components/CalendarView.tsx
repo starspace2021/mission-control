@@ -274,7 +274,7 @@ export default function CalendarView() {
       </div>
 
       {/* 头部控制栏 */}
-      <div className="console-card p-5">
+      <div className="glass-card-v4 p-5">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className="flex gap-1 bg-[#1A1A24] rounded-xl p-1">
@@ -391,7 +391,7 @@ export default function CalendarView() {
         </div>
 
         <div className="space-y-4">
-          <div className="console-card p-5">
+          <div className="glass-card-v4 p-5">
             <div className="flex items-center gap-3 mb-4">
               <motion.div 
                 className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#3B82F6]/20 to-[#3B82F6]/5 flex items-center justify-center"
@@ -479,7 +479,7 @@ export default function CalendarView() {
             </div>
           </div>
 
-          <div className="console-card p-5">
+          <div className="glass-card-v4 p-5">
             <h3 className="font-semibold text-white mb-4">快捷操作</h3>
             <div className="space-y-2">
               {[
@@ -522,7 +522,7 @@ export default function CalendarView() {
   );
 }
 
-// 日历网格视图
+// 日历网格视图 - v10 优化版
 function CalendarGridView({
   viewDates,
   viewMode,
@@ -549,13 +549,13 @@ function CalendarGridView({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className="console-card overflow-hidden"
+      className="glass-card-v4 overflow-hidden"
     >
       <div className={`grid ${viewMode === "day" ? "grid-cols-1" : "grid-cols-7"} border-b border-white/5`}>
         {(viewMode === "day" ? [weekDays[new Date().getDay()]] : weekDays).map((day) => (
           <div 
             key={day} 
-            className="text-center py-3 text-sm font-medium text-[#71717A] border-r border-white/5 last:border-r-0"
+            className="text-center py-2.5 text-xs font-medium text-[#71717A] border-r border-white/5 last:border-r-0"
           >
             {day}
           </div>
@@ -571,62 +571,62 @@ function CalendarGridView({
           const isHovered = hoveredDate && isSameDay(date, hoveredDate);
           
           const densityBg = density === 0 ? '' :
-            density === 1 ? 'bg-[#3B82F6]/5' :
-            density === 2 ? 'bg-[#3B82F6]/10' :
-            'bg-[#3B82F6]/15';
+            density === 1 ? 'bg-[#3B82F6]/4' :
+            density === 2 ? 'bg-[#3B82F6]/8' :
+            'bg-[#3B82F6]/12';
 
           return (
             <motion.div
               key={date.toISOString()}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: index * 0.01 }}
+              transition={{ delay: index * 0.008 }}
               onMouseEnter={() => setHoveredDate(date)}
               onMouseLeave={() => setHoveredDate(null)}
-              className={`min-h-[140px] p-3 border-r border-b border-white/5 last:border-r-0 
+              className={`min-h-[120px] p-2.5 border-r border-b border-white/5 last:border-r-0 
                          ${!isCurrentMonth && viewMode === "month" ? "bg-white/[0.02]" : ""}
-                         ${isToday ? "bg-gradient-to-br from-[#3B82F6]/15 to-transparent ring-1 ring-[#3B82F6]/30" : densityBg} 
-                         transition-all duration-200 cursor-pointer relative group calendar-cell`}
+                         ${isToday ? "bg-gradient-to-br from-[#3B82F6]/12 to-transparent ring-1 ring-[#3B82F6]/25" : densityBg} 
+                         transition-all duration-200 cursor-pointer relative group calendar-cell-v4`}
             >
               <motion.div 
-                className="absolute inset-0 bg-white/5 pointer-events-none"
+                className="absolute inset-0 bg-white/[0.03] pointer-events-none"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: isHovered ? 1 : 0 }}
                 transition={{ duration: 0.2 }}
               />
 
-              <div className={`flex items-center gap-2 mb-3 relative z-10 ${
+              <div className={`flex items-center gap-1.5 mb-2 relative z-10 ${
                 isToday ? "text-[#3B82F6]" : "text-white/70"
               }`}>
-                <span className={`text-lg font-bold ${isToday ? 'text-[#3B82F6]' : ''}`}>
+                <span className={`text-base font-bold ${isToday ? 'text-[#3B82F6]' : ''}`}>
                   {format(date, "d")}
                 </span>
                 {isToday && (
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#3B82F6] text-white font-medium">
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#3B82F6] text-white font-medium">
                     今天
                   </span>
                 )}
                 {density > 0 && (
-                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#3B82F6]/20 text-[#3B82F6] font-medium">
-                    {dayEvents.length} 事件
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#3B82F6]/15 text-[#3B82F6] font-medium">
+                    {dayEvents.length}
                   </span>
                 )}
               </div>
 
-              <div className="space-y-1.5 relative z-10">
-                {dayEvents.slice(0, 4).map((event) => (
+              <div className="space-y-1 relative z-10">
+                {dayEvents.slice(0, 3).map((event) => (
                   <EventCard 
                     key={event._id} 
                     event={event} 
                     onClick={() => onSelectEvent(event)}
                   />
                 ))}
-                {dayEvents.length > 4 && (
+                {dayEvents.length > 3 && (
                   <motion.div 
-                    className="text-[10px] text-[#71717A] text-center py-1 bg-white/5 rounded cursor-pointer hover:bg-white/10 transition-colors"
+                    className="text-[10px] text-[#71717A] text-center py-0.5 bg-white/5 rounded cursor-pointer hover:bg-white/10 transition-colors"
                     whileHover={{ scale: 1.02 }}
                   >
-                    +{dayEvents.length - 4} 更多
+                    +{dayEvents.length - 3}
                   </motion.div>
                 )}
               </div>
@@ -634,9 +634,9 @@ function CalendarGridView({
               <motion.button
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: isHovered ? 1 : 0, scale: isHovered ? 1 : 0.8 }}
-                className="absolute bottom-2 right-2 w-6 h-6 rounded-full bg-[#3B82F6]/20 hover:bg-[#3B82F6]/40 flex items-center justify-center transition-colors z-20"
+                className="absolute bottom-2 right-2 w-5 h-5 rounded-full bg-[#3B82F6]/15 hover:bg-[#3B82F6]/30 flex items-center justify-center transition-colors z-20"
               >
-                <Plus className="w-3 h-3 text-[#3B82F6]" />
+                <Plus className="w-2.5 h-2.5 text-[#3B82F6]" />
               </motion.button>
             </motion.div>
           );
