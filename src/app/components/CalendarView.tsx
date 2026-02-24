@@ -775,38 +775,90 @@ function TimelineView({
   );
 }
 
-// 事件卡片
+// 事件卡片 - v2.0 增强版
 function EventCard({ event, onClick }: { event: Event; onClick: () => void }) {
   const config = typeConfig[event.type] || typeConfig.onetime;
   const Icon = config.icon;
   const priority = event.priority ? priorityConfig[event.priority] : null;
+  const [isHovered, setIsHovered] = useState(false);
 
   return (
     <motion.div
-      whileHover={{ scale: 1.02, x: 2 }}
+      initial={{ opacity: 0, x: -10 }}
+      animate={{ opacity: 1, x: 0 }}
+      whileHover={{ 
+        scale: 1.03, 
+        x: 4,
+        boxShadow: `0 4px 20px ${config.color}30`
+      }}
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
       onClick={onClick}
-      className="p-2 rounded-lg text-xs cursor-pointer transition-all group relative overflow-hidden"
+      className="p-2 rounded-lg text-xs cursor-pointer transition-all group relative overflow-hidden event-card-compact"
       style={{ 
         backgroundColor: config.bgColor,
-        borderLeft: `2px solid ${config.color}`
+        borderLeft: `3px solid ${config.color}`
       }}
     >
-      <div className="flex items-center gap-1">
-        <Icon className="w-3 h-3 flex-shrink-0" style={{ color: config.color }} />
+      {/* 悬停时的背景光效 */}
+      <motion.div
+        className="absolute inset-0 pointer-events-none"
+        style={{ 
+          background: `linear-gradient(90deg, ${config.color}10, transparent)`
+        }}
+        initial={{ opacity: 0, x: '-100%' }}
+        animate={{ 
+          opacity: isHovered ? 1 : 0,
+          x: isHovered ? '0%' : '-100%'
+        }}
+        transition={{ duration: 0.3 }}
+      />
+      
+      <div className="flex items-center gap-1.5 relative z-10">
+        <motion.div
+          animate={{ 
+            rotate: isHovered ? [0, -10, 10, 0] : 0,
+            scale: isHovered ? 1.2 : 1
+          }}
+          transition={{ duration: 0.4 }}
+        >
+          <Icon className="w-3 h-3 flex-shrink-0" style={{ color: config.color }} />
+        </motion.div>
         <span className="font-medium truncate group-hover:text-white transition-colors" style={{ color: config.color }}>
           {event.title}
         </span>
       </div>
       
-      <div className="text-white/40 mt-0.5 font-mono text-[10px] flex items-center gap-1">
+      <div className="text-white/40 mt-1 font-mono text-[10px] flex items-center gap-1 relative z-10">
         <Clock className="w-2.5 h-2.5" />
         {format(new Date(event.startTime), "HH:mm")}
       </div>
 
+      {/* 优先级指示器 - 增强 */}
       {priority && (
-        <div 
-          className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full"
-          style={{ backgroundColor: priority.color }}
+        <motion.div 
+          className="absolute top-1.5 right-1.5"
+          animate={{ 
+            scale: isHovered ? 1.3 : 1,
+            boxShadow: isHovered ? `0 0 10px ${priority.color}` : 'none'
+          }}
+        >
+          <div 
+            className="w-1.5 h-1.5 rounded-full"
+            style={{ backgroundColor: priority.color }}
+          />
+        </motion.div>
+      )}
+      
+      {/* 状态指示器 */}
+      {event.status === 'running' && (
+        <motion.div
+          className="absolute bottom-1 right-1 w-1 h-1 rounded-full bg-[#10B981]"
+          animate={{ 
+            scale: [1, 1.5, 1],
+            opacity: [1, 0.5, 1]
+          }}
+          transition={{ duration: 1.5, repeat: Infinity }}
         />
       )}
     </motion.div>

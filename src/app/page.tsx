@@ -1633,22 +1633,35 @@ function SystemMetricCard({
   );
 }
 
-// 热力图组件
+// 热力图组件 - v2.0 增强版
 function HeatmapChart({ data }: { data: { day: string; hour: number; value: number }[] }) {
   const days = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"];
   const hours = [0, 4, 8, 12, 16, 20];
+  const [selectedCell, setSelectedCell] = useState<{day: string; hour: number; value: number} | null>(null);
+  const [hoveredCell, setHoveredCell] = useState<{day: string; hour: number} | null>(null);
   
   const getValue = (day: string, hour: number) => {
     const item = data.find(d => d.day === day && d.hour === hour);
     return item?.value || 0;
   };
   
-  const getColor = (value: number) => {
-    if (value === 0) return "rgba(26, 26, 36, 0.8)";
-    if (value < 20) return "rgba(59, 130, 246, 0.3)";
-    if (value < 40) return "rgba(59, 130, 246, 0.5)";
-    if (value < 60) return "rgba(59, 130, 246, 0.7)";
-    return "rgba(59, 130, 246, 1)";
+  const getColor = (value: number, isHovered: boolean) => {
+    const baseOpacity = isHovered ? 1 : 0.9;
+    if (value === 0) return `rgba(26, 26, 36, ${isHovered ? 0.9 : 0.6})`;
+    if (value < 20) return `rgba(59, 130, 246, ${0.3 * baseOpacity})`;
+    if (value < 40) return `rgba(59, 130, 246, ${0.5 * baseOpacity})`;
+    if (value < 60) return `rgba(59, 130, 246, ${0.7 * baseOpacity})`;
+    if (value < 80) return `rgba(59, 130, 246, ${0.85 * baseOpacity})`;
+    return `rgba(59, 130, 246, ${baseOpacity})`;
+  };
+
+  const getIntensityLabel = (value: number) => {
+    if (value === 0) return "无活动";
+    if (value < 20) return "低负载";
+    if (value < 40) return "中低负载";
+    if (value < 60) return "中等负载";
+    if (value < 80) return "高负载";
+    return "峰值负载";
   };
   
   return (
@@ -1677,19 +1690,55 @@ function HeatmapChart({ data }: { data: { day: string; hour: number; value: numb
               <div className="w-12 text-xs text-[#71717A] text-right pr-2">{day}</div>
               {hours.map((hour, hourIndex) => {
                 const value = getValue(day, hour);
+                const isHovered = hoveredCell?.day === day && hoveredCell?.hour === hour;
+                const isSelected = selectedCell?.day === day && selectedCell?.hour === hour;
+                
                 return (
                   <motion.div
                     key={`${day}-${hour}`}
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: dayIndex * 0.05 + hourIndex * 0.02 }}
-                    whileHover={{ scale: 1.1, zIndex: 10 }}
-                    className="flex-1 h-8 rounded cursor-pointer relative group"
-                    style={{ backgroundColor: getColor(value) }}
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{ 
+                      scale: isSelected ? 1.15 : isHovered ? 1.1 : 1, 
+                      opacity: 1,
+                      zIndex: isSelected ? 30 : isHovered ? 20 : 1
+                    }}
+                    transition={{ 
+                      delay: dayIndex * 0.05 + hourIndex * 0.02,
+                      type: "spring",
+                      stiffness: 300,
+                      damping: 20
+                    }}
+                    whileTap={{ scale: 0.95 }}
+                    onMouseEnter={() => setHoveredCell({ day, hour })}
+                    onMouseLeave={() => setHoveredCell(null)}
+                    onClick={() => setSelectedCell({ day, hour, value })}
+                    className={`flex-1 h-8 rounded cursor-pointer relative group heatmap-cell-enhanced ${
+                      isSelected ? 'ring-2 ring-[#3B82F6] ring-offset-2 ring-offset-[#0A0A0F]' : ''
+                    }`}
+                    style={{ 
+                      backgroundColor: getColor(value, isHovered || isSelected),
+                      boxShadow: isHovered || isSelected ? `0 0 20px rgba(59, 130, 246, ${value / 100})` : 'none'
+                    }}
                   >
-                    {/* Tooltip */}
-                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-[#1A1A24] border border-white/10 rounded text-xs text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-20">
-                      {day} {hour}:00 - {value} 请求
+                    {/* 数值显示 */}
+                    <AnimatePresence>
+                      {(isHovered || isSelected) && value > 0 && (
+                        <motion.span
+                          initial={{ opacity: 0, scale: 0.5 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.5 }}
+                          className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white"
+                        >
+                          {value}
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
+                    
+                    {/* Enhanced Tooltip */}
+                    <div className="heatmap-tooltip">
+                      <div className="font-medium">{day} {hour}:00</div>
+                      <div className="text-[#3B82F6]">{value} 请求</div>
+                      <div className="text-[#71717A] text-[10px] mt-1">{getIntensityLabel(value)}</div>
                     </div>
                   </motion.div>
                 );
@@ -1697,6 +1746,43 @@ function HeatmapChart({ data }: { data: { day: string; hour: number; value: numb
             </motion.div>
           ))}
         </div>
+
+        {/* 选中详情面板 */}
+        <AnimatePresence>
+          {selectedCell && (
+            <motion.div
+              initial={{ opacity: 0, y: 10, height: 0 }}
+              animate={{ opacity: 1, y: 0, height: 'auto' }}
+              exit={{ opacity: 0, y: 10, height: 0 }}
+              className="mt-4 p-4 bg-[#1A1A24] rounded-xl border border-white/10"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div 
+                    className="w-10 h-10 rounded-lg flex items-center justify-center"
+                    style={{ backgroundColor: getColor(selectedCell.value, true) }}
+                  >
+                    <span className="text-white font-bold">{selectedCell.value}</span>
+                  </div>
+                  <div>
+                    <div className="font-medium text-white">
+                      {selectedCell.day} {selectedCell.hour}:00 - {selectedCell.hour + 4}:00
+                    </div>
+                    <div className="text-sm text-[#71717A]">
+                      {getIntensityLabel(selectedCell.value)} · {selectedCell.value} 请求
+                    </div>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setSelectedCell(null)}
+                  className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                >
+                  <X className="w-4 h-4 text-[#71717A]" />
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

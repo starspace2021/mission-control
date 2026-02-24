@@ -437,24 +437,68 @@ export default function MemoryScreen({ memories = mockMemories }: MemoryScreenPr
                 exit={{ height: 0, opacity: 0 }}
                 className="overflow-hidden"
               >
-                <div className="flex flex-wrap items-center gap-2 p-4 bg-[#1A1A24]/50 rounded-xl border border-white/5"
+                <div className="flex flex-wrap items-center gap-2 p-4 bg-[#1A1A24]/50 rounded-xl border border-white/5 tag-cloud-container"
                 >
-                  {tagCloudData.map(({ tag, count, size }) => (
+                  {tagCloudData.map(({ tag, count, size }, index) => (
                     <motion.button
                       key={tag}
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      whileHover={{ scale: 1.1, y: -2 }}
+                      initial={{ opacity: 0, scale: 0, rotate: -10 }}
+                      animate={{ 
+                        opacity: 1, 
+                        scale: 1,
+                        rotate: 0,
+                        y: [0, -3, 0]
+                      }}
+                      transition={{ 
+                        delay: index * 0.03,
+                        y: {
+                          delay: index * 0.03 + 0.5,
+                          duration: 2,
+                          repeat: Infinity,
+                          repeatDelay: Math.random() * 2
+                        }
+                      }}
+                      whileHover={{ 
+                        scale: 1.15, 
+                        y: -4,
+                        boxShadow: '0 10px 30px rgba(59, 130, 246, 0.3)'
+                      }}
+                      whileTap={{ scale: 0.95 }}
                       onClick={() => toggleTag(tag)}
-                      className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+                      className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 tag-cloud-item ${
                         selectedTags.includes(tag)
-                          ? "bg-gradient-to-r from-[#3B82F6]/20 to-[#8B5CF6]/20 text-[#3B82F6] border border-[#3B82F6]/30"
-                          : "bg-white/5 text-[#A1A1AA] hover:bg-white/10 border border-transparent"
+                          ? "bg-gradient-to-r from-[#3B82F6]/20 to-[#8B5CF6]/20 text-[#3B82F6] border border-[#3B82F6]/30 shadow-lg shadow-blue-500/20"
+                          : "bg-white/5 text-[#A1A1AA] hover:bg-white/10 border border-transparent hover:border-white/10"
                       }`}
-                      style={{ fontSize: `${Math.max(11, size * 0.6)}px` }}
+                      style={{ 
+                        fontSize: `${Math.max(11, size * 0.6)}px`,
+                        animationDelay: `${index * 0.1}s`
+                      }}
                     >
-                      <span>#{tag}</span>
-                      <span className="text-[10px] opacity-60">({count})</span>
+                      <motion.span
+                        animate={{ rotate: selectedTags.includes(tag) ? 360 : 0 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        #
+                      </motion.span>
+                      <span>{tag}</span>
+                      <motion.span 
+                        className="text-[10px] opacity-60"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 0.6 }}
+                        transition={{ delay: index * 0.03 + 0.2 }}
+                      >
+                        ({count})
+                      </motion.span>
+                      {selectedTags.includes(tag) && (
+                        <motion.span
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          className="ml-1"
+                        >
+                          <Sparkles className="w-3 h-3 text-[#3B82F6]" />
+                        </motion.span>
+                      )}
                     </motion.button>
                   ))}
                 </div>

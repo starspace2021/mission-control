@@ -761,7 +761,7 @@ function TaskCard({
       text: "#EF4444",
       border: "rgba(239, 68, 68, 0.3)",
       glow: "rgba(239, 68, 68, 0.4)",
-      shadow: "0 8px 30px rgba(239, 68, 68, 0.2)",
+      shadow: "0 20px 50px rgba(239, 68, 68, 0.3), 0 0 30px rgba(239, 68, 68, 0.2)",
       gradient: "from-red-500/10 to-transparent"
     },
     medium: { 
@@ -769,7 +769,7 @@ function TaskCard({
       text: "#F59E0B",
       border: "rgba(245, 158, 11, 0.3)",
       glow: "rgba(245, 158, 11, 0.4)",
-      shadow: "0 8px 30px rgba(245, 158, 11, 0.2)",
+      shadow: "0 20px 50px rgba(245, 158, 11, 0.3), 0 0 30px rgba(245, 158, 11, 0.2)",
       gradient: "from-amber-500/10 to-transparent"
     },
     low: { 
@@ -777,7 +777,7 @@ function TaskCard({
       text: "#3B82F6",
       border: "rgba(59, 130, 246, 0.3)",
       glow: "rgba(59, 130, 246, 0.4)",
-      shadow: "0 8px 30px rgba(59, 130, 246, 0.2)",
+      shadow: "0 20px 50px rgba(59, 130, 246, 0.3), 0 0 30px rgba(59, 130, 246, 0.2)",
       gradient: "from-blue-500/10 to-transparent"
     },
   };
@@ -795,32 +795,42 @@ function TaskCard({
       layout
       initial={{ opacity: 0, y: 20, scale: 0.95 }}
       animate={{ 
-        opacity: isDragging ? 0.7 : 1, 
-        y: isDragging ? -8 : 0,
-        scale: isDragging ? 1.05 : 1,
-        rotate: isDragging ? 3 : 0,
-        boxShadow: isDragging ? priorityConfig.shadow : isSelected ? `0 0 0 2px ${priorityConfig.text}` : undefined
+        opacity: isDragging ? 0.85 : 1, 
+        y: isDragging ? -12 : 0,
+        scale: isDragging ? 1.08 : 1,
+        rotate: isDragging ? 4 : 0,
+        boxShadow: isDragging 
+          ? `${priorityConfig.shadow}, 0 0 60px ${priorityConfig.glow}` 
+          : isSelected 
+            ? `0 0 0 2px ${priorityConfig.text}, 0 0 20px ${priorityConfig.glow}` 
+            : undefined,
+        zIndex: isDragging ? 1000 : isSelected ? 10 : 1,
       }}
-      exit={{ opacity: 0, scale: 0.9 }}
+      exit={{ opacity: 0, scale: 0.9, rotate: -2 }}
       transition={{ 
         delay: index * 0.05,
         type: "spring",
-        stiffness: 300,
-        damping: 25
+        stiffness: 400,
+        damping: 25,
+        mass: 1
       }}
       whileHover={{ 
-        scale: 1.03, 
-        y: -6,
-        boxShadow: `${priorityConfig.shadow}, 0 0 30px ${priorityConfig.glow}`,
+        scale: isDragging ? 1.08 : 1.04, 
+        y: isDragging ? -12 : -8,
+        boxShadow: isDragging 
+          ? undefined 
+          : `${priorityConfig.shadow}, 0 0 40px ${priorityConfig.glow}`,
         borderColor: priorityConfig.border
       }}
       className={`console-card p-4 cursor-grab group relative overflow-hidden transition-all duration-300 ${
-        isDragging ? 'cursor-grabbing z-50 ring-2' : ''
+        isDragging ? 'cursor-grabbing ring-2' : ''
       } ${isSelected ? 'ring-2' : ''}`}
       style={{ 
         borderLeftWidth: '4px',
         borderLeftColor: priorityConfig.text,
-        borderColor: isDragging ? priorityConfig.border : isSelected ? priorityConfig.text : undefined
+        borderColor: isDragging ? priorityConfig.border : isSelected ? priorityConfig.text : undefined,
+        transformStyle: 'preserve-3d',
+        perspective: '1000px'
       }}
       draggable
       onDragStart={onDragStart}
@@ -861,9 +871,13 @@ function TaskCard({
 
       {/* 拖拽手柄 */}
       <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all z-10">
-        <div className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+        <motion.div 
+          className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors cursor-grab active:cursor-grabbing"
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+        >
           <GripVertical className="w-4 h-4 text-[#52525B]" />
-        </div>
+        </motion.div>
       </div>
 
       {/* 内容 */}
@@ -933,16 +947,17 @@ function TaskCard({
         {/* 底部信息栏 */}
         <div className="mt-4 pt-4 border-t border-white/5 flex items-center justify-between">
           {/* 优先级标签 */}
-          <span 
+          <motion.span 
             className="text-[10px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wider"
             style={{ 
               backgroundColor: priorityConfig.bg,
               color: priorityConfig.text,
               border: `1px solid ${priorityConfig.border}`
             }}
+            whileHover={{ scale: 1.05 }}
           >
             {task.priority}
-          </span>
+          </motion.span>
           
           {/* 进度环形图 */}
           <TaskProgressRing progress={progress} size={36} />

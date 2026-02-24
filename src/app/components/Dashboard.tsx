@@ -640,15 +640,31 @@ function SystemResources() {
   );
 }
 
-// 热力图组件
+// 热力图组件 - 增强版
 function HeatmapChart() {
   const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   const hours = Array.from({ length: 12 }, (_, i) => i * 2);
+  const [hoveredCell, setHoveredCell] = useState<{day: number, hour: number, intensity: number} | null>(null);
+  const [selectedCell, setSelectedCell] = useState<{day: number, hour: number, intensity: number} | null>(null);
   
   const getIntensity = (day: number, hour: number) => {
     const base = Math.sin(day * 0.5 + hour * 0.3) * 0.5 + 0.5;
     const random = Math.random() * 0.3;
     return Math.min(base + random, 1);
+  };
+
+  const getActivityLabel = (intensity: number) => {
+    if (intensity < 0.2) return '低活跃度';
+    if (intensity < 0.4) return '中等活跃度';
+    if (intensity < 0.6) return '较高活跃度';
+    if (intensity < 0.8) return '高活跃度';
+    return '极高活跃度';
+  };
+
+  const getActivityTasks = (intensity: number) => {
+    const tasks = ['情报收集', '数据分析', '报告生成', '系统监控', '任务调度'];
+    const count = Math.ceil(intensity * 5);
+    return tasks.slice(0, count);
   };
 
   return (
@@ -665,9 +681,32 @@ function HeatmapChart() {
           </div>
           <div>
             <h3 className="font-semibold text-white">Activity Heatmap</h3>
-            <p className="text-xs text-[#71717A]">系统活跃度分布</p>
+            <p className="text-xs text-[#71717A]">系统活跃度分布 - 点击单元格查看详情</p>
           </div>
         </div>
+        
+        {/* 悬停/选中详情面板 */}
+        <AnimatePresence>
+          {(hoveredCell || selectedCell) && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, x: 20 }}
+              animate={{ opacity: 1, scale: 1, x: 0 }}
+              exit={{ opacity: 0, scale: 0.9, x: 20 }}
+              className="bg-[#1A1A24] border border-white/10 rounded-lg p-3 text-xs"
+            >
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-[#71717A]">{days[(selectedCell || hoveredCell)!.day]}</span>
+                <span className="text-white">{(selectedCell || hoveredCell)!.hour}:00</span>
+              </div>
+              <div className="text-[#3B82F6] font-medium">
+                {getActivityLabel((selectedCell || hoveredCell)!.intensity)}
+              </div>
+              <div className="text-[#71717A] mt-1">
+                活跃度: {Math.round((selectedCell || hoveredCell)!.intensity * 100)}%
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
       
       <div className="overflow-x-auto">
@@ -686,19 +725,51 @@ function HeatmapChart() {
               <div className="flex-1 flex gap-1">
                 {hours.map((hour, hourIndex) => {
                   const intensity = getIntensity(dayIndex, hourIndex);
+                  const isHovered = hoveredCell?.day === dayIndex && hoveredCell?.hour === hour;
+                  const isSelected = selectedCell?.day === dayIndex && selectedCell?.hour === hour;
+                  
                   return (
                     <motion.div
                       key={hour}
-                      className="flex-1 h-6 rounded heatmap-cell-enhanced"
+                      className="flex-1 h-6 rounded heatmap-cell-enhanced relative cursor-pointer"
                       style={{
                         backgroundColor: `rgba(59, 130, 246, ${0.1 + intensity * 0.9})`,
+                        boxShadow: isSelected ? `0 0 15px rgba(59, 130, 246, 0.6), inset 0 0 0 2px rgba(255,255,255,0.3)` : undefined,
                       }}
                       initial={{ opacity: 0, scale: 0 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: (dayIndex * 12 + hourIndex) * 0.005 }}
-                      whileHover={{ scale: 1.3, zIndex: 100 }}
-                      title={`${day} ${hour}:00 - Activity: ${Math.round(intensity * 100)}%`}
-                    />
+                      animate={{ 
+                        opacity: 1, 
+                        scale: isHovered ? 1.3 : isSelected ? 1.2 : 1,
+                      }}
+                      transition={{ 
+                        delay: (dayIndex * 12 + hourIndex) * 0.005,
+                        type: "spring",
+                        stiffness: 300,
+                        damping: 20
+                      }}
+                      whileHover={{ 
+                        scale: 1.3, 
+                        zIndex: 100,
+                        boxShadow: '0 0 20px rgba(59, 130, 246, 0.5), 0 0 40px rgba(59, 130, 246, 0.3)'
+                      }}
+                      onMouseEnter={() => setHoveredCell({ day: dayIndex, hour, intensity })}
+                      onMouseLeave={() => setHoveredCell(null)}
+                      onClick={() => setSelectedCell({ day: dayIndex, hour, intensity })}
+                    >
+                      {/* 悬停提示 */}
+                      <AnimatePresence>
+                        {isHovered && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 5 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 5 }}
+                            className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-[#111118] border border-white/10 rounded text-[10px] whitespace-nowrap z-50 pointer-events-none"
+                          >
+                            <div className="text-white">{Math.round(intensity * 100)}% 活跃度</div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </motion.div>
                   );
                 })}
               </div>
@@ -707,14 +778,54 @@ function HeatmapChart() {
         </div>
       </div>
       
+      {/* 选中详情面板 */}
+      <AnimatePresence>
+        {selectedCell && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="mt-4 pt-4 border-t border-white/10"
+          >
+            <div className="flex items-start justify-between">
+              <div>
+                <h4 className="text-sm font-medium text-white mb-2">
+                  {days[selectedCell.day]} {selectedCell.hour}:00 - {selectedCell.hour + 2}:00 详细数据
+                </h4>
+                <div className="flex flex-wrap gap-2">
+                  {getActivityTasks(selectedCell.intensity).map((task, i) => (
+                    <motion.span
+                      key={task}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: i * 0.1 }}
+                      className="px-2 py-1 bg-[#3B82F6]/20 text-[#3B82F6] text-xs rounded-full"
+                    >
+                      {task}
+                    </motion.span>
+                  ))}
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedCell(null)}
+                className="text-xs text-[#71717A] hover:text-white transition-colors"
+              >
+                关闭
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
       <div className="flex items-center justify-end gap-2 mt-4 text-[10px] text-[#71717A]">
         <span>Less</span>
         <div className="flex gap-0.5">
           {[0.2, 0.4, 0.6, 0.8, 1].map((op, i) => (
-            <div 
+            <motion.div 
               key={i} 
               className="w-3 h-3 rounded"
               style={{ backgroundColor: `rgba(59, 130, 246, ${op})` }}
+              whileHover={{ scale: 1.2 }}
             />
           ))}
         </div>
