@@ -263,11 +263,11 @@ class TaskMonitor:
             TaskDefinition(
                 id="memory-export",
                 name="记忆导出",
-                command="memory_export",
+                command="python3 /root/.openclaw/workspace/memory_export_daily_optimized.py",
                 schedule="0 0 * * *",
                 department="Memory & Admin Department",
                 owner="Memory Manager Agent",
-                timeout_seconds=300
+                timeout_seconds=60
             ),
             TaskDefinition(
                 id="memory-cleanup",
@@ -281,11 +281,11 @@ class TaskMonitor:
             TaskDefinition(
                 id="qq-mail-cleanup",
                 name="QQ邮箱清理",
-                command="python3 /root/.openclaw/workspace/qq_mail_cleanup.py",
+                command="python3 /root/.openclaw/workspace/qq_mail_cleanup_optimized.py",
                 schedule="16 6 * * *",
                 department="Memory & Admin Department",
                 owner="System Maintenance Agent",
-                timeout_seconds=300
+                timeout_seconds=120
             )
         ]
         

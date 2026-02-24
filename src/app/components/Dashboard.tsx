@@ -21,7 +21,10 @@ import {
   Globe,
   Database,
   Wifi,
-  Shield
+  Shield,
+  Flame,
+  Layers,
+  Gauge
 } from 'lucide-react';
 import { taskTrend, departmentLoad, tasks, agents } from '@/data/mockData';
 
@@ -105,13 +108,16 @@ function MiniChart({ data, color }: { data: number[]; color: string }) {
       {data.map((value, i) => (
         <motion.div
           key={i}
-          className="w-1.5 rounded-t-sm"
+          className="w-1.5 rounded-t-sm relative overflow-hidden group/bar"
           style={{ backgroundColor: color }}
           initial={{ height: 0, opacity: 0 }}
           animate={{ height: `${((value - min) / range) * 100}%`, opacity: 1 }}
           transition={{ delay: i * 0.03, duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-          whileHover={{ scale: 1.2 }}
-        />
+          whileHover={{ scale: 1.3 }}
+        >
+          {/* 顶部高光 */}
+          <div className="absolute top-0 left-0 right-0 h-[1px] bg-white/40" />
+        </motion.div>
       ))}
     </div>
   );
@@ -173,7 +179,15 @@ function CircularProgress({ value, size = 50, strokeWidth = 4, color = "#3B82F6"
   
   return (
     <div className="relative" style={{ width: size, height: size }}>
-      <svg className="transform -rotate-90" width={size} height={size}>
+      {/* 外发光 */}
+      <div 
+        className="absolute inset-0 rounded-full opacity-20"
+        style={{ 
+          boxShadow: `0 0 ${size/3}px ${color}`,
+          transform: 'scale(0.85)'
+        }}
+      />
+      <svg className="transform -rotate-90 relative z-10" width={size} height={size}>
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -193,10 +207,13 @@ function CircularProgress({ value, size = 50, strokeWidth = 4, color = "#3B82F6"
           initial={{ strokeDashoffset: circumference }}
           animate={{ strokeDashoffset: offset }}
           transition={{ duration: 1.5, ease: [0.4, 0, 0.2, 1] }}
-          style={{ strokeDasharray: circumference }}
+          style={{ 
+            strokeDasharray: circumference,
+            filter: `drop-shadow(0 0 ${strokeWidth/2}px ${color})`
+          }}
         />
       </svg>
-      <div className="absolute inset-0 flex items-center justify-center">
+      <div className="absolute inset-0 flex items-center justify-center z-20">
         <span className="text-xs font-bold" style={{ color }}>
           <CountUp value={value} suffix="%" />
         </span>
@@ -244,11 +261,16 @@ function WelcomeBanner() {
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="console-card p-6 relative overflow-hidden"
+      className="console-card p-6 relative overflow-hidden group"
     >
+      {/* 动态背景 */}
       <div className="absolute inset-0 bg-gradient-to-r from-[#3B82F6]/8 via-[#8B5CF6]/5 to-transparent" />
-      <div className="absolute top-0 right-0 w-96 h-96 bg-[#3B82F6]/5 rounded-full blur-3xl opacity-60 animate-pulse" />
-      <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#8B5CF6]/5 rounded-full blur-3xl opacity-40" />
+      <div className="absolute top-0 right-0 w-96 h-96 bg-[#3B82F6]/5 rounded-full blur-3xl opacity-60 group-hover:opacity-80 transition-opacity duration-700" />
+      <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#8B5CF6]/5 rounded-full blur-3xl opacity-40 group-hover:opacity-60 transition-opacity duration-700" />
+      
+      {/* 装饰线条 */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#3B82F6]/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+      
       <div className="relative z-10">
         <div className="flex items-center gap-2 mb-2">
           <motion.div
@@ -277,7 +299,7 @@ function StatCard({ metric, index }: { metric: typeof metrics[0]; index: number 
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1, duration: 0.4 }}
       whileHover={{ y: -8, scale: 1.02 }}
-      className="console-card p-5 relative overflow-hidden group cursor-pointer"
+      className="console-card p-5 relative overflow-hidden group cursor-pointer stat-card-premium"
     >
       {/* 背景发光效果 */}
       <div 
@@ -313,7 +335,7 @@ function StatCard({ metric, index }: { metric: typeof metrics[0]; index: number 
         <div className="flex items-end justify-between">
           <div>
             <motion.div 
-              className="text-3xl font-bold mb-1"
+              className="text-3xl font-bold mb-1 metric-value"
               style={{ color: metric.color }}
               initial={{ opacity: 0, scale: 0.5 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -349,12 +371,13 @@ function SystemMetricCard({ metric, index }: { metric: typeof systemMetrics[0]; 
       className="glass-card-enhanced p-4 relative overflow-hidden group"
     >
       <div className="flex items-center gap-3">
-        <div 
+        <motion.div 
           className="p-2.5 rounded-xl transition-all duration-300"
           style={{ background: `${metric.color}15`, border: `1px solid ${metric.color}40` }}
+          whileHover={{ scale: 1.1, rotate: 5 }}
         >
           <Icon className="w-4 h-4" style={{ color: metric.color }} />
-        </div>
+        </motion.div>
         <div className="flex-1">
           <div className="text-xs text-[#71717A] mb-0.5">{metric.label}</div>
           <div className="flex items-center gap-2">
@@ -402,14 +425,14 @@ function TaskTrendChart() {
           <div key={day.day} className="flex-1 flex flex-col items-center gap-1">
             <div className="w-full flex gap-0.5 items-end justify-center h-24">
               <motion.div
-                className="w-3 bg-gradient-to-t from-[#3B82F6] to-[#60A5FA] rounded-t"
+                className="w-3 bg-gradient-to-t from-[#3B82F6] to-[#60A5FA] rounded-t chart-interactive"
                 initial={{ height: 0 }}
                 animate={{ height: `${(day.completed / 25) * 100}%` }}
                 transition={{ delay: i * 0.05, duration: 0.5 }}
                 whileHover={{ scale: 1.1 }}
               />
               <motion.div
-                className="w-3 bg-gradient-to-t from-[#10B981] to-[#34D399] rounded-t"
+                className="w-3 bg-gradient-to-t from-[#10B981] to-[#34D399] rounded-t chart-interactive"
                 initial={{ height: 0 }}
                 animate={{ height: `${(day.created / 25) * 100}%` }}
                 transition={{ delay: i * 0.05 + 0.1, duration: 0.5 }}
@@ -447,9 +470,10 @@ function DepartmentLoadChart() {
       <div className="space-y-3">
         {departmentLoad.map((dept, i) => (
           <div key={dept.name} className="flex items-center gap-3 group cursor-pointer">
-            <div 
+            <motion.div 
               className="w-3 h-3 rounded-full transition-transform group-hover:scale-125" 
-              style={{ backgroundColor: dept.color }} 
+              style={{ backgroundColor: dept.color }}
+              whileHover={{ scale: 1.3 }}
             />
             <span className="text-sm text-[#A1A1AA] flex-1 group-hover:text-white transition-colors">{dept.name}</span>
             <div className="flex-1 h-2 bg-[#1A1A24] rounded-full overflow-hidden">
@@ -546,12 +570,13 @@ function RecentActivity() {
               whileHover={{ x: 4, backgroundColor: 'rgba(255,255,255,0.03)' }}
               className="flex items-center gap-3 p-3 rounded-xl transition-colors cursor-pointer"
             >
-              <div 
+              <motion.div 
                 className="w-8 h-8 rounded-lg flex items-center justify-center transition-transform"
                 style={{ background: `${a.color}20` }}
+                whileHover={{ scale: 1.1, rotate: 5 }}
               >
                 <Icon className="w-4 h-4" style={{ color: a.color }} />
-              </div>
+              </motion.div>
               <span className="text-sm text-white flex-1">{a.text}</span>
               <span className="text-xs text-[#71717A] tabular-nums">{a.time}</span>
             </motion.div>
@@ -598,7 +623,7 @@ function SystemResources() {
             </div>
             <div className="h-2 bg-[#1A1A24] rounded-full overflow-hidden">
               <motion.div 
-                className="h-full rounded-full"
+                className="h-full rounded-full progress-bar-animated"
                 style={{ 
                   background: `linear-gradient(90deg, ${item.color}, ${item.color}80)`,
                   boxShadow: `0 0 10px ${item.color}40`
@@ -610,6 +635,90 @@ function SystemResources() {
             </div>
           </div>
         ))}
+      </div>
+    </motion.div>
+  );
+}
+
+// 热力图组件
+function HeatmapChart() {
+  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const hours = Array.from({ length: 12 }, (_, i) => i * 2);
+  
+  const getIntensity = (day: number, hour: number) => {
+    const base = Math.sin(day * 0.5 + hour * 0.3) * 0.5 + 0.5;
+    const random = Math.random() * 0.3;
+    return Math.min(base + random, 1);
+  };
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.7 }}
+      className="glass-card-enhanced p-5"
+    >
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#F59E0B]/20 to-[#F59E0B]/5 flex items-center justify-center">
+            <Flame className="w-5 h-5 text-[#F59E0B]" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-white">Activity Heatmap</h3>
+            <p className="text-xs text-[#71717A]">系统活跃度分布</p>
+          </div>
+        </div>
+      </div>
+      
+      <div className="overflow-x-auto">
+        <div className="min-w-[400px]">
+          <div className="flex">
+            <div className="w-12" />
+            {hours.map(h => (
+              <div key={h} className="flex-1 text-[10px] text-[#71717A] text-center">
+                {h}:00
+              </div>
+            ))}
+          </div>
+          {days.map((day, dayIndex) => (
+            <div key={day} className="flex items-center gap-1 mt-1">
+              <div className="w-10 text-[10px] text-[#71717A]">{day}</div>
+              <div className="flex-1 flex gap-1">
+                {hours.map((hour, hourIndex) => {
+                  const intensity = getIntensity(dayIndex, hourIndex);
+                  return (
+                    <motion.div
+                      key={hour}
+                      className="flex-1 h-6 rounded heatmap-cell-enhanced"
+                      style={{
+                        backgroundColor: `rgba(59, 130, 246, ${0.1 + intensity * 0.9})`,
+                      }}
+                      initial={{ opacity: 0, scale: 0 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: (dayIndex * 12 + hourIndex) * 0.005 }}
+                      whileHover={{ scale: 1.3, zIndex: 100 }}
+                      title={`${day} ${hour}:00 - Activity: ${Math.round(intensity * 100)}%`}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      
+      <div className="flex items-center justify-end gap-2 mt-4 text-[10px] text-[#71717A]">
+        <span>Less</span>
+        <div className="flex gap-0.5">
+          {[0.2, 0.4, 0.6, 0.8, 1].map((op, i) => (
+            <div 
+              key={i} 
+              className="w-3 h-3 rounded"
+              style={{ backgroundColor: `rgba(59, 130, 246, ${op})` }}
+            />
+          ))}
+        </div>
+        <span>More</span>
       </div>
     </motion.div>
   );
@@ -652,8 +761,11 @@ export default function Dashboard() {
         <RecentActivity />
       </div>
 
-      {/* 系统资源 */}
-      <SystemResources />
+      {/* 系统资源 + 热力图 */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <SystemResources />
+        <HeatmapChart />
+      </div>
     </div>
   );
 }

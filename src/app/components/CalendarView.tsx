@@ -14,20 +14,16 @@ import {
   Plus,
   Filter,
   Search,
-  MoreHorizontal,
   CheckCircle2,
-  CalendarDays,
   Clock3,
   AlertCircle,
-  LayoutGrid,
-  List,
   MapPin,
   Users,
   Tag,
   Sparkles,
   ArrowRight,
   Bell,
-  Info
+  MoreHorizontal
 } from "lucide-react";
 
 interface Event {
@@ -196,7 +192,6 @@ export default function CalendarView() {
 
   const goToToday = () => setCurrentDate(new Date());
 
-  // 获取当前视图的所有日期
   const getViewDates = () => {
     if (viewMode === "week" || viewMode === "timeline") {
       const weekStart = startOfWeek(currentDate, { weekStartsOn: 0 });
@@ -212,7 +207,6 @@ export default function CalendarView() {
 
   const viewDates = getViewDates();
 
-  // 获取某日期的事件
   const getEventsForDate = (date: Date) => {
     return mockEvents.filter((e) => 
       isSameDay(new Date(e.startTime), date) &&
@@ -221,13 +215,11 @@ export default function CalendarView() {
     );
   };
 
-  // 获取即将到来的事件
   const upcomingEvents = mockEvents
     .filter(e => new Date(e.startTime) >= new Date())
     .sort((a, b) => a.startTime - b.startTime)
     .slice(0, 5);
 
-  // 统计
   const stats = {
     total: mockEvents.length,
     today: mockEvents.filter(e => isDateToday(new Date(e.startTime))).length,
@@ -235,7 +227,6 @@ export default function CalendarView() {
     scheduled: mockEvents.filter(e => e.status === 'scheduled').length,
   };
 
-  // 计算事件密度（用于热力图效果）
   const getEventDensity = (date: Date) => {
     const count = getEventsForDate(date).length;
     if (count === 0) return 0;
@@ -251,14 +242,13 @@ export default function CalendarView() {
       exit={{ opacity: 0, y: -20 }}
       className="space-y-6"
     >
-      {/* 统计卡片 - 优化版 */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4"
-      >
+      {/* 统计卡片 */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: "今日事件", value: stats.today, icon: CalendarDays, color: "#3B82F6", trend: "+2" },
-          { label: "待执行", value: stats.pending, icon: Clock3, color: "#F59E0B", trend: "pending" },
-          { label: "已计划", value: stats.scheduled, icon: CheckCircle2, color: "#10B981", trend: "stable" },
-          { label: "总计", value: stats.total, icon: CalendarIcon, color: "#8B5CF6", trend: "+5" },
+          { label: "今日事件", value: stats.today, icon: CalendarIcon, color: "#3B82F6" },
+          { label: "待执行", value: stats.pending, icon: Clock3, color: "#F59E0B" },
+          { label: "已计划", value: stats.scheduled, icon: CheckCircle2, color: "#10B981" },
+          { label: "总计", value: stats.total, icon: CalendarIcon, color: "#8B5CF6" },
         ].map((stat, i) => (
           <motion.div
             key={stat.label}
@@ -268,43 +258,28 @@ export default function CalendarView() {
             whileHover={{ y: -4, scale: 1.02 }}
             className="console-card p-4 flex items-center gap-3 cursor-pointer group"
           >
-            <div 
-              className="w-12 h-12 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110"
+            <motion.div 
+              className="w-12 h-12 rounded-xl flex items-center justify-center"
               style={{ backgroundColor: `${stat.color}20` }}
+              whileHover={{ scale: 1.1, rotate: 5 }}
             >
               <stat.icon className="w-6 h-6" style={{ color: stat.color }} />
-            </div>
+            </motion.div>
             <div className="flex-1">
-              <div className="flex items-center gap-2">
-                <div className="text-2xl font-bold">{stat.value}</div>
-                {stat.trend && stat.trend !== 'stable' && stat.trend !== 'pending' && (
-                  <span className="text-xs px-1.5 py-0.5 rounded-full bg-green-500/20 text-green-400">
-                    {stat.trend}
-                  </span>
-                )}
-              </div>
+              <div className="text-2xl font-bold">{stat.value}</div>
               <div className="text-xs text-[#71717A]">{stat.label}</div>
-            </div>
-            {/* 迷你趋势图 */}
-            <div className="w-12 h-8">
-              <MiniTrendChart color={stat.color} />
             </div>
           </motion.div>
         ))}
       </div>
 
       {/* 头部控制栏 */}
-      <div className="console-card p-5"
-      >
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4"
-        >
-          <div className="flex items-center gap-4"
-          >
-            {/* 视图切换 */}
-            <div className="flex gap-1 bg-[#1A1A24] rounded-xl p-1"
-            >
+      <div className="console-card p-5">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="flex gap-1 bg-[#1A1A24] rounded-xl p-1">
               {(["day", "week", "month", "timeline"] as const).map((mode) => (
-                <button
+                <motion.button
                   key={mode}
                   onClick={() => setViewMode(mode)}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
@@ -312,44 +287,47 @@ export default function CalendarView() {
                       ? "bg-gradient-to-r from-[#3B82F6] to-[#8B5CF6] text-white shadow-lg shadow-blue-500/25" 
                       : "text-[#71717A] hover:text-white"
                   }`}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
                   {mode === "day" ? "日" : mode === "week" ? "周" : mode === "month" ? "月" : "时间线"}
-                </button>
+                </motion.button>
               ))}
             </div>
 
-            {/* 日期导航 */}
-            <div className="flex items-center gap-2"
-            >
-              <button
+            <div className="flex items-center gap-2">
+              <motion.button
                 onClick={() => navigateDate("prev")}
                 className="p-2 hover:bg-white/5 rounded-lg transition-colors"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
               >
                 <ChevronLeft className="w-5 h-5 text-[#71717A]" />
-              </button>
-              <button
+              </motion.button>
+              <motion.button
                 onClick={goToToday}
                 className="px-4 py-2 text-sm font-medium text-[#3B82F6] hover:bg-[#3B82F6]/10 rounded-lg transition-colors"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
                 今天
-              </button>
-              <button
+              </motion.button>
+              <motion.button
                 onClick={() => navigateDate("next")}
                 className="p-2 hover:bg-white/5 rounded-lg transition-colors"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
               >
                 <ChevronRight className="w-5 h-5 text-[#71717A]" />
-              </button>
+              </motion.button>
             </div>
             
-            <div className="text-xl font-semibold text-white hidden sm:block"
-            >
+            <div className="text-xl font-semibold text-white hidden sm:block">
               {format(currentDate, "yyyy年MM月", { locale: zhCN })}
             </div>
           </div>
 
-          <div className="flex items-center gap-3"
-          >
-            {/* 类型筛选 */}
+          <div className="flex items-center gap-3">
             <select
               value={selectedType}
               onChange={(e) => setSelectedType(e.target.value)}
@@ -362,9 +340,7 @@ export default function CalendarView() {
               <option value="maintenance">系统维护</option>
             </select>
 
-            {/* 搜索 */}
-            <div className="relative"
-            >
+            <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#71717A]" />
               <input
                 type="text"
@@ -375,18 +351,19 @@ export default function CalendarView() {
               />
             </div>
             
-            <button className="btn-primary flex items-center gap-2"
+            <motion.button 
+              className="btn-primary flex items-center gap-2"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
               <Plus className="w-4 h-4" />
               新建
-            </button>
+            </motion.button>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6"
-      >
-        {/* 主内容区 - 根据视图模式切换 */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <div className="lg:col-span-3">
           <AnimatePresence mode="wait">
             {viewMode === "timeline" ? (
@@ -413,25 +390,22 @@ export default function CalendarView() {
           </AnimatePresence>
         </div>
 
-        {/* 侧边栏 - 即将到来的事件 */}
-        <div className="space-y-4"
-        >
-          <div className="console-card p-5"
-          >
-            <div className="flex items-center gap-3 mb-4"
-            >
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#3B82F6]/20 to-[#3B82F6]/5 flex items-center justify-center"
+        <div className="space-y-4">
+          <div className="console-card p-5">
+            <div className="flex items-center gap-3 mb-4">
+              <motion.div 
+                className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#3B82F6]/20 to-[#3B82F6]/5 flex items-center justify-center"
+                whileHover={{ scale: 1.1, rotate: 5 }}
               >
                 <Clock className="w-5 h-5 text-[#3B82F6]" />
-              </div>
+              </motion.div>
               <div>
                 <h3 className="font-semibold text-white">即将到来</h3>
                 <p className="text-xs text-[#71717A]">未来5个事件</p>
               </div>
             </div>
             
-            <div className="space-y-3"
-            >
+            <div className="space-y-3">
               {upcomingEvents.map((event, index) => {
                 const config = typeConfig[event.type] || typeConfig.onetime;
                 const Icon = config.icon;
@@ -445,22 +419,20 @@ export default function CalendarView() {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.1 }}
                     onClick={() => setSelectedEvent(event)}
-                    className="p-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.04] cursor-pointer transition-all group border border-transparent hover:border-white/5"
+                    className="p-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.04] cursor-pointer transition-all group border border-transparent hover:border-white/5 event-card-compact"
                   >
-                    <div className="flex items-start gap-3"
-                    >
-                      <div 
+                    <div className="flex items-start gap-3">
+                      <motion.div 
                         className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
                         style={{ backgroundColor: config.bgColor }}
+                        whileHover={{ scale: 1.1 }}
                       >
                         <Icon className="w-4 h-4" style={{ color: config.color }} />
-                      </div>
+                      </motion.div>
                       
-                      <div className="flex-1 min-w-0"
-                      >
+                      <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <h4 className="text-sm font-medium text-white truncate group-hover:text-[#3B82F6] transition-colors"
-                          >
+                          <h4 className="text-sm font-medium text-white truncate group-hover:text-[#3B82F6] transition-colors">
                             {event.title}
                           </h4>
                           {priority && (
@@ -470,13 +442,11 @@ export default function CalendarView() {
                             />
                           )}
                         </div>
-                        <p className="text-xs text-[#71717A] mt-0.5 line-clamp-1"
-                        >
+                        <p className="text-xs text-[#71717A] mt-0.5 line-clamp-1">
                           {event.description}
                         </p>
                         
-                        <div className="flex items-center gap-2 mt-2"
-                        >
+                        <div className="flex items-center gap-2 mt-2">
                           <span 
                             className="text-[10px] px-2 py-0.5 rounded font-medium"
                             style={{ backgroundColor: config.bgColor, color: config.color }}
@@ -484,13 +454,11 @@ export default function CalendarView() {
                             {config.label}
                           </span>
                           
-                          <span className={`text-xs ${isToday ? 'text-[#3B82F6] font-medium' : 'text-[#71717A]'}`}
-                          >
+                          <span className={`text-xs ${isToday ? 'text-[#3B82F6] font-medium' : 'text-[#71717A]'}`}>
                             {isToday ? '今天' : format(new Date(event.startTime), "MM/dd HH:mm")}
                           </span>
                         </div>
 
-                        {/* 标签 */}
                         {event.tags && event.tags.length > 0 && (
                           <div className="flex flex-wrap gap-1 mt-2">
                             {event.tags.map(tag => (
@@ -511,39 +479,37 @@ export default function CalendarView() {
             </div>
           </div>
 
-          {/* 快捷操作 */}
-          <div className="console-card p-5"
-          >
+          <div className="console-card p-5">
             <h3 className="font-semibold text-white mb-4">快捷操作</h3>
-            <div className="space-y-2"
-            >
+            <div className="space-y-2">
               {[
                 { label: "新建定时任务", icon: Repeat, color: "#10B981" },
                 { label: "新建单次任务", icon: Zap, color: "#3B82F6" },
                 { label: "查看所有任务", icon: Filter, color: "#8B5CF6" },
               ].map((action) => (
-                <button
+                <motion.button
                   key={action.label}
                   className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 transition-all text-left group"
+                  whileHover={{ x: 4 }}
+                  whileTap={{ scale: 0.98 }}
                 >
-                  <div 
+                  <motion.div 
                     className="w-8 h-8 rounded-lg flex items-center justify-center"
                     style={{ backgroundColor: `${action.color}20` }}
+                    whileHover={{ scale: 1.1, rotate: 5 }}
                   >
                     <action.icon className="w-4 h-4" style={{ color: action.color }} />
-                  </div>
-                  <span className="text-sm text-[#A1A1AA] group-hover:text-white transition-colors"
-                  >
+                  </motion.div>
+                  <span className="text-sm text-[#A1A1AA] group-hover:text-white transition-colors">
                     {action.label}
                   </span>
-                </button>
+                </motion.button>
               ))}
             </div>
           </div>
         </div>
       </div>
 
-      {/* 事件详情弹窗 */}
       <AnimatePresence>
         {selectedEvent && (
           <EventDetailModal 
@@ -585,10 +551,8 @@ function CalendarGridView({
       exit={{ opacity: 0, y: -20 }}
       className="console-card overflow-hidden"
     >
-      {/* 星期标题 */}
-      <div className={`grid ${viewMode === "day" ? "grid-cols-1" : "grid-cols-7"} border-b border-white/5`}
-      >
-        {(viewMode === "day" ? [weekDays[currentDate.getDay()]] : weekDays).map((day) => (
+      <div className={`grid ${viewMode === "day" ? "grid-cols-1" : "grid-cols-7"} border-b border-white/5`}>
+        {(viewMode === "day" ? [weekDays[new Date().getDay()]] : weekDays).map((day) => (
           <div 
             key={day} 
             className="text-center py-3 text-sm font-medium text-[#71717A] border-r border-white/5 last:border-r-0"
@@ -598,9 +562,7 @@ function CalendarGridView({
         ))}
       </div>
 
-      {/* 日期单元格 */}
-      <div className={`grid ${viewMode === "day" ? "grid-cols-1" : viewMode === "week" ? "grid-cols-7" : "grid-cols-7"} auto-rows-fr`}
-      >
+      <div className={`grid ${viewMode === "day" ? "grid-cols-1" : viewMode === "week" ? "grid-cols-7" : "grid-cols-7"} auto-rows-fr`}>
         {viewDates.map((date, index) => {
           const dayEvents = getEventsForDate(date);
           const isToday = isDateToday(date);
@@ -608,7 +570,6 @@ function CalendarGridView({
           const density = getEventDensity(date);
           const isHovered = hoveredDate && isSameDay(date, hoveredDate);
           
-          // 根据事件密度设置背景色
           const densityBg = density === 0 ? '' :
             density === 1 ? 'bg-[#3B82F6]/5' :
             density === 2 ? 'bg-[#3B82F6]/10' :
@@ -625,9 +586,8 @@ function CalendarGridView({
               className={`min-h-[140px] p-3 border-r border-b border-white/5 last:border-r-0 
                          ${!isCurrentMonth && viewMode === "month" ? "bg-white/[0.02]" : ""}
                          ${isToday ? "bg-gradient-to-br from-[#3B82F6]/15 to-transparent ring-1 ring-[#3B82F6]/30" : densityBg} 
-                         transition-all duration-200 cursor-pointer relative group`}
+                         transition-all duration-200 cursor-pointer relative group calendar-cell`}
             >
-              {/* 悬停效果背景 */}
               <motion.div 
                 className="absolute inset-0 bg-white/5 pointer-events-none"
                 initial={{ opacity: 0 }}
@@ -635,13 +595,10 @@ function CalendarGridView({
                 transition={{ duration: 0.2 }}
               />
 
-              {/* 日期数字 - 增强 */}
               <div className={`flex items-center gap-2 mb-3 relative z-10 ${
                 isToday ? "text-[#3B82F6]" : "text-white/70"
-              }`}
-              >
-                <span className={`text-lg font-bold ${isToday ? 'text-[#3B82F6]' : ''}`}
-                >
+              }`}>
+                <span className={`text-lg font-bold ${isToday ? 'text-[#3B82F6]' : ''}`}>
                   {format(date, "d")}
                 </span>
                 {isToday && (
@@ -656,9 +613,7 @@ function CalendarGridView({
                 )}
               </div>
 
-              {/* 事件列表 - 增强 */}
-              <div className="space-y-1.5 relative z-10"
-              >
+              <div className="space-y-1.5 relative z-10">
                 {dayEvents.slice(0, 4).map((event) => (
                   <EventCard 
                     key={event._id} 
@@ -676,7 +631,6 @@ function CalendarGridView({
                 )}
               </div>
 
-              {/* 快速添加按钮 - 悬停显示 */}
               <motion.button
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: isHovered ? 1 : 0, scale: isHovered ? 1 : 0.8 }}
@@ -721,7 +675,6 @@ function TimelineView({
       className="console-card overflow-hidden"
     >
       <div className="flex">
-        {/* 时间轴 */}
         <div className="w-16 border-r border-white/5 flex-shrink-0">
           <div className="h-12 border-b border-white/5"></div>
           {hours.map(hour => (
@@ -731,7 +684,6 @@ function TimelineView({
           ))}
         </div>
 
-        {/* 日期列 */}
         <div className="flex-1 overflow-x-auto">
           <div className="flex min-w-max">
             {Array.from({ length: 7 }, (_, dayIndex) => {
@@ -743,26 +695,23 @@ function TimelineView({
 
               return (
                 <div key={dayIndex} className="w-40 flex-shrink-0">
-                  {/* 日期头部 */}
                   <div className={`h-12 border-b border-r border-white/5 flex flex-col items-center justify-center ${
                     isToday ? 'bg-[#3B82F6]/10' : ''
                   }`}>
                     <span className={`text-sm font-medium ${isToday ? 'text-[#3B82F6]' : 'text-white'}`}>
-                      {weekDays[dayIndex]}
+                      {["周日", "周一", "周二", "周三", "周四", "周五", "周六"][dayIndex]}
                     </span>
                     <span className="text-xs text-[#71717A]">{format(date, "MM/dd")}</span>
                   </div>
 
-                  {/* 时间格 */}
                   <div className="relative">
                     {hours.map(hour => (
                       <div key={hour} className="h-16 border-b border-r border-white/5"></div>
                     ))}
 
-                    {/* 当前时间线指示器 */}
                     {isToday && (
                       <motion.div
-                        className="absolute left-0 right-0 h-0.5 bg-[#EF4444] z-20"
+                        className="absolute left-0 right-0 h-0.5 bg-[#EF4444] z-20 timeline-current-time"
                         style={{ top: `${(new Date().getHours() * 60 + new Date().getMinutes()) / 60 * 64}px` }}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -771,7 +720,6 @@ function TimelineView({
                       </motion.div>
                     )}
 
-                    {/* 事件 */}
                     {dayEvents.map((event) => {
                       const config = typeConfig[event.type] || typeConfig.onetime;
                       const Icon = config.icon;
@@ -797,6 +745,7 @@ function TimelineView({
                             backgroundColor: config.bgColor,
                             borderLeft: `3px solid ${config.color}`,
                           }}
+                          whileHover={{ scale: 1.02, x: 2 }}
                         >
                           <div className="flex items-center gap-1">
                             <Icon className="w-3 h-3 flex-shrink-0" style={{ color: config.color }} />
@@ -809,7 +758,6 @@ function TimelineView({
                             {event.endTime && ` - ${format(new Date(event.endTime), "HH:mm")}`}
                           </div>
                           
-                          {/* 悬停详情 */}
                           <div className="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                             <span className="text-[10px] text-white">点击查看详情</span>
                           </div>
@@ -827,8 +775,6 @@ function TimelineView({
   );
 }
 
-const weekDays = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
-
 // 事件卡片
 function EventCard({ event, onClick }: { event: Event; onClick: () => void }) {
   const config = typeConfig[event.type] || typeConfig.onetime;
@@ -845,21 +791,18 @@ function EventCard({ event, onClick }: { event: Event; onClick: () => void }) {
         borderLeft: `2px solid ${config.color}`
       }}
     >
-      <div className="flex items-center gap-1"
-      >
+      <div className="flex items-center gap-1">
         <Icon className="w-3 h-3 flex-shrink-0" style={{ color: config.color }} />
-        <span className="font-medium truncate group-hover:text-white transition-colors" style={{ color: config.color }}
-        >
+        <span className="font-medium truncate group-hover:text-white transition-colors" style={{ color: config.color }}>
           {event.title}
         </span>
       </div>
-      <div className="text-white/40 mt-0.5 font-mono text-[10px] flex items-center gap-1"
-      >
+      
+      <div className="text-white/40 mt-0.5 font-mono text-[10px] flex items-center gap-1">
         <Clock className="w-2.5 h-2.5" />
         {format(new Date(event.startTime), "HH:mm")}
       </div>
 
-      {/* 优先级指示器 */}
       {priority && (
         <div 
           className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full"
@@ -867,37 +810,6 @@ function EventCard({ event, onClick }: { event: Event; onClick: () => void }) {
         />
       )}
     </motion.div>
-  );
-}
-
-// 迷你趋势图
-function MiniTrendChart({ color }: { color: string }) {
-  const points = [10, 25, 20, 35, 30, 45, 40];
-  const max = Math.max(...points);
-  const min = Math.min(...points);
-  const range = max - min || 1;
-
-  return (
-    <svg viewBox="0 0 100 40" className="w-full h-full" preserveAspectRatio="none">
-      <defs>
-        <linearGradient id={`trendGradient-${color.replace('#', '')}`} x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor={color} stopOpacity="0.3" />
-          <stop offset="100%" stopColor={color} stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <polygon
-        points={`0,40 ${points.map((p, i) => `${(i / (points.length - 1)) * 100},${40 - ((p - min) / range) * 30 - 5}`).join(' ')} 100,40`}
-        fill={`url(#trendGradient-${color.replace('#', '')})`}
-      />
-      <polyline
-        fill="none"
-        stroke={color}
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        points={points.map((p, i) => `${(i / (points.length - 1)) * 100},${40 - ((p - min) / range) * 30 - 5}`).join(' ')}
-      />
-    </svg>
   );
 }
 
@@ -922,21 +834,19 @@ function EventDetailModal({ event, onClose }: { event: Event; onClose: () => voi
         className="console-card w-full max-w-lg overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* 头部 */}
         <div 
           className="p-6 border-b border-white/5"
           style={{ borderColor: `${config.color}30` }}
         >
-          <div className="flex items-start justify-between"
-          >
-            <div className="flex items-center gap-4"
-            >
-              <div 
+          <div className="flex items-start justify-between">
+            <div className="flex items-center gap-4">
+              <motion.div 
                 className="w-14 h-14 rounded-2xl flex items-center justify-center"
                 style={{ backgroundColor: config.bgColor }}
+                whileHover={{ scale: 1.1, rotate: 5 }}
               >
                 <Icon className="w-7 h-7" style={{ color: config.color }} />
-              </div>
+              </motion.div>
               <div>
                 <h2 className="text-xl font-semibold text-white">{event.title}</h2>
                 <div className="flex items-center gap-2 mt-2">
@@ -946,8 +856,7 @@ function EventDetailModal({ event, onClose }: { event: Event; onClose: () => voi
                   >
                     {config.label}
                   </span>
-                  <span className="text-xs text-[#71717A]"
-                  >
+                  <span className="text-xs text-[#71717A]">
                     {event.status === 'pending' ? '待执行' : event.status === 'running' ? '进行中' : '已计划'}
                   </span>
                   {priority && (
@@ -962,22 +871,20 @@ function EventDetailModal({ event, onClose }: { event: Event; onClose: () => voi
               </div>
             </div>
             
-            <button
+            <motion.button
               onClick={onClose}
               className="p-2 hover:bg-white/5 rounded-lg transition-colors"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
             >
               <MoreHorizontal className="w-5 h-5 text-[#71717A]" />
-            </button>
+            </motion.button>
           </div>
         </div>
 
-        {/* 内容 */}
-        <div className="p-6 space-y-5"
-        >
-          <div className="flex items-center gap-4"
-          >
-            <div className="w-10 h-10 rounded-xl bg-[#1A1A24] flex items-center justify-center"
-            >
+        <div className="p-6 space-y-5">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-[#1A1A24] flex items-center justify-center">
               <CalendarIcon className="w-5 h-5 text-[#71717A]" />
             </div>
             <div>
@@ -990,10 +897,8 @@ function EventDetailModal({ event, onClose }: { event: Event; onClose: () => voi
           </div>
 
           {event.location && (
-            <div className="flex items-center gap-4"
-            >
-              <div className="w-10 h-10 rounded-xl bg-[#1A1A24] flex items-center justify-center"
-              >
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-xl bg-[#1A1A24] flex items-center justify-center">
                 <MapPin className="w-5 h-5 text-[#71717A]" />
               </div>
               <div>
@@ -1004,10 +909,8 @@ function EventDetailModal({ event, onClose }: { event: Event; onClose: () => voi
           )}
 
           {event.attendees && event.attendees.length > 0 && (
-            <div className="flex items-center gap-4"
-            >
-              <div className="w-10 h-10 rounded-xl bg-[#1A1A24] flex items-center justify-center"
-              >
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-xl bg-[#1A1A24] flex items-center justify-center">
                 <Users className="w-5 h-5 text-[#71717A]" />
               </div>
               <div>
@@ -1022,22 +925,21 @@ function EventDetailModal({ event, onClose }: { event: Event; onClose: () => voi
           )}
 
           {event.tags && event.tags.length > 0 && (
-            <div className="flex items-center gap-4"
-            >
-              <div className="w-10 h-10 rounded-xl bg-[#1A1A24] flex items-center justify-center"
-              >
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-xl bg-[#1A1A24] flex items-center justify-center">
                 <Tag className="w-5 h-5 text-[#71717A]" />
               </div>
               <div className="flex-1">
                 <div className="text-sm text-[#71717A]">标签</div>
                 <div className="flex flex-wrap gap-2 mt-1">
                   {event.tags.map((tag) => (
-                    <span 
+                    <motion.span 
                       key={tag}
                       className="text-xs px-2.5 py-1 rounded-lg bg-white/5 text-[#A1A1AA] hover:bg-white/10 cursor-pointer transition-colors"
+                      whileHover={{ scale: 1.05 }}
                     >
                       #{tag}
-                    </span>
+                    </motion.span>
                   ))}
                 </div>
               </div>
@@ -1045,29 +947,30 @@ function EventDetailModal({ event, onClose }: { event: Event; onClose: () => voi
           )}
 
           {event.description && (
-            <div className="pt-4 border-t border-white/5"
-            >
+            <div className="pt-4 border-t border-white/5">
               <div className="text-sm text-[#71717A] mb-2">描述</div>
               <p className="text-white/80 leading-relaxed">{event.description}</p>
             </div>
           )}
         </div>
 
-        {/* 底部按钮 */}
-        <div className="p-4 border-t border-white/5 flex gap-3"
-        >
-          <button
+        <div className="p-4 border-t border-white/5 flex gap-3">
+          <motion.button
             onClick={onClose}
             className="flex-1 px-4 py-2.5 bg-gradient-to-r from-[#3B82F6] to-[#8B5CF6] hover:from-[#2563EB] hover:to-[#7C3AED] text-white rounded-lg transition-all font-medium shadow-lg shadow-blue-500/20"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
           >
             编辑
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             onClick={onClose}
             className="px-4 py-2.5 bg-white/5 hover:bg-white/10 text-white rounded-lg transition-colors"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
           >
             关闭
-          </button>
+          </motion.button>
         </div>
       </motion.div>
     </motion.div>

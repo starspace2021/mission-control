@@ -2122,6 +2122,296 @@ body {
   transform: translateY(-6px) scale(1.02);
 }
 
+/* 看板卡片悬停效果增强 */
+.kanban-card {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.kanban-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 30px var(--accent-glow, rgba(59, 130, 246, 0.2));
+}
+
+.kanban-card.dragging {
+  opacity: 0.9;
+  transform: scale(1.05) rotate(3deg) translateY(-10px);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+  cursor: grabbing;
+  z-index: 1000;
+}
+
+/* 进度条动画增强 */
+.progress-bar-animated {
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-bar-animated::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  animation: progress-shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes progress-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* 日历单元格交互增强 */
+.calendar-cell {
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.calendar-cell:hover {
+  background: rgba(59, 130, 246, 0.08);
+  transform: scale(1.02);
+  z-index: 10;
+}
+
+.calendar-cell::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(59, 130, 246, 0.15) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.calendar-cell:hover::before {
+  opacity: 1;
+}
+
+/* 事件卡片密度展示优化 */
+.event-card-compact {
+  transition: all 0.2s ease;
+}
+
+.event-card-compact:hover {
+  transform: translateX(4px);
+  background: rgba(59, 130, 246, 0.1);
+}
+
+/* 时间线视图增强 */
+.timeline-item-enhanced {
+  position: relative;
+  padding-left: 24px;
+}
+
+.timeline-item-enhanced::before {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 8px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent-primary);
+  border: 2px solid var(--bg-primary);
+  box-shadow: 0 0 0 2px var(--accent-primary);
+  transition: all 0.3s ease;
+}
+
+.timeline-item-enhanced:hover::before {
+  transform: scale(1.3);
+  box-shadow: 0 0 0 3px var(--accent-primary), 0 0 15px var(--accent-primary);
+}
+
+/* 记忆卡片网格布局优化 */
+.memory-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+@media (max-width: 768px) {
+  .memory-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 1280px) {
+  .memory-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* 标签云可视化增强 */
+.tag-cloud-item {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.tag-cloud-item:hover {
+  transform: scale(1.08) translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.tag-cloud-item.active {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(139, 92, 246, 0.15));
+  border-color: rgba(59, 130, 246, 0.5);
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+}
+
+/* 搜索高亮效果增强 */
+.search-highlight {
+  background: linear-gradient(120deg, rgba(59, 130, 246, 0.4) 0%, rgba(139, 92, 246, 0.3) 100%);
+  color: white;
+  padding: 0 3px;
+  border-radius: 3px;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  animation: highlight-pulse 2s ease-in-out infinite;
+}
+
+@keyframes highlight-pulse {
+  0%, 100% { background: linear-gradient(120deg, rgba(59, 130, 246, 0.4) 0%, rgba(139, 92, 246, 0.3) 100%); }
+  50% { background: linear-gradient(120deg, rgba(59, 130, 246, 0.5) 0%, rgba(139, 92, 246, 0.4) 100%); }
+}
+
+/* 统计卡片视觉层次优化 */
+.stat-card-premium {
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card-premium::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-purple));
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.stat-card-premium:hover::before {
+  opacity: 1;
+}
+
+.stat-card-premium .metric-value {
+  background: linear-gradient(135deg, #FFFFFF 0%, #E4E4E7 50%, #A1A1AA 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* 图表交互反馈增强 */
+.chart-interactive {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.chart-interactive:hover {
+  filter: brightness(1.2);
+  transform: scale(1.02);
+}
+
+/* 热力图数据展示优化 */
+.heatmap-cell-enhanced {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 4px;
+}
+
+.heatmap-cell-enhanced:hover {
+  transform: scale(1.2);
+  z-index: 100;
+  box-shadow: 0 0 20px currentColor;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* 全局动画时序优化 */
+.animate-fast {
+  animation-duration: 0.2s;
+}
+
+.animate-normal {
+  animation-duration: 0.4s;
+}
+
+.animate-slow {
+  animation-duration: 0.6s;
+}
+
+/* 响应式适配增强 */
+@media (max-width: 640px) {
+  .console-card {
+    border-radius: 12px;
+  }
+  
+  .glass-card-enhanced {
+    border-radius: 14px;
+  }
+  
+  .metric-value {
+    font-size: 24px;
+  }
+}
+
+@media (min-width: 1536px) {
+  .console-card {
+    border-radius: 20px;
+  }
+  
+  .glass-card-enhanced {
+    border-radius: 22px;
+  }
+  
+  .metric-value {
+    font-size: 36px;
+  }
+}
+
+/* 色彩系统统一 */
+.color-system {
+  --primary-blue: #3B82F6;
+  --primary-purple: #8B5CF6;
+  --primary-green: #10B981;
+  --primary-yellow: #F59E0B;
+  --primary-red: #EF4444;
+  --primary-cyan: #06B6D4;
+  --primary-pink: #EC4899;
+}
+
+/* 微交互优化 */
+.micro-interaction {
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.micro-interaction:hover {
+  transform: translateY(-1px);
+}
+
+.micro-interaction:active {
+  transform: scale(0.98);
+}
+
+/* 焦点状态统一 */
+.focus-ring-unified:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5), 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+/* 加载状态优化 */
+.loading-skeleton {
+  background: linear-gradient(90deg, 
+    rgba(255,255,255,0.03) 0%, 
+    rgba(255,255,255,0.06) 50%, 
+    rgba(255,255,255,0.03) 100%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s ease-in-out infinite;
+}
+
+@keyframes skeleton-loading {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
 /* 拖拽时的3D效果 */
 .dragging-3d {
   transform: scale(1.05) rotate(3deg) translateY(-8px);
