@@ -51,13 +51,13 @@ import CalendarView from "./components/CalendarView";
 import MemoryScreen from "./components/MemoryScreen";
 import TeamView from "./components/TeamView";
 
-// 导航配置
+// 导航配置 - v7.1 优化版
 const navItems = [
-  { id: "dashboard", label: "仪表盘", icon: LayoutDashboard, shortcut: "1" },
-  { id: "tasks", label: "任务", icon: ClipboardList, shortcut: "2" },
-  { id: "calendar", label: "日历", icon: Calendar, shortcut: "3" },
-  { id: "memory", label: "记忆", icon: Brain, shortcut: "4" },
-  { id: "team", label: "团队", icon: Users, shortcut: "5" },
+  { id: "dashboard", label: "仪表盘", icon: LayoutDashboard, shortcut: "1", badge: null },
+  { id: "tasks", label: "任务", icon: ClipboardList, shortcut: "2", badge: 5 },
+  { id: "calendar", label: "日历", icon: Calendar, shortcut: "3", badge: null },
+  { id: "memory", label: "记忆", icon: Brain, shortcut: "4", badge: 3 },
+  { id: "team", label: "团队", icon: Users, shortcut: "5", badge: null },
 ];
 
 // 模拟数据 - 现代控制台风格 v2.0
@@ -732,7 +732,7 @@ export default function MissionControl() {
             </div>
           </div>
 
-          {/* 导航 */}
+          {/* 导航 - v7.1 优化版 */}
           <nav className="flex-1 p-3 space-y-1">
             {navItems.map((item) => {
               const Icon = item.icon;
@@ -741,14 +741,32 @@ export default function MissionControl() {
                 <button
                   key={item.id}
                   onClick={() => setActiveTab(item.id)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all group ${
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all group relative overflow-hidden ${
                     isActive
                       ? "bg-gradient-to-r from-[#3B82F6]/20 to-transparent text-[#3B82F6] border border-[#3B82F6]/20 shadow-lg shadow-blue-500/10"
                       : "text-[#A1A1AA] hover:text-white hover:bg-white/5"
                   }`}
                   title={sidebarCollapsed ? item.label : undefined}
                 >
-                  <Icon className={`w-5 h-5 transition-transform group-hover:scale-110 ${isActive ? 'text-[#3B82F6]' : ''}`} />
+                  {/* 活动指示器 */}
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeIndicator"
+                      className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-gradient-to-b from-[#3B82F6] to-[#8B5CF6] rounded-r-full"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.3 }}
+                    />
+                  )}
+                  <div className={`relative ${isActive ? 'text-[#3B82F6]' : ''}`}>
+                    <Icon className={`w-5 h-5 transition-all duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
+                    {/* Badge */}
+                    {item.badge && (
+                      <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-[#EF4444] rounded-full text-[10px] flex items-center justify-center text-white font-bold">
+                        {item.badge}
+                      </span>
+                    )}
+                  </div>
                   {!sidebarCollapsed && (
                     <>
                       <span className="flex-1 text-left">{item.label}</span>
@@ -882,58 +900,170 @@ export default function MissionControl() {
   );
 }
 
-// 全局搜索组件
+// 全局搜索组件 - v7.1 增强版
 function GlobalSearch({ onClose }: { onClose: () => void }) {
   const [query, setQuery] = useState("");
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  
+  const searchResults = [
+    { type: "task", title: "非洲涉华情报收集", subtitle: "进行中 • 高优先级", icon: ClipboardList, color: "#10B981" },
+    { type: "task", title: "Polymarket 监控", subtitle: "进行中 • 高优先级", icon: ClipboardList, color: "#10B981" },
+    { type: "memory", title: "卫星遥感经济评估", subtitle: "项目文档 • 昨天更新", icon: Brain, color: "#8B5CF6" },
+    { type: "event", title: "美国对华政策晚间简报", subtitle: "今天 20:00", icon: Calendar, color: "#F59E0B" },
+    { type: "page", title: "任务看板", subtitle: "导航", icon: LayoutDashboard, color: "#3B82F6" },
+    { type: "page", title: "记忆系统", subtitle: "导航", icon: Brain, color: "#3B82F6" },
+  ].filter(item => 
+    query === "" || 
+    item.title.toLowerCase().includes(query.toLowerCase()) ||
+    item.subtitle.toLowerCase().includes(query.toLowerCase())
+  );
   
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setSelectedIndex(prev => Math.min(prev + 1, searchResults.length - 1));
+      }
+      if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setSelectedIndex(prev => Math.max(prev - 1, 0));
+      }
+      if (e.key === "Enter" && searchResults[selectedIndex]) {
+        console.log("Selected:", searchResults[selectedIndex]);
+        onClose();
+      }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
+  }, [onClose, searchResults, selectedIndex]);
+
+  const typeLabels: Record<string, string> = {
+    task: "任务",
+    memory: "记忆",
+    event: "事件",
+    page: "页面",
+  };
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-start justify-center pt-[20vh]"
+      className="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-start justify-center pt-[15vh]"
       onClick={onClose}
     >
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: -20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: -20 }}
-        className="w-full max-w-2xl console-card overflow-hidden"
+        className="w-full max-w-2xl console-card overflow-hidden shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
+        {/* 搜索输入 */}
         <div className="flex items-center gap-3 p-4 border-b border-white/5">
           <Search className="w-5 h-5 text-[#71717A]" />
           <input
             type="text"
             placeholder="搜索任务、记忆、事件..."
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setSelectedIndex(0);
+            }}
             className="flex-1 bg-transparent text-white placeholder:text-[#52525B] outline-none text-lg"
             autoFocus
           />
+          {query && (
+            <button 
+              onClick={() => setQuery("")}
+              className="p-1 hover:bg-white/10 rounded transition-colors"
+            >
+              <X className="w-4 h-4 text-[#71717A]" />
+            </button>
+          )}
           <span className="text-xs text-[#52525B] px-2 py-1 bg-white/5 rounded">ESC</span>
         </div>
-        <div className="p-4 max-h-[400px] overflow-auto">
-          <div className="text-sm text-[#71717A] mb-3">最近访问</div>
-          <div className="space-y-1">
-            {["非洲涉华情报系统", "美国对华政策监控", "卫星遥感报告"].map((item, i) => (
-              <div 
-                key={i}
-                className="flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 cursor-pointer transition-colors"
-              >
-                <Clock className="w-4 h-4 text-[#71717A]" />
-                <span className="text-white">{item}</span>
+        
+        {/* 搜索结果 */}
+        <div className="max-h-[400px] overflow-auto">
+          {searchResults.length > 0 ? (
+            <>
+              <div className="px-4 py-2 text-xs text-[#52525B] uppercase tracking-wider">
+                搜索结果
               </div>
-            ))}
+              <div className="p-2 space-y-1">
+                {searchResults.map((item, i) => {
+                  const Icon = item.icon;
+                  return (
+                    <div 
+                      key={i}
+                      className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all ${
+                        selectedIndex === i 
+                          ? "bg-[#3B82F6]/20 border border-[#3B82F6]/30" 
+                          : "hover:bg-white/5 border border-transparent"
+                      }`}
+                      onMouseEnter={() => setSelectedIndex(i)}
+                    >
+                      <div 
+                        className="w-10 h-10 rounded-lg flex items-center justify-center"
+                        style={{ backgroundColor: `${item.color}20` }}
+                      >
+                        <Icon className="w-5 h-5" style={{ color: item.color }} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-white font-medium truncate">{item.title}</div>
+                        <div className="text-xs text-[#71717A] flex items-center gap-2">
+                          <span 
+                            className="px-1.5 py-0.5 rounded text-[10px] font-medium"
+                            style={{ 
+                              backgroundColor: `${item.color}20`,
+                              color: item.color 
+                            }}
+                          >
+                            {typeLabels[item.type]}
+                          </span>
+                          {item.subtitle}
+                        </div>
+                      </div>
+                      {selectedIndex === i && (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          className="text-xs text-[#71717A]"
+                        >
+                          ↵
+                        </motion.div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          ) : (
+            <div className="p-8 text-center">
+              <div className="text-[#71717A] mb-2">未找到匹配结果</div>
+              <div className="text-xs text-[#52525B]">尝试使用不同的关键词</div>
+            </div>
+          )}
+        </div>
+        
+        {/* 底部快捷键提示 */}
+        <div className="px-4 py-3 bg-[#1A1A24] border-t border-white/5 flex items-center justify-between text-xs text-[#52525B]">
+          <div className="flex items-center gap-4">
+            <span className="flex items-center gap-1">
+              <kbd className="px-1.5 py-0.5 bg-white/5 rounded">↑↓</kbd>
+              导航
+            </span>
+            <span className="flex items-center gap-1">
+              <kbd className="px-1.5 py-0.5 bg-white/5 rounded">↵</kbd>
+              选择
+            </span>
           </div>
+          <span className="flex items-center gap-1">
+            <kbd className="px-1.5 py-0.5 bg-white/5 rounded">ESC</kbd>
+            关闭
+          </span>
         </div>
       </motion.div>
     </motion.div>

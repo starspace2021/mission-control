@@ -1,51 +1,38 @@
-# Mission Control UI 更新日志 (Changelog)
+# Mission Control UI 更新日志
 
-## [1.1.0] - 2026-02-23
+## [v7.1.0] - 2026-02-24
 
-### ✨ 新增功能
-- **Dashboard 组件增强**
-  - 添加环形进度条组件 `CircularProgress`
-  - 添加趋势指示器组件 `TrendIndicator`
-  - 指标卡片支持副标题显示
-
-- **动画效果**
-  - 脉冲光环动画 (`pulse-ring`)
-  - 悬浮抬升效果 (`hover-lift`)
-  - 渐变文字动画 (`animate-gradient-text`)
-  - 扫描线效果 (`scanline`)
+### ✨ 新功能
+- **全局搜索增强**: 完全重构搜索组件，支持键盘导航、分类标签、空状态提示
+- **导航 Badge**: 侧边栏导航项显示实时数量（任务 5 个，记忆 3 个）
+- **活动指示器**: 导航项添加平滑的活动状态指示器动画
 
 ### 🎨 视觉优化
-- **TaskBoard 空状态**
-  - 改进空状态动画效果
-  - 添加渐变背景和提示文字
-  
-- **数据更新**
-  - CalendarView 添加 UI 自动迭代任务
-  - MemoryScreen 添加 UI 自动迭代日志
+- 热力图单元格悬停发光效果
+- 标签云浮动动画增强
+- 搜索弹窗添加快捷键提示栏
 
-### 🔧 技术改进
-- 所有动画使用 GPU 加速属性（transform、opacity）
-- 统一趋势显示组件
-- 优化组件类型定义
-
-### 📦 构建
-- 构建成功，无错误
-- 静态导出完成
+### ⚡ 性能优化
+- 使用 motion.layoutId 实现平滑导航过渡
+- CSS 动画使用 GPU 加速
 
 ---
 
-## [1.0.0] - 2026-02-22
+## [v1.1.0] - 2026-02-23
 
-### ✨ 初始版本
-- Dashboard 仪表盘视图
-- TaskBoard 任务看板（看板/列表双视图）
-- CalendarView 日历视图（日/周/月三视图）
-- MemoryScreen 记忆系统（网格/列表双视图）
-- 全局搜索功能
-- 键盘快捷键支持
-- 响应式布局
-- 深色控制台主题
+### ✨ 新功能
+- **CircularProgress**: 新增环形进度条组件
+- **TrendIndicator**: 新增趋势指示器组件
+- **MetricCard 增强**: 添加副标题支持
+
+### 🎨 视觉优化
+- TaskBoard 空状态动画改进
+- 新增脉冲光环、悬浮抬升等动画效果
+
+### 📝 数据更新
+- 添加 UI 自动迭代任务到日历
+- 添加 UI 自动迭代日志到记忆系统
 
 ---
 
-*格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)*
+*Mission Control UI - 现代任务控制中心*
