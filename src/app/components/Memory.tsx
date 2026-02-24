@@ -1,148 +1,293 @@
 'use client';
-import { useState } from 'react';
+
+import { useState, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { memories } from '@/data/mockData';
 import { Memory } from '@/types';
+import { Search, X, Brain, Calendar, Folder, Settings, Tag } from 'lucide-react';
 
-const typeConfig: Record<string, { icon: string; label: string; color: string; bg: string }> = {
-  long_term: { icon: '🧠', label: 'Long Term', color: '#3B82F6', bg: 'rgba(59,130,246,0.1)' },
-  daily: { icon: '📅', label: 'Daily', color: '#10B981', bg: 'rgba(16,185,129,0.1)' },
-  project: { icon: '📁', label: 'Project', color: '#8B5CF6', bg: 'rgba(139,92,246,0.1)' },
-  system: { icon: '⚙️', label: 'System', color: '#F59E0B', bg: 'rgba(245,158,11,0.1)' },
+// ========== 配置 ==========
+const TYPE_CONFIG: Record<string, { icon: React.ElementType; label: string; color: string; bg: string }> = {
+  long_term: { icon: Brain, label: 'Long Term', color: '#4A7BFF', bg: 'rgba(74, 123, 255, 0.1)' },
+  daily: { icon: Calendar, label: 'Daily', color: '#22C55E', bg: 'rgba(34, 197, 94, 0.1)' },
+  project: { icon: Folder, label: 'Project', color: '#8B5CF6', bg: 'rgba(139, 92, 246, 0.1)' },
+  system: { icon: Settings, label: 'System', color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.1)' },
 };
 
-const allTags = Array.from(new Set(memories.flatMap(m => m.tags)));
+// ========== 子组件 ==========
 
+function HighlightedText({ text, search }: { text: string; search: string }) {
+  if (!search.trim()) return <>{text}</>;
+  
+  const parts = text.split(new RegExp(`(${search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'));
+  
+  return (
+    <>
+      {parts.map((part, i) => 
+        part.toLowerCase() === search.toLowerCase() ? (
+          <span key={i} className="search-highlight">{part}</span>
+        ) : (
+          part
+        )
+      )}
+    </>
+  );
+}
+
+function MemoryCard({ 
+  memory, 
+  search, 
+  onClick 
+}: { 
+  memory: Memory; 
+  search: string;
+  onClick: () => void;
+}) {
+  const cfg = TYPE_CONFIG[memory.type];
+  const Icon = cfg.icon;
+  
+  return (
+    <motion.div 
+      layout
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      onClick={onClick}
+      className="memory-card group"
+    >
+      <div className="flex items-start gap-3">
+        <div 
+          className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+          style={{ background: cfg.bg }}
+        >
+          <Icon className="w-5 h-5" style={{ color: cfg.color }} />
+        </div>
+        
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center justify-between gap-2 mb-1">
+            <h4 className="font-medium text-white truncate">
+              <HighlightedText text={memory.title} search={search} />
+            </h4>
+            <span className="text-[11px] text-[#52525B] flex-shrink-0">
+              {memory.updatedAt}
+            </span>
+          </div>
+          
+          <p className="text-sm text-[#A1A1AA] line-clamp-2 mb-3">
+            <HighlightedText text={memory.content} search={search} />
+          </p>
+          
+          <div className="flex items-center gap-2 flex-wrap">
+            <span 
+              className="text-[10px] px-2 py-0.5 rounded-full font-medium"
+              style={{ background: cfg.bg, color: cfg.color }}
+            >
+              {cfg.label}
+            </span㺎
+            
+            {memory.tags.map(tag => (
+              <span 
+                key={tag}
+                className="text-[10px] px-2 py-0.5 rounded-full bg-white/5 text-[#71717A]"
+              >
+                #{tag}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+function MemoryModal({ memory, onClose }: { memory: Memory; onClose: () => void }) {
+  const cfg = TYPE_CONFIG[memory.type];
+  const Icon = cfg.icon;
+  
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="modal-overlay"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+        className="modal-content"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="p-6 border-b border-white/5">
+          <div className="flex items-start justify-between">
+            <div className="flex items-center gap-3">
+              <div 
+                className="w-12 h-12 rounded-xl flex items-center justify-center"
+                style={{ background: cfg.bg }}
+              >
+                <Icon className="w-6 h-6" style={{ color: cfg.color }} />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-white">{memory.title}</h2>
+                <span className="text-xs text-[#71717A]">{memory.updatedAt}</span>
+              </div>
+            </div>
+            
+            <button 
+              onClick={onClose}
+              className="p-2 hover:bg-white/5 rounded-lg transition-colors"
+            >
+              <X className="w-5 h-5 text-[#71717A]" />
+            </button>
+          </div>
+        </div>
+        
+        <div className="p-6">
+          <p className="text-[#A1A1AA] leading-relaxed mb-4">{memory.content}</p>
+          
+          <div className="flex flex-wrap gap-2">
+            {memory.tags.map(tag => (
+              <span 
+                key={tag}
+                className="text-xs px-3 py-1 rounded-full bg-[#4A7BFF]/10 text-[#4A7BFF] font-medium"
+              >
+                #{tag}
+              </span>
+            ))}
+          </div>
+        </div>
+        
+        <div className="p-4 border-t border-white/5 flex justify-end">
+          <button 
+            className="btn btn-secondary"
+            onClick={onClose}
+          >
+            关闭
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+// ========== 主组件 ==========
 export default function MemoryArchive() {
   const [search, setSearch] = useState('');
   const [activeType, setActiveType] = useState<string | null>(null);
   const [activeTags, setActiveTags] = useState<string[]>([]);
   const [selected, setSelected] = useState<Memory | null>(null);
 
+  const allTags = useMemo(() => 
+    Array.from(new Set(memories.flatMap(m => m.tags))),
+    []
+  );
+
+  const filtered = useMemo(() => 
+    memories.filter(m => {
+      if (activeType && m.type !== activeType) return false;
+      if (activeTags.length > 0 && !activeTags.some(t => m.tags.includes(t))) return false;
+      if (search && !m.title.toLowerCase().includes(search.toLowerCase()) && 
+          !m.content.toLowerCase().includes(search.toLowerCase())) return false;
+      return true;
+    }),
+    [activeType, activeTags, search]
+  );
+
   const toggleTag = (tag: string) => {
-    setActiveTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]);
+    setActiveTags(prev => 
+      prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
+    );
   };
 
-  const filtered = memories.filter(m => {
-    if (activeType && m.type !== activeType) return false;
-    if (activeTags.length > 0 && !activeTags.some(t => m.tags.includes(t))) return false;
-    if (search && !m.title.toLowerCase().includes(search.toLowerCase()) && !m.content.toLowerCase().includes(search.toLowerCase())) return false;
-    return true;
-  }) as Memory[];
-
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-      {/* Search */}
-      <div className="card" style={{ padding: 20 }}>
-        <div style={{ position: 'relative', marginBottom: 16 }}>
-          <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 16, color: 'var(--text-muted)' }}>🔍</span>
+    <div className="space-y-5">
+      {/* 搜索和筛选 */}
+      <div className="card p-5">
+        <div className="relative mb-4">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#52525B]" />
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search memories..."
-            style={{
-              width: '100%', padding: '10px 14px 10px 40px', borderRadius: 12,
-              border: '1.5px solid rgba(0,0,0,0.08)', fontSize: 14, outline: 'none',
-              background: 'rgba(248,250,252,0.8)', color: 'var(--text-primary)',
-              transition: 'border 0.2s'
-            }}
-            onFocus={e => e.target.style.borderColor = 'var(--accent-blue)'}
-            onBlur={e => e.target.style.borderColor = 'rgba(0,0,0,0.08)'}
+            className="input pl-10"
           />
         </div>
 
-        {/* Type filters */}
-        <div style={{ display: 'flex', gap: 8, marginBottom: 14, flexWrap: 'wrap' }}>
-          {Object.entries(typeConfig).map(([type, cfg]) => (
-            <button key={type} onClick={() => setActiveType(activeType === type ? null : type)}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 10,
-                border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 500, transition: 'all 0.2s',
-                background: activeType === type ? cfg.bg : 'rgba(248,250,252,0.8)',
-                color: activeType === type ? cfg.color : 'var(--text-secondary)',
-                boxShadow: activeType === type ? `0 0 0 1.5px ${cfg.color}40` : undefined
-              }}>
-              {cfg.icon} {cfg.label}
-            </button>
-          ))}
+        {/* 类型筛选 */}
+        <div className="flex gap-2 mb-4 flex-wrap">
+          {Object.entries(TYPE_CONFIG).map(([type, cfg]) => {
+            const Icon = cfg.icon;
+            const isActive = activeType === type;
+            
+            return (
+              <button 
+                key={type} 
+                onClick={() => setActiveType(activeType === type ? null : type)}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  isActive 
+                    ? 'text-white' 
+                    : 'text-[#71717A] hover:text-white bg-white/5 hover:bg-white/8'
+                }`}
+                style={isActive ? { background: cfg.bg, color: cfg.color } : {}}
+              >
+                <Icon className="w-3.5 h-3.5" />
+                {cfg.label}
+              </button>
+            );
+          })}
         </div>
 
-        {/* Tag cloud */}
-        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+        {/* 标签云 */}
+        <div className="tag-cloud">
           {allTags.map(tag => (
-            <button key={tag} onClick={() => toggleTag(tag)}
-              style={{
-                padding: '3px 10px', borderRadius: 20, border: 'none', cursor: 'pointer',
-                fontSize: 11, fontWeight: 500, transition: 'all 0.2s',
-                background: activeTags.includes(tag) ? 'var(--accent-blue)' : 'rgba(0,0,0,0.05)',
-                color: activeTags.includes(tag) ? 'white' : 'var(--text-secondary)'
-              }}>
-              #{tag}
+            <button 
+              key={tag} 
+              onClick={() => toggleTag(tag)}
+              className={`tag-cloud-item ${activeTags.includes(tag) ? 'active' : ''}`}
+            >
+              <Tag className="w-3 h-3 mr-1" />
+              {tag}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Memory cards */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        {filtered.length === 0 && (
-          <div style={{ textAlign: 'center', padding: 48, color: 'var(--text-muted)', fontSize: 14 }}>
-            No memories found 🔍
-          </div>
-        )}
-        {filtered.map(memory => {
-          const cfg = typeConfig[memory.type];
-          return (
-            <div key={memory.id} className="card" style={{ padding: 20, cursor: 'pointer' }} onClick={() => setSelected(memory)}>
-              <div style={{ display: 'flex', alignItems: 'start', gap: 14 }}>
-                <div style={{ width: 40, height: 40, borderRadius: 10, background: cfg.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>
-                  {cfg.icon}
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-                    <span style={{ fontSize: 15, fontWeight: 600, color: 'var(--text-primary)' }}>{memory.title}</span>
-                    <span style={{ fontSize: 11, color: 'var(--text-muted)', flexShrink: 0 }}>{memory.updatedAt}</span>
-                  </div>
-                  <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: 10, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
-                    {memory.content}
-                  </p>
-                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                    <span style={{ background: cfg.bg, color: cfg.color, fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20 }}>{cfg.label}</span>
-                    {memory.tags.map(tag => (
-                      <span key={tag} style={{ background: 'rgba(0,0,0,0.05)', color: 'var(--text-secondary)', fontSize: 10, padding: '2px 8px', borderRadius: 20 }}>#{tag}</span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          );
-        })}
+      {/* 记忆卡片列表 */}
+      <div className="space-y-3">
+        <AnimatePresence mode="popLayout">
+          {filtered.length === 0 && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="empty-state"
+            >
+              <div className="empty-state-icon">🔍</div>
+              <div className="empty-state-title">No memories found</div>
+              <div className="empty-state-desc">Try adjusting your search or filters</div>
+            </motion.div>
+          )}
+          
+          {filtered.map(memory => (
+            <MemoryCard 
+              key={memory.id}
+              memory={memory}
+              search={search}
+              onClick={() => setSelected(memory)}
+            />
+          ))}
+        </AnimatePresence>
       </div>
 
-      {/* Detail Modal */}
-      {selected && (
-        <div className="modal-overlay" onClick={() => setSelected(null)}>
-          <div className="modal-content" style={{ maxWidth: 560 }} onClick={e => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 20 }}>
-              <div style={{ display: 'flex', gap: 12, alignItems: 'start' }}>
-                <div style={{ width: 44, height: 44, borderRadius: 12, background: typeConfig[selected.type].bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>
-                  {typeConfig[selected.type].icon}
-                </div>
-                <div>
-                  <div style={{ fontSize: 17, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>{selected.title}</div>
-                  <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{selected.updatedAt}</div>
-                </div>
-              </div>
-              <button onClick={() => setSelected(null)} style={{ background: 'rgba(0,0,0,0.06)', border: 'none', borderRadius: '50%', width: 32, height: 32, cursor: 'pointer', fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
-            </div>
-            <p style={{ fontSize: 14, color: 'var(--text-primary)', lineHeight: 1.7, marginBottom: 16 }}>{selected.content}</p>
-            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-              {selected.tags.map(tag => (
-                <span key={tag} style={{ background: 'rgba(59,130,246,0.1)', color: 'var(--accent-blue)', fontSize: 11, padding: '4px 10px', borderRadius: 20, fontWeight: 500 }}>#{tag}</span>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
+      {/* 详情弹窗 */}
+      <AnimatePresence>
+        {selected && (
+          <MemoryModal 
+            memory={selected} 
+            onClose={() => setSelected(null)} 
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

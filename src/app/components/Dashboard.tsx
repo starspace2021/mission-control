@@ -1,12 +1,10 @@
 'use client';
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+
+import { useState, useEffect, useMemo } from 'react';
+import { motion } from 'framer-motion';
 import {
   LayoutDashboard,
   CheckCircle2,
-  Clock,
-  AlertCircle,
-  TrendingUp,
   Activity,
   Users,
   Zap,
@@ -14,7 +12,6 @@ import {
   ArrowDownRight,
   Minus,
   Sparkles,
-  Target,
   BarChart3,
   PieChart,
   Cpu,
@@ -23,36 +20,60 @@ import {
   Wifi,
   Shield,
   Flame,
-  Layers,
-  Gauge
+  Target,
 } from 'lucide-react';
 import { taskTrend, departmentLoad, tasks, agents } from '@/data/mockData';
 
-// 增强的指标数据
-const metrics = [
-  { label: 'Online Agents', value: '6', sub: '2 offline', color: '#3B82F6', icon: Users, bg: 'rgba(59,130,246,0.08)', trend: { value: 12, direction: 'up' } },
-  { label: 'Task Completion', value: '78%', sub: '+12% today', color: '#10B981', icon: CheckCircle2, bg: 'rgba(16,185,129,0.08)', trend: { value: 5, direction: 'up' } },
-  { label: 'System Health', value: '99.2%', sub: 'All systems go', color: '#8B5CF6', icon: Activity, bg: 'rgba(139,92,246,0.08)', trend: { value: 0.3, direction: 'up' } },
-  { label: 'Active Tasks', value: '12', sub: '3 pending', color: '#F59E0B', icon: Zap, bg: 'rgba(245,158,11,0.08)', trend: { value: 2, direction: 'down' } },
+// ========== 类型定义 ==========
+interface Metric {
+  label: string;
+  value: string;
+  sub: string;
+  color: string;
+  icon: React.ElementType;
+  trend: { value: number; direction: 'up' | 'down' | 'stable' };
+}
+
+interface SystemMetric {
+  label: string;
+  value: number;
+  suffix: string;
+  icon: React.ElementType;
+  color: string;
+}
+
+interface Activity {
+  text: string;
+  time: string;
+  icon: React.ElementType;
+  color: string;
+}
+
+// ========== 数据 ==========
+const METRICS: Metric[] = [
+  { label: 'Online Agents', value: '6', sub: '2 offline', color: '#4A7BFF', icon: Users, trend: { value: 12, direction: 'up' } },
+  { label: 'Task Completion', value: '78%', sub: '+12% today', color: '#22C55E', icon: CheckCircle2, trend: { value: 5, direction: 'up' } },
+  { label: 'System Health', value: '99.2%', sub: 'All systems go', color: '#8B5CF6', icon: Activity, trend: { value: 0.3, direction: 'up' } },
+  { label: 'Active Tasks', value: '12', sub: '3 pending', color: '#F59E0B', icon: Zap, trend: { value: 2, direction: 'down' } },
 ];
 
-// 系统指标数据
-const systemMetrics = [
-  { label: 'CPU Usage', value: 42, suffix: '%', icon: Cpu, color: '#3B82F6' },
+const SYSTEM_METRICS: SystemMetric[] = [
+  { label: 'CPU Usage', value: 42, suffix: '%', icon: Cpu, color: '#4A7BFF' },
   { label: 'Memory', value: 68, suffix: '%', icon: Database, color: '#8B5CF6' },
-  { label: 'Network', value: 95, suffix: 'ms', icon: Wifi, color: '#10B981' },
+  { label: 'Network', value: 95, suffix: 'ms', icon: Wifi, color: '#22C55E' },
   { label: 'Security', value: 100, suffix: '%', icon: Shield, color: '#F59E0B' },
 ];
 
-const recentActivity = [
-  { text: 'Africa Intel report generated', time: '2m ago', icon: CheckCircle2, color: '#10B981' },
-  { text: 'US-China policy monitoring started', time: '15m ago', icon: Activity, color: '#3B82F6' },
-  { text: 'Polymarket briefing created', time: '32m ago', icon: TrendingUp, color: '#8B5CF6' },
-  { text: 'System alert: API rate limit at 85%', time: '1h ago', icon: AlertCircle, color: '#F59E0B' },
-  { text: 'QQ Mail cleanup completed', time: '2h ago', icon: CheckCircle2, color: '#10B981' },
+const RECENT_ACTIVITIES: Activity[] = [
+  { text: 'Africa Intel report generated', time: '2m ago', icon: CheckCircle2, color: '#22C55E' },
+  { text: 'US-China policy monitoring started', time: '15m ago', icon: Activity, color: '#4A7BFF' },
+  { text: 'Polymarket briefing created', time: '32m ago', icon: BarChart3, color: '#8B5CF6' },
+  { text: 'System alert: API rate limit at 85%', time: '1h ago', icon: Target, color: '#F59E0B' },
+  { text: 'QQ Mail cleanup completed', time: '2h ago', icon: CheckCircle2, color: '#22C55E' },
 ];
 
-// 计数动画组件
+// ========== 子组件 ==========
+
 function CountUp({ value, duration = 1.5, suffix = '' }: { value: number; duration?: number; suffix?: string }) {
   const [displayValue, setDisplayValue] = useState(0);
 
@@ -78,14 +99,13 @@ function CountUp({ value, duration = 1.5, suffix = '' }: { value: number; durati
   return <span className="tabular-nums">{displayValue}{suffix}</span>;
 }
 
-// 趋势指示器组件
 function TrendIndicator({ trend }: { trend: { value: number; direction: string } }) {
   const isPositive = trend.direction === 'up';
   const isNeutral = trend.direction === 'stable';
 
   return (
     <div className={`flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium ${
-      isPositive ? 'bg-[#10B981]/10 text-[#10B981]' :
+      isPositive ? 'bg-[#22C55E]/10 text-[#22C55E]' :
       isNeutral ? 'bg-[#71717A]/10 text-[#71717A]' :
       'bg-[#EF4444]/10 text-[#EF4444]'
     }`}>
@@ -97,77 +117,28 @@ function TrendIndicator({ trend }: { trend: { value: number; direction: string }
   );
 }
 
-// 迷你图表组件 - 增强版
 function MiniChart({ data, color }: { data: number[]; color: string }) {
   const max = Math.max(...data);
   const min = Math.min(...data);
   const range = max - min || 1;
 
   return (
-    <div className="flex items-end gap-[2px] h-10">
+    <div className="flex items-end gap-[2px] h-8">
       {data.map((value, i) => (
         <motion.div
           key={i}
-          className="w-1.5 rounded-t-sm relative overflow-hidden group/bar"
+          className="w-1.5 rounded-t-sm"
           style={{ backgroundColor: color }}
-          initial={{ height: 0, opacity: 0 }}
-          animate={{ height: `${((value - min) / range) * 100}%`, opacity: 1 }}
-          transition={{ delay: i * 0.03, duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-          whileHover={{ scale: 1.3 }}
-        >
-          {/* 顶部高光 */}
-          <div className="absolute top-0 left-0 right-0 h-[1px] bg-white/40" />
-        </motion.div>
+          initial={{ height: 0 }}
+          animate={{ height: `${((value - min) / range) * 100}%` }}
+          transition={{ delay: i * 0.03, duration: 0.4 }}
+        />
       ))}
     </div>
   );
 }
 
-// 迷你面积图组件
-function MiniAreaChart({ data, color = "#3B82F6" }: { data: number[]; color?: string }) {
-  const max = Math.max(...data);
-  const min = Math.min(...data);
-  const range = max - min || 1;
-  const points = data.map((value, i) => {
-    const x = (i / (data.length - 1)) * 100;
-    const y = 100 - ((value - min) / range) * 100;
-    return `${x},${y}`;
-  }).join(' ');
-
-  const areaPoints = `0,100 ${points} 100,100`;
-
-  return (
-    <svg viewBox="0 0 100 100" className="w-full h-16" preserveAspectRatio="none">
-      <defs>
-        <linearGradient id={`areaGradient-${color.replace('#', '')}`} x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor={color} stopOpacity="0.4" />
-          <stop offset="100%" stopColor={color} stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <motion.polygon
-        points={areaPoints}
-        fill={`url(#areaGradient-${color.replace('#', '')})`}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-      />
-      <motion.polyline
-        points={points}
-        fill="none"
-        stroke={color}
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        initial={{ pathLength: 0 }}
-        animate={{ pathLength: 1 }}
-        transition={{ duration: 1, ease: "easeOut" }}
-      />
-    </svg>
-  );
-}
-
-// 环形进度组件
-function CircularProgress({ value, size = 50, strokeWidth = 4, color = "#3B82F6" }: {
+function CircularProgress({ value, size = 40, strokeWidth = 3, color = "#4A7BFF" }: {
   value: number;
   size?: number;
   strokeWidth?: number;
@@ -179,15 +150,7 @@ function CircularProgress({ value, size = 50, strokeWidth = 4, color = "#3B82F6"
 
   return (
     <div className="relative" style={{ width: size, height: size }}>
-      {/* 外发光 */}
-      <div
-        className="absolute inset-0 rounded-full opacity-20"
-        style={{
-          boxShadow: `0 0 ${size/3}px ${color}`,
-          transform: 'scale(0.85)'
-        }}
-      />
-      <svg className="transform -rotate-90 relative z-10" width={size} height={size}>
+      <svg className="transform -rotate-90" width={size} height={size}>
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -206,14 +169,11 @@ function CircularProgress({ value, size = 50, strokeWidth = 4, color = "#3B82F6"
           strokeLinecap="round"
           initial={{ strokeDashoffset: circumference }}
           animate={{ strokeDashoffset: offset }}
-          transition={{ duration: 1.5, ease: [0.4, 0, 0.2, 1] }}
-          style={{
-            strokeDasharray: circumference,
-            filter: `drop-shadow(0 0 ${strokeWidth/2}px ${color})`
-          }}
+          transition={{ duration: 1, ease: "easeOut" }}
+          style={{ strokeDasharray: circumference }}
         />
       </svg>
-      <div className="absolute inset-0 flex items-center justify-center z-20">
+      <div className="absolute inset-0 flex items-center justify-center">
         <span className="text-xs font-bold" style={{ color }}>
           <CountUp value={value} suffix="%" />
         </span>
@@ -222,31 +182,6 @@ function CircularProgress({ value, size = 50, strokeWidth = 4, color = "#3B82F6"
   );
 }
 
-// 实时流量指示器
-function TrafficIndicator() {
-  return (
-    <div className="flex items-end gap-[2px] h-6">
-      {[0.3, 0.6, 0.4, 0.8, 0.5].map((height, i) => (
-        <motion.div
-          key={i}
-          className="w-1 bg-gradient-to-t from-[#10B981] to-[#06B6D4] rounded-full"
-          animate={{
-            height: [`${height * 100}%`, `${(height + 0.3) * 100}%`, `${height * 100}%`],
-            opacity: [0.5, 1, 0.5],
-          }}
-          transition={{
-            duration: 0.8,
-            repeat: Infinity,
-            delay: i * 0.1,
-            ease: "easeInOut",
-          }}
-        />
-      ))}
-    </div>
-  );
-}
-
-// 欢迎横幅组件 - v3 优化版
 function WelcomeBanner() {
   const [greeting, setGreeting] = useState('早安');
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -265,29 +200,18 @@ function WelcomeBanner() {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="glass-card-v3 p-6 relative overflow-hidden group"
+      className="glass-card p-6 relative overflow-hidden"
     >
-      {/* 动态背景 */}
-      <div className="absolute inset-0 bg-gradient-to-r from-[#3B82F6]/6 via-[#8B5CF6]/4 to-transparent" />
-      <div className="absolute top-0 right-0 w-80 h-80 bg-[#3B82F6]/4 rounded-full blur-3xl opacity-50 group-hover:opacity-70 transition-opacity duration-700" />
-      <div className="absolute bottom-0 left-0 w-48 h-48 bg-[#8B5CF6]/4 rounded-full blur-3xl opacity-30 group-hover:opacity-50 transition-opacity duration-700" />
-
-      {/* 装饰线条 */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#3B82F6]/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-
-      <div className="relative z-10 flex items-center justify-between">
+      <div className="absolute inset-0 bg-gradient-to-r from-[#4A7BFF]/5 via-[#8B5CF6]/3 to-transparent" />
+      
+      <div className="relative flex items-center justify-between">
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <motion.div
-              animate={{ rotate: [0, 8, -8, 0], scale: [1, 1.1, 1] }}
-              transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-            >
-              <Sparkles className="w-5 h-5 text-[#F59E0B]" />
-            </motion.div>
+            <Sparkles className="w-5 h-5 text-[#F59E0B]" />
             <span className="text-sm text-[#F59E0B] font-medium">{greeting}</span>
             <span className="text-xs text-[#52525B]">•</span>
             <div className="flex items-center gap-1.5 text-xs text-[#71717A]">
-              <span className="w-1.5 h-1.5 bg-[#10B981] rounded-full animate-pulse" />
+              <span className="w-1.5 h-1.5 bg-[#22C55E] rounded-full animate-pulse" />
               系统运行正常
             </div>
           </div>
@@ -295,15 +219,14 @@ function WelcomeBanner() {
           <p className="text-[#71717A]">系统运行正常，今日有 5 个定时任务待执行。</p>
         </div>
 
-        {/* 右侧状态指示 */}
         <div className="hidden md:flex items-center gap-6">
           <div className="text-center">
-            <div className="text-3xl font-bold text-[#10B981]">98.5%</div>
+            <div className="text-3xl font-bold text-[#22C55E]">98.5%</div>
             <div className="text-xs text-[#71717A] mt-1">系统健康度</div>
           </div>
           <div className="w-px h-12 bg-white/10" />
           <div className="text-center">
-            <div className="text-lg font-bold text-[#3B82F6] tabular-nums">
+            <div className="text-lg font-bold text-[#4A7BFF] tabular-nums">
               {currentTime.toLocaleTimeString('zh-CN', { hour12: false, hour: '2-digit', minute: '2-digit' })}
             </div>
             <div className="text-xs text-[#71717A] mt-1">当前时间</div>
@@ -314,75 +237,52 @@ function WelcomeBanner() {
   );
 }
 
-// 统计卡片组件 - v3 优化版
-function StatCard({ metric, index }: { metric: typeof metrics[0]; index: number }) {
+function StatCard({ metric, index }: { metric: Metric; index: number }) {
   const Icon = metric.icon;
-  const chartData = [30, 45, 35, 50, 40, 60, 55, 70, 65, 80, 75, 85].map(v => v + Math.random() * 20);
+  const chartData = useMemo(() => 
+    [30, 45, 35, 50, 40, 60, 55, 70, 65, 80, 75, 85].map(v => v + Math.random() * 20),
+    []
+  );
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.08, duration: 0.35 }}
-      whileHover={{ y: -6, scale: 1.02 }}
-      className="glass-card-v3 p-5 relative overflow-hidden group cursor-pointer stat-card-v3"
-      style={{ '--accent-color': metric.color, '--accent-glow': `${metric.color}20` } as React.CSSProperties}
+      className="card card-interactive p-5 relative overflow-hidden group"
     >
-      {/* 背景发光效果 */}
-      <div
-        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-        style={{ background: `linear-gradient(135deg, ${metric.color}12, transparent)` }}
-      />
-
-      {/* 顶部渐变条 */}
-      <motion.div
+      <div 
         className="absolute top-0 left-0 right-0 h-0.5"
         style={{ background: `linear-gradient(to right, ${metric.color}, transparent)` }}
-        initial={{ scaleX: 0 }}
-        animate={{ scaleX: 1 }}
-        transition={{ duration: 0.6, delay: index * 0.08 }}
       />
 
-      <div className="relative z-10">
+      <div className="relative">
         <div className="flex items-start justify-between mb-4">
-          <motion.div
-            className="p-2.5 rounded-xl transition-all duration-300"
-            style={{ background: `${metric.color}15`, border: `1px solid ${metric.color}25` }}
-            whileHover={{ scale: 1.1, rotate: 3 }}
+          <div
+            className="p-2.5 rounded-xl"
+            style={{ background: `${metric.color}15` }}
           >
             <Icon className="w-5 h-5" style={{ color: metric.color }} />
-          </motion.div>
+          </div>
           <TrendIndicator trend={metric.trend} />
         </div>
 
         <div className="flex items-end justify-between">
           <div>
-            <motion.div
-              className="text-2xl font-bold mb-1"
-              style={{ color: metric.color }}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: index * 0.08 + 0.15, type: "spring" }}
-            >
+            <div className="text-2xl font-bold mb-1" style={{ color: metric.color }}>
               {metric.value}
-            </motion.div>
+            </div>
             <div className="text-sm font-medium text-white mb-0.5">{metric.label}</div>
             <div className="text-xs text-[#71717A]">{metric.sub}</div>
           </div>
-          <motion.div
-            className="opacity-50 group-hover:opacity-100 transition-opacity"
-            whileHover={{ scale: 1.05 }}
-          >
-            <MiniChart data={chartData} color={metric.color} />
-          </motion.div>
+          <MiniChart data={chartData} color={metric.color} />
         </div>
       </div>
     </motion.div>
   );
 }
 
-// 系统指标卡片 - v3 优化版
-function SystemMetricCard({ metric, index }: { metric: typeof systemMetrics[0]; index: number }) {
+function SystemMetricCard({ metric, index }: { metric: SystemMetric; index: number }) {
   const Icon = metric.icon;
 
   return (
@@ -390,44 +290,39 @@ function SystemMetricCard({ metric, index }: { metric: typeof systemMetrics[0]; 
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ delay: 0.25 + index * 0.06 }}
-      whileHover={{ y: -3, scale: 1.01 }}
-      className="glass-card-v3 p-4 relative overflow-hidden group"
+      className="card p-4"
     >
       <div className="flex items-center gap-3">
-        <motion.div
-          className="p-2 rounded-xl transition-all duration-300"
-          style={{ background: `${metric.color}12`, border: `1px solid ${metric.color}30` }}
-          whileHover={{ scale: 1.08, rotate: 3 }}
+        <div
+          className="p-2 rounded-xl"
+          style={{ background: `${metric.color}12` }}
         >
           <Icon className="w-4 h-4" style={{ color: metric.color }} />
-        </motion.div>
+        </div>
         <div className="flex-1">
           <div className="text-xs text-[#71717A] mb-0.5">{metric.label}</div>
-          <div className="flex items-center gap-2">
-            <span className="text-base font-bold text-white">
-              <CountUp value={metric.value} suffix={metric.suffix} />
-            </span>
-          </div>
+          <span className="text-base font-bold text-white">
+            <CountUp value={metric.value} suffix={metric.suffix} />
+          </span>
         </div>
-        <CircularProgress value={metric.value} size={40} strokeWidth={3} color={metric.color} />
+        <CircularProgress value={metric.value} size={36} strokeWidth={3} color={metric.color} />
       </div>
     </motion.div>
   );
 }
 
-// 任务趋势图表 - v3 优化版
 function TaskTrendChart() {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.15 }}
-      className="glass-card-v3 p-5"
+      className="card p-5"
     >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#3B82F6]/20 to-[#3B82F6]/5 flex items-center justify-center">
-            <BarChart3 className="w-4 h-4 text-[#3B82F6]" />
+          <div className="w-9 h-9 rounded-xl bg-[#4A7BFF]/10 flex items-center justify-center">
+            <BarChart3 className="w-4 h-4 text-[#4A7BFF]" />
           </div>
           <div>
             <h3 className="font-semibold text-white text-sm">Task Trend (7 days)</h3>
@@ -436,30 +331,28 @@ function TaskTrendChart() {
         </div>
         <div className="flex gap-3 text-xs text-[#71717A]">
           <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-[#3B82F6]" />Completed
+            <span className="w-2 h-2 rounded-full bg-[#4A7BFF]" />Completed
           </span>
           <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-[#10B981]" />Created
+            <span className="w-2 h-2 rounded-full bg-[#22C55E]" />Created
           </span>
         </div>
       </div>
-      <div className="flex items-end gap-1.5 h-28">
+      <div className="flex items-end gap-1.5 h-24">
         {taskTrend.map((day, i) => (
           <div key={day.day} className="flex-1 flex flex-col items-center gap-1">
-            <div className="w-full flex gap-0.5 items-end justify-center h-20">
+            <div className="w-full flex gap-0.5 items-end justify-center h-16">
               <motion.div
-                className="w-2.5 bg-gradient-to-t from-[#3B82F6] to-[#60A5FA] rounded-t chart-interactive"
+                className="w-2 bg-[#4A7BFF] rounded-t"
                 initial={{ height: 0 }}
                 animate={{ height: `${(day.completed / 25) * 100}%` }}
                 transition={{ delay: i * 0.04, duration: 0.4 }}
-                whileHover={{ scale: 1.1 }}
               />
               <motion.div
-                className="w-2.5 bg-gradient-to-t from-[#10B981] to-[#34D399] rounded-t chart-interactive"
+                className="w-2 bg-[#22C55E] rounded-t"
                 initial={{ height: 0 }}
                 animate={{ height: `${(day.created / 25) * 100}%` }}
                 transition={{ delay: i * 0.04 + 0.08, duration: 0.4 }}
-                whileHover={{ scale: 1.1 }}
               />
             </div>
             <span className="text-[10px] text-[#71717A]">{day.day}</span>
@@ -470,45 +363,41 @@ function TaskTrendChart() {
   );
 }
 
-// 部门负载图表 - v3 优化版
 function DepartmentLoadChart() {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.2 }}
-      className="glass-card-v3 p-5"
+      className="card p-5"
     >
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#8B5CF6]/20 to-[#8B5CF6]/5 flex items-center justify-center">
-            <PieChart className="w-4 h-4 text-[#8B5CF6]" />
-          </div>
-          <div>
-            <h3 className="font-semibold text-white text-sm">Department Load</h3>
-            <p className="text-xs text-[#71717A]">各部门工作负载</p>
-          </div>
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-9 h-9 rounded-xl bg-[#8B5CF6]/10 flex items-center justify-center">
+          <PieChart className="w-4 h-4 text-[#8B5CF6]" />
+        </div>
+        <div>
+          <h3 className="font-semibold text-white text-sm">Department Load</h3>
+          <p className="text-xs text-[#71717A]">各部门工作负载</p>
         </div>
       </div>
       <div className="space-y-2.5">
         {departmentLoad.map((dept, i) => (
-          <div key={dept.name} className="flex items-center gap-3 group cursor-pointer">
-            <motion.div
-              className="w-2.5 h-2.5 rounded-full transition-transform group-hover:scale-125"
+          <div key={dept.name} className="flex items-center gap-3">
+            <div
+              className="w-2.5 h-2.5 rounded-full"
               style={{ backgroundColor: dept.color }}
-              whileHover={{ scale: 1.3 }}
             />
-            <span className="text-sm text-[#A1A1AA] flex-1 group-hover:text-white transition-colors text-xs">{dept.name}</span>
+            <span className="text-xs text-[#A1A1AA] flex-1">{dept.name}</span>
             <div className="flex-1 h-1.5 bg-[#1A1A24] rounded-full overflow-hidden">
               <motion.div
-                className="h-full rounded-full transition-all duration-300"
+                className="h-full rounded-full"
                 style={{ backgroundColor: dept.color }}
                 initial={{ width: 0 }}
                 animate={{ width: `${dept.value}%` }}
                 transition={{ delay: i * 0.06, duration: 0.4 }}
               />
             </div>
-            <span className="text-sm text-white w-8 text-right tabular-nums text-xs">
+            <span className="text-xs text-white w-8 text-right tabular-nums">
               <CountUp value={dept.value} suffix="%" />
             </span>
           </div>
@@ -518,45 +407,39 @@ function DepartmentLoadChart() {
   );
 }
 
-// 实时流量监控 - v3 优化版
 function TrafficMonitor() {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.25 }}
-      className="glass-card-v3 p-5"
+      className="card p-5"
     >
       <div className="flex items-center gap-3 mb-4">
-        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#10B981]/20 to-[#10B981]/5 flex items-center justify-center">
-          <Globe className="w-4 h-4 text-[#10B981]" />
+        <div className="w-9 h-9 rounded-xl bg-[#22C55E]/10 flex items-center justify-center">
+          <Globe className="w-4 h-4 text-[#22C55E]" />
         </div>
         <div className="flex-1">
           <h3 className="font-semibold text-white text-sm">实时流量</h3>
           <p className="text-xs text-[#71717A]">数据请求/秒</p>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="w-1.5 h-1.5 bg-[#10B981] rounded-full animate-pulse" />
-          <span className="text-xs text-[#10B981]">Live</span>
-        </div>
-        <div className="ml-auto">
-          <TrafficIndicator />
+          <span className="w-1.5 h-1.5 bg-[#22C55E] rounded-full animate-pulse" />
+          <span className="text-xs text-[#22C55E]">Live</span>
         </div>
       </div>
-      <div className="py-2">
-        <MiniAreaChart data={[45, 52, 48, 60, 55, 68, 72, 65, 58, 62, 70, 75]} color="#10B981" />
-      </div>
+      
       <div className="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-white/5">
         <div className="text-center">
           <div className="text-base font-semibold text-white tabular-nums">1.2K</div>
           <div className="text-xs text-[#71717A]">请求/分</div>
         </div>
         <div className="text-center">
-          <div className="text-base font-semibold text-[#10B981] tabular-nums">98ms</div>
+          <div className="text-base font-semibold text-[#22C55E] tabular-nums">98ms</div>
           <div className="text-xs text-[#71717A]">平均延迟</div>
         </div>
         <div className="text-center">
-          <div className="text-base font-semibold text-[#3B82F6] tabular-nums">99.9%</div>
+          <div className="text-base font-semibold text-[#4A7BFF] tabular-nums">99.9%</div>
           <div className="text-xs text-[#71717A]">可用性</div>
         </div>
       </div>
@@ -564,18 +447,17 @@ function TrafficMonitor() {
   );
 }
 
-// 最近活动 - v3 优化版
 function RecentActivity() {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3 }}
-      className="glass-card-v3 p-5"
+      className="card p-5"
     >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#06B6D4]/20 to-[#06B6D4]/5 flex items-center justify-center">
+          <div className="w-9 h-9 rounded-xl bg-[#06B6D4]/10 flex items-center justify-center">
             <Activity className="w-4 h-4 text-[#06B6D4]" />
           </div>
           <div>
@@ -583,10 +465,10 @@ function RecentActivity() {
             <p className="text-xs text-[#71717A]">系统操作记录</p>
           </div>
         </div>
-        <button className="text-xs text-[#3B82F6] hover:text-[#60A5FA] transition-colors">View all →</button>
+        <button className="text-xs text-[#4A7BFF] hover:text-[#5a8bff] transition-colors">View all →</button>
       </div>
       <div className="space-y-1">
-        {recentActivity.map((a, i) => {
+        {RECENT_ACTIVITIES.map((a, i) => {
           const Icon = a.icon;
           return (
             <motion.div
@@ -594,16 +476,14 @@ function RecentActivity() {
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.35 + i * 0.04 }}
-              whileHover={{ x: 3, backgroundColor: 'rgba(255,255,255,0.03)' }}
-              className="flex items-center gap-3 p-2.5 rounded-lg transition-colors cursor-pointer"
+              className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-white/[0.03] transition-colors cursor-pointer"
             >
-              <motion.div
+              <div
                 className="w-7 h-7 rounded-lg flex items-center justify-center"
                 style={{ background: `${a.color}15` }}
-                whileHover={{ scale: 1.08 }}
               >
                 <Icon className="w-3.5 h-3.5" style={{ color: a.color }} />
-              </motion.div>
+              </div>
               <span className="text-sm text-white flex-1 truncate">{a.text}</span>
               <span className="text-xs text-[#71717A] tabular-nums">{a.time}</span>
             </motion.div>
@@ -614,17 +494,16 @@ function RecentActivity() {
   );
 }
 
-// 系统资源监控 - v3 优化版
 function SystemResources() {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.35 }}
-      className="glass-card-v3 p-5"
+      className="card p-5"
     >
       <div className="flex items-center gap-3 mb-4">
-        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#EC4899]/20 to-[#EC4899]/5 flex items-center justify-center">
+        <div className="w-9 h-9 rounded-xl bg-[#EC4899]/10 flex items-center justify-center">
           <Cpu className="w-4 h-4 text-[#EC4899]" />
         </div>
         <div>
@@ -634,8 +513,8 @@ function SystemResources() {
       </div>
       <div className="space-y-4">
         {[
-          { label: 'CPU Usage', value: 42, color: '#3B82F6', icon: Cpu },
-          { label: 'Memory', value: 68, color: '#10B981', icon: Database },
+          { label: 'CPU Usage', value: 42, color: '#4A7BFF', icon: Cpu },
+          { label: 'Memory', value: 68, color: '#22C55E', icon: Database },
           { label: 'Disk I/O', value: 35, color: '#F59E0B', icon: Target },
         ].map((item, i) => (
           <div key={item.label}>
@@ -651,10 +530,7 @@ function SystemResources() {
             <div className="h-1.5 bg-[#1A1A24] rounded-full overflow-hidden">
               <motion.div
                 className="h-full rounded-full"
-                style={{ 
-                  background: `linear-gradient(90deg, ${item.color}, ${item.color}90)`,
-                  boxShadow: `0 0 8px ${item.color}30`
-                }}
+                style={{ background: item.color }}
                 initial={{ width: 0 }}
                 animate={{ width: `${item.value}%` }}
                 transition={{ delay: 0.4 + i * 0.06, duration: 0.5 }}
@@ -667,12 +543,9 @@ function SystemResources() {
   );
 }
 
-// 热力图组件 - 增强版
 function HeatmapChart() {
   const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   const hours = Array.from({ length: 12 }, (_, i) => i * 2);
-  const [hoveredCell, setHoveredCell] = useState<{day: number, hour: number, intensity: number} | null>(null);
-  const [selectedCell, setSelectedCell] = useState<{day: number, hour: number, intensity: number} | null>(null);
 
   const getIntensity = (day: number, hour: number) => {
     const base = Math.sin(day * 0.5 + hour * 0.3) * 0.5 + 0.5;
@@ -680,60 +553,21 @@ function HeatmapChart() {
     return Math.min(base + random, 1);
   };
 
-  const getActivityLabel = (intensity: number) => {
-    if (intensity < 0.2) return '低活跃度';
-    if (intensity < 0.4) return '中等活跃度';
-    if (intensity < 0.6) return '较高活跃度';
-    if (intensity < 0.8) return '高活跃度';
-    return '极高活跃度';
-  };
-
-  const getActivityTasks = (intensity: number) => {
-    const tasks = ['情报收集', '数据分析', '报告生成', '系统监控', '任务调度'];
-    const count = Math.ceil(intensity * 5);
-    return tasks.slice(0, count);
-  };
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.7 }}
-      className="glass-card-enhanced p-5"
+      transition={{ delay: 0.4 }}
+      className="card p-5"
     >
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#F59E0B]/20 to-[#F59E0B]/5 flex items-center justify-center">
-            <Flame className="w-5 h-5 text-[#F59E0B]" />
-          </div>
-          <div>
-            <h3 className="font-semibold text-white">Activity Heatmap</h3>
-            <p className="text-xs text-[#71717A]">系统活跃度分布 - 点击单元格查看详情</p>
-          </div>
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-10 h-10 rounded-xl bg-[#F59E0B]/10 flex items-center justify-center">
+          <Flame className="w-5 h-5 text-[#F59E0B]" />
         </div>
-
-        {/* 悬停/选中详情面板 */}
-        <AnimatePresence>
-          {(hoveredCell || selectedCell) && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, x: 20 }}
-              animate={{ opacity: 1, scale: 1, x: 0 }}
-              exit={{ opacity: 0, scale: 0.9, x: 20 }}
-              className="bg-[#1A1A24] border border-white/10 rounded-lg p-3 text-xs"
-            >
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-[#71717A]">{days[(selectedCell || hoveredCell)!.day]}</span>
-                <span className="text-white">{(selectedCell || hoveredCell)!.hour}:00</span>
-              </div>
-              <div className="text-[#3B82F6] font-medium">
-                {getActivityLabel((selectedCell || hoveredCell)!.intensity)}
-              </div>
-              <div className="text-[#71717A] mt-1">
-                活跃度: {Math.round((selectedCell || hoveredCell)!.intensity * 100)}%
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <div>
+          <h3 className="font-semibold text-white">Activity Heatmap</h3>
+          <p className="text-xs text-[#71717A]">系统活跃度分布</p>
+        </div>
       </div>
 
       <div className="overflow-x-auto">
@@ -752,51 +586,18 @@ function HeatmapChart() {
               <div className="flex-1 flex gap-1">
                 {hours.map((hour, hourIndex) => {
                   const intensity = getIntensity(dayIndex, hourIndex);
-                  const isHovered = hoveredCell?.day === dayIndex && hoveredCell?.hour === hour;
-                  const isSelected = selectedCell?.day === dayIndex && selectedCell?.hour === hour;
-
                   return (
                     <motion.div
                       key={hour}
-                      className="flex-1 h-6 rounded heatmap-cell-enhanced relative cursor-pointer"
+                      className="flex-1 h-5 rounded heatmap-cell"
                       style={{
-                        backgroundColor: `rgba(59, 130, 246, ${0.1 + intensity * 0.9})`,
-                        boxShadow: isSelected ? `0 0 15px rgba(59, 130, 246, 0.6), inset 0 0 0 2px rgba(255,255,255,0.3)` : undefined,
+                        backgroundColor: `rgba(74, 123, 255, ${0.1 + intensity * 0.9})`,
                       }}
-                      initial={{ opacity: 0, scale: 0 }}
-                      animate={{
-                        opacity: 1,
-                        scale: isHovered ? 1.3 : isSelected ? 1.2 : 1,
-                      }}
-                      transition={{
-                        delay: (dayIndex * 12 + hourIndex) * 0.005,
-                        type: "spring",
-                        stiffness: 300,
-                        damping: 20
-                      }}
-                      whileHover={{
-                        scale: 1.3,
-                        zIndex: 100,
-                        boxShadow: '0 0 20px rgba(59, 130, 246, 0.5), 0 0 40px rgba(59, 130, 246, 0.3)'
-                      }}
-                      onMouseEnter={() => setHoveredCell({ day: dayIndex, hour, intensity })}
-                      onMouseLeave={() => setHoveredCell(null)}
-                      onClick={() => setSelectedCell({ day: dayIndex, hour, intensity })}
-                    >
-                      {/* 悬停提示 */}
-                      <AnimatePresence>
-                        {isHovered && (
-                          <motion.div
-                            initial={{ opacity: 0, y: 5 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: 5 }}
-                            className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-[#111118] border border-white/10 rounded text-[10px] whitespace-nowrap z-50 pointer-events-none"
-                          >
-                            <div className="text-white">{Math.round(intensity * 100)}% 活跃度</div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </motion.div>
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: (dayIndex * 12 + hourIndex) * 0.002 }}
+                      title={`${day} ${hour}:00 - ${Math.round(intensity * 100)}%`}
+                    />
                   );
                 })}
               </div>
@@ -805,54 +606,14 @@ function HeatmapChart() {
         </div>
       </div>
 
-      {/* 选中详情面板 */}
-      <AnimatePresence>
-        {selectedCell && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="mt-4 pt-4 border-t border-white/10"
-          >
-            <div className="flex items-start justify-between">
-              <div>
-                <h4 className="text-sm font-medium text-white mb-2">
-                  {days[selectedCell.day]} {selectedCell.hour}:00 - {selectedCell.hour + 2}:00 详细数据
-                </h4>
-                <div className="flex flex-wrap gap-2">
-                  {getActivityTasks(selectedCell.intensity).map((task, i) => (
-                    <motion.span
-                      key={task}
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: i * 0.1 }}
-                      className="px-2 py-1 bg-[#3B82F6]/20 text-[#3B82F6] text-xs rounded-full"
-                    >
-                      {task}
-                    </motion.span>
-                  ))}
-                </div>
-              </div>
-              <button
-                onClick={() => setSelectedCell(null)}
-                className="text-xs text-[#71717A] hover:text-white transition-colors"
-              >
-                关闭
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       <div className="flex items-center justify-end gap-2 mt-4 text-[10px] text-[#71717A]">
         <span>Less</span>
         <div className="flex gap-0.5">
           {[0.2, 0.4, 0.6, 0.8, 1].map((op, i) => (
-            <motion.div
+            <div
               key={i}
               className="w-3 h-3 rounded"
-              style={{ backgroundColor: `rgba(59, 130, 246, ${op})` }}
-              whileHover={{ scale: 1.2 }}
+              style={{ backgroundColor: `rgba(74, 123, 255, ${op})` }}
             />
           ))}
         </div>
@@ -862,30 +623,24 @@ function HeatmapChart() {
   );
 }
 
+// ========== 主组件 ==========
 export default function Dashboard() {
-  const completedCount = tasks.filter(t => t.status === 'completed').length;
-  const inProgressCount = tasks.filter(t => t.status === 'in_progress').length;
-
   return (
     <div className="space-y-6">
-      {/* 欢迎横幅 */}
       <WelcomeBanner />
 
-      {/* 核心指标卡片 */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {metrics.map((m, i) => (
+        {METRICS.map((m, i) => (
           <StatCard key={m.label} metric={m} index={i} />
         ))}
       </div>
 
-      {/* 系统指标卡片 */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {systemMetrics.map((m, i) => (
+        {SYSTEM_METRICS.map((m, i) => (
           <SystemMetricCard key={m.label} metric={m} index={i} />
         ))}
       </div>
 
-      {/* 图表区域 */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           <TaskTrendChart />
@@ -893,13 +648,11 @@ export default function Dashboard() {
         <DepartmentLoadChart />
       </div>
 
-      {/* 流量监控 + 活动日志 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <TrafficMonitor />
         <RecentActivity />
       </div>
 
-      {/* 系统资源 + 热力图 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <SystemResources />
         <HeatmapChart />
