@@ -1,26 +1,43 @@
-# UI 更新日志
+# Mission Control UI Changelog
 
-## [2.0.0] - 2026-02-24
+## [v9.0] - 2026-02-24
 
-### 新增
-- 热力图组件 (HeatmapChart) - 展示系统负载分布
-- 环形进度组件 (CircularProgress) - 系统指标可视化
-- 迷你趋势图 (MiniTrendChart) - 统计数据趋势展示
-- 状态指示器 (StatusIndicator) - 代理工作状态动画
+### Added
+- 新增 glass-card-v3 玻璃态卡片样式
+- 新增实时数据指示器 (live-indicator-v3)
+- 新增页面过渡动画优化
+- Dashboard 欢迎横幅添加实时时钟
 
-### 优化
-- **Dashboard**: 统计卡片悬停效果、图表动画时序
-- **Tasks**: 看板卡片拖拽反馈、进度条流动光效
-- **Calendar**: 事件密度展示、时间线视觉层次
-- **Memory**: 标签云可视化、搜索高亮效果
-- **Team**: 霓虹发光效果、工作状态动画
+### Changed
+- 优化 Dashboard 统计卡片布局，提升信息密度
+- 优化 Tasks 看板卡片悬停效果
+- 优化 Calendar 日历单元格交互
+- 优化 Memory 标签云动画
+- 优化搜索高亮效果
 
-### 修复
-- 统一各组件颜色配置
-- 优化响应式布局适配
-- 改进动画缓动函数
+### Fixed
+- 统一各页面卡片悬停光晕效果
+- 改进拖拽状态视觉反馈
+- 优化空状态设计
 
-### 技术
-- Next.js 16.1.6 + Turbopack
-- Framer Motion 布局动画
-- Tailwind CSS 样式系统
+## [v8.0] - 2026-02-24
+
+### Added
+- 新增 glass-card-v2 样式
+- 新增热力图组件交互增强
+- 新增标签云动画效果
+
+### Changed
+- 优化 Dashboard 布局
+- 改进统计卡片视觉层次
+
+## [v7.0] - 2026-02-24
+
+### Added
+- 新增任务看板拖拽功能
+- 新增日历时间线视图
+- 新增记忆系统标签云
+
+### Changed
+- 优化卡片悬停效果
+- 改进响应式布局
