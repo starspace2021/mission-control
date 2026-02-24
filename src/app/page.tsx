@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   LayoutDashboard, 
@@ -1070,17 +1070,39 @@ function GlobalSearch({ onClose }: { onClose: () => void }) {
   );
 }
 
-// 仪表盘视图 - 增强版 v2.0
+// 数据刷新Hook
+function useDataRefresh(interval = 30000) {
+  const [lastRefresh, setLastRefresh] = useState(Date.now());
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const refresh = useCallback(() => {
+    setIsRefreshing(true);
+    setTimeout(() => {
+      setLastRefresh(Date.now());
+      setIsRefreshing(false);
+    }, 800);
+  }, []);
+
+  useEffect(() => {
+    const timer = setInterval(refresh, interval);
+    return () => clearInterval(timer);
+  }, [interval, refresh]);
+
+  return { lastRefresh, isRefreshing, refresh };
+}
+
+// 仪表盘视图 - v11.0 优化版
 function DashboardView() {
   const chartData1 = [30, 45, 35, 50, 40, 60, 55, 70, 65, 80, 75, 85];
   const chartData2 = [20, 30, 25, 35, 30, 40, 35, 45, 40, 50, 45, 55];
+  const { lastRefresh, isRefreshing, refresh } = useDataRefresh(30000);
   
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className="space-y-6"
+      className="space-y-6 page-transition-v11"
     >
       {/* 欢迎横幅 - 增强版 */}
       <motion.div 
@@ -1129,7 +1151,7 @@ function DashboardView() {
         </div>
       </motion.div>
 
-      {/* 核心指标卡片 - v10 优化版 */}
+      {/* 核心指标卡片 - v11.0 优化版 */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard 
           title="进行中任务" 
@@ -1140,7 +1162,7 @@ function DashboardView() {
           chart={chartData1}
           subtitle="较昨日 +12%"
           showCountUp
-          className="stat-card-v10"
+          className="stat-card-v11"
         />
         <MetricCard 
           title="定时任务" 
@@ -1151,7 +1173,7 @@ function DashboardView() {
           chart={chartData2}
           subtitle="全部运行正常"
           showCountUp
-          className="stat-card-v10"
+          className="stat-card-v11"
         />
         <MetricCard 
           title="记忆文档" 
@@ -1162,7 +1184,7 @@ function DashboardView() {
           chart={chartData1}
           subtitle="本周新增 3 条"
           showCountUp
-          className="stat-card-v10"
+          className="stat-card-v11"
         />
         <MetricCard 
           title="成功率" 
@@ -1174,11 +1196,11 @@ function DashboardView() {
           subtitle="系统健康"
           showCountUp={false}
           suffix="%"
-          className="stat-card-v10"
+          className="stat-card-v11"
         />
       </div>
 
-      {/* 系统指标卡片 - 新增 */}
+      {/* 系统指标卡片 - v11.0 优化版 */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <SystemMetricCard 
           title="请求/分钟" 
@@ -1211,6 +1233,26 @@ function DashboardView() {
           icon={Database}
           color="yellow"
         />
+      </div>
+
+      {/* 数据刷新指示器 */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={refresh}
+            className={`data-refresh-indicator ${isRefreshing ? 'refreshing' : ''}`}
+          >
+            <RefreshCw className="refresh-icon w-3 h-3" />
+            <span>{isRefreshing ? '刷新中...' : '自动刷新'}</span>
+          </button>
+          <span className="text-xs text-[#52525B]">
+            上次更新: {new Date(lastRefresh).toLocaleTimeString()}
+          </span>
+        </div>
+        <div className="flex items-center gap-2 text-xs text-[#71717A]">
+          <span className="w-2 h-2 bg-[#10B981] rounded-full animate-pulse" />
+          实时数据
+        </div>
       </div>
 
       {/* 数据可视化区域 - 增强版 */}

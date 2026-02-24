@@ -273,8 +273,8 @@ export default function CalendarView() {
         ))}
       </div>
 
-      {/* 头部控制栏 */}
-      <div className="glass-card-v4 p-5">
+      {/* 头部控制栏 - v11 优化版 */}
+      <div className="filter-container-v11">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className="flex gap-1 bg-[#1A1A24] rounded-xl p-1">
@@ -331,7 +331,7 @@ export default function CalendarView() {
             <select
               value={selectedType}
               onChange={(e) => setSelectedType(e.target.value)}
-              className="px-3 py-2 bg-[#1A1A24] border border-white/10 rounded-lg text-sm text-white focus:border-[#3B82F6]/50 focus:outline-none"
+              className="px-3 py-2.5 bg-[#1A1A24] border border-white/10 rounded-xl text-sm text-white focus:border-[#3B82F6]/50 focus:outline-none"
             >
               <option value="all">全部类型</option>
               <option value="cron">定时任务</option>
@@ -347,7 +347,7 @@ export default function CalendarView() {
                 placeholder="搜索事件..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 pr-4 py-2 bg-[#1A1A24] border border-white/10 rounded-lg text-sm text-white placeholder:text-[#52525B] focus:border-[#3B82F6]/50 focus:outline-none w-48 transition-all"
+                className="pl-9 pr-4 py-2.5 bg-[#1A1A24] border border-white/10 rounded-xl text-sm text-white placeholder:text-[#52525B] focus:border-[#3B82F6]/50 focus:outline-none w-48 transition-all"
               />
             </div>
             
@@ -391,7 +391,7 @@ export default function CalendarView() {
         </div>
 
         <div className="space-y-4">
-          <div className="glass-card-v4 p-5">
+          <div className="glass-card-v5 p-5">
             <div className="flex items-center gap-3 mb-4">
               <motion.div 
                 className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#3B82F6]/20 to-[#3B82F6]/5 flex items-center justify-center"
@@ -405,7 +405,7 @@ export default function CalendarView() {
               </div>
             </div>
             
-            <div className="space-y-3">
+            <div className="space-y-1">
               {upcomingEvents.map((event, index) => {
                 const config = typeConfig[event.type] || typeConfig.onetime;
                 const Icon = config.icon;
@@ -419,7 +419,7 @@ export default function CalendarView() {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.1 }}
                     onClick={() => setSelectedEvent(event)}
-                    className="p-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.04] cursor-pointer transition-all group border border-transparent hover:border-white/5 event-card-compact"
+                    className="p-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.04] cursor-pointer transition-all group border border-transparent hover:border-white/5 event-card-v11"
                   >
                     <div className="flex items-start gap-3">
                       <motion.div 
@@ -479,7 +479,7 @@ export default function CalendarView() {
             </div>
           </div>
 
-          <div className="glass-card-v4 p-5">
+          <div className="glass-card-v5 p-5">
             <h3 className="font-semibold text-white mb-4">快捷操作</h3>
             <div className="space-y-2">
               {[
@@ -549,7 +549,7 @@ function CalendarGridView({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className="glass-card-v4 overflow-hidden"
+      className="glass-card-v5 overflow-hidden"
     >
       <div className={`grid ${viewMode === "day" ? "grid-cols-1" : "grid-cols-7"} border-b border-white/5`}>
         {(viewMode === "day" ? [weekDays[new Date().getDay()]] : weekDays).map((day) => (
@@ -585,8 +585,8 @@ function CalendarGridView({
               onMouseLeave={() => setHoveredDate(null)}
               className={`min-h-[120px] p-2.5 border-r border-b border-white/5 last:border-r-0 
                          ${!isCurrentMonth && viewMode === "month" ? "bg-white/[0.02]" : ""}
-                         ${isToday ? "bg-gradient-to-br from-[#3B82F6]/12 to-transparent ring-1 ring-[#3B82F6]/25" : densityBg} 
-                         transition-all duration-200 cursor-pointer relative group calendar-cell-v4`}
+                         ${isToday ? "bg-gradient-to-br from-[#3B82F6]/12 to-transparent ring-1 ring-[#3B82F6]/25 today" : densityBg} 
+                         transition-all duration-200 cursor-pointer relative group calendar-cell-v11`}
             >
               <motion.div 
                 className="absolute inset-0 bg-white/[0.03] pointer-events-none"

@@ -210,13 +210,13 @@ export default function MemoryScreen({ memories = mockMemories }: MemoryScreenPr
   const [sortBy, setSortBy] = useState<"updated" | "importance" | "title" | "created">("updated");
   const [showTagCloud, setShowTagCloud] = useState(true);
 
-  // 搜索高亮处理 - v4 优化版
+  // 搜索高亮处理 - v11 优化版
   const highlightText = (text: string, query: string) => {
     if (!query) return text;
     const parts = text.split(new RegExp(`(${query})`, 'gi'));
     return parts.map((part, i) =>
       part.toLowerCase() === query.toLowerCase() ?
-        <mark key={i} className="search-highlight-v4">{part}</mark> :
+        <mark key={i} className="search-highlight-v11">{part}</mark> :
         part
     );
   };
@@ -284,7 +284,7 @@ export default function MemoryScreen({ memories = mockMemories }: MemoryScreenPr
       exit={{ opacity: 0, y: -20 }}
       className="space-y-5"
     >
-      {/* 统计卡片 - v4 优化版 */}
+      {/* 统计卡片 - v11 优化版 */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4"
       >
         {[
@@ -299,12 +299,12 @@ export default function MemoryScreen({ memories = mockMemories }: MemoryScreenPr
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.08 }}
             whileHover={{ y: -3, scale: 1.01, boxShadow: `0 0 25px ${stat.color}15` }}
-            className={`glass-card-v4 p-4 flex items-center gap-3 cursor-pointer transition-all memory-card-glow-v4 ${
+            className={`glass-card-v5 p-4 flex items-center gap-3 cursor-pointer transition-all memory-card-v11 ${
               selectedType === stat.type ? 'ring-2' : ''
             }`}
             style={{ 
               borderColor: selectedType === stat.type ? stat.color : undefined,
-              '--glow-color': `${stat.color}40`
+              '--card-glow': `${stat.color}40`
             } as React.CSSProperties}
             onClick={() => setSelectedType(selectedType === stat.type ? "all" : stat.type)}
           >

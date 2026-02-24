@@ -201,13 +201,13 @@ export default function TaskBoard({ tasks }: TaskBoardProps) {
   };
 
   return (
-    <div className="space-y-4">
-      {/* 统计卡片 - 增强版 */}
+    <div className="space-y-4 page-transition-v11">
+      {/* 统计卡片 - v11 优化版 */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="console-card p-4 flex items-center gap-4 group cursor-pointer"
+          className="glass-card-v5 p-4 flex items-center gap-4 group cursor-pointer kanban-card-v11"
           whileHover={{ y: -4, scale: 1.02 }}
         >
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#3B82F6]/20 to-[#3B82F6]/5 flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -233,7 +233,7 @@ export default function TaskBoard({ tasks }: TaskBoardProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="console-card p-4 flex items-center gap-4 group cursor-pointer"
+          className="glass-card-v5 p-4 flex items-center gap-4 group cursor-pointer kanban-card-v11"
           whileHover={{ y: -4, scale: 1.02 }}
         >
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#10B981]/20 to-[#10B981]/5 flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -254,7 +254,7 @@ export default function TaskBoard({ tasks }: TaskBoardProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="console-card p-4 flex items-center gap-4 group cursor-pointer"
+          className="glass-card-v5 p-4 flex items-center gap-4 group cursor-pointer kanban-card-v11"
           whileHover={{ y: -4, scale: 1.02 }}
         >
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#F59E0B]/20 to-[#F59E0B]/5 flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -275,7 +275,7 @@ export default function TaskBoard({ tasks }: TaskBoardProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="console-card p-4 flex items-center gap-4 group cursor-pointer"
+          className="glass-card-v5 p-4 flex items-center gap-4 group cursor-pointer kanban-card-v11"
           whileHover={{ y: -4, scale: 1.02 }}
         >
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#EF4444]/20 to-[#EF4444]/5 flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -293,8 +293,8 @@ export default function TaskBoard({ tasks }: TaskBoardProps) {
         </motion.div>
       </div>
 
-      {/* 工具栏 - 增强版 v4 */}
-      <div className="glass-card-v4 p-4">
+      {/* 工具栏 - v11 优化版 */}
+      <div className="filter-container-v11">
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
           <div className="flex items-center gap-4 flex-1 w-full lg:w-auto flex-wrap">
             {/* 搜索 */}
@@ -305,7 +305,7 @@ export default function TaskBoard({ tasks }: TaskBoardProps) {
                 placeholder="搜索任务..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 pr-4 py-2 bg-[#1A1A24] border border-white/10 rounded-lg text-sm text-white placeholder:text-[#52525B] focus:border-[#3B82F6]/50 focus:outline-none w-full transition-all"
+                className="pl-9 pr-4 py-2.5 bg-[#1A1A24] border border-white/10 rounded-xl text-sm text-white placeholder:text-[#52525B] focus:border-[#3B82F6]/50 focus:outline-none w-full transition-all"
               />
               {searchQuery && (
                 <button
@@ -320,10 +320,8 @@ export default function TaskBoard({ tasks }: TaskBoardProps) {
             {/* 筛选器展开按钮 */}
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className={`filter-btn-v4 flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all ${
-                showFilters || selectedPriority !== "all" || selectedTags.length > 0
-                  ? "bg-[#3B82F6]/20 text-[#3B82F6] border border-[#3B82F6]/30 active"
-                  : "bg-[#1A1A24] text-[#71717A] hover:text-white border border-white/10"
+              className={`filter-btn-v11 flex items-center gap-2 ${
+                showFilters || selectedPriority !== "all" || selectedTags.length > 0 ? 'active' : ''
               }`}
             >
               <Filter className="w-4 h-4" />
@@ -341,7 +339,7 @@ export default function TaskBoard({ tasks }: TaskBoardProps) {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SortOption)}
-                className="px-3 py-2 bg-[#1A1A24] border border-white/10 rounded-lg text-sm text-white focus:border-[#3B82F6]/50 focus:outline-none"
+                className="px-3 py-2.5 bg-[#1A1A24] border border-white/10 rounded-xl text-sm text-white focus:border-[#3B82F6]/50 focus:outline-none"
               >
                 <option value="updated">最近更新</option>
                 <option value="priority">优先级</option>
@@ -351,19 +349,19 @@ export default function TaskBoard({ tasks }: TaskBoardProps) {
               </select>
               <button
                 onClick={() => setSortDirection(prev => prev === "asc" ? "desc" : "asc")}
-                className="p-2 bg-[#1A1A24] border border-white/10 rounded-lg text-[#71717A] hover:text-white transition-all"
+                className="p-2.5 bg-[#1A1A24] border border-white/10 rounded-xl text-[#71717A] hover:text-white transition-all"
               >
                 {sortDirection === "asc" ? <SortAsc className="w-4 h-4" /> : <SortDesc className="w-4 h-4" />}
               </button>
             </div>
 
             {/* 视图切换 */}
-            <div className="flex bg-[#1A1A24] rounded-lg p-1">
+            <div className="flex bg-[#1A1A24] rounded-xl p-1">
               <button
                 onClick={() => setViewMode("board")}
-                className={`px-3 py-1.5 rounded-md text-sm transition-all flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-lg text-sm transition-all flex items-center gap-1.5 ${
                   viewMode === "board" 
-                    ? "bg-[#3B82F6] text-white" 
+                    ? "bg-gradient-to-r from-[#3B82F6] to-[#8B5CF6] text-white" 
                     : "text-[#71717A] hover:text-white"
                 }`}
               >
@@ -372,9 +370,9 @@ export default function TaskBoard({ tasks }: TaskBoardProps) {
               </button>
               <button
                 onClick={() => setViewMode("list")}
-                className={`px-3 py-1.5 rounded-md text-sm transition-all flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-lg text-sm transition-all flex items-center gap-1.5 ${
                   viewMode === "list" 
-                    ? "bg-[#3B82F6] text-white" 
+                    ? "bg-gradient-to-r from-[#3B82F6] to-[#8B5CF6] text-white" 
                     : "text-[#71717A] hover:text-white"
                 }`}
               >
@@ -404,7 +402,7 @@ export default function TaskBoard({ tasks }: TaskBoardProps) {
                 {/* 优先级筛选 */}
                 <div className="flex items-center gap-3">
                   <span className="text-sm text-[#71717A] w-16">优先级:</span>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 filter-group-v11">
                     {[
                       { value: "all", label: "全部", color: "#71717A" },
                       { value: "high", label: "高", color: "#EF4444" },
@@ -414,15 +412,11 @@ export default function TaskBoard({ tasks }: TaskBoardProps) {
                       <button
                         key={p.value}
                         onClick={() => setSelectedPriority(p.value)}
-                        className={`px-3 py-1.5 rounded-lg text-sm transition-all ${
-                          selectedPriority === p.value
-                            ? "text-white font-medium"
-                            : "text-[#71717A] hover:text-white bg-white/5"
-                        }`}
+                        className={`filter-btn-v11 ${selectedPriority === p.value ? 'active' : ''}`}
                         style={{
-                          backgroundColor: selectedPriority === p.value ? `${p.color}30` : undefined,
+                          backgroundColor: selectedPriority === p.value ? `${p.color}20` : undefined,
                           borderColor: selectedPriority === p.value ? p.color : undefined,
-                          border: selectedPriority === p.value ? `1px solid ${p.color}` : undefined,
+                          color: selectedPriority === p.value ? p.color : undefined,
                         }}
                       >
                         {p.label}
@@ -435,15 +429,13 @@ export default function TaskBoard({ tasks }: TaskBoardProps) {
                 {allTags.length > 0 && (
                   <div className="flex items-start gap-3">
                     <span className="text-sm text-[#71717A] w-16 pt-1">标签:</span>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-2 filter-group-v11">
                       {allTags.map((tag) => (
                         <button
                           key={tag}
                           onClick={() => toggleTag(tag)}
-                          className={`px-3 py-1.5 rounded-lg text-sm transition-all flex items-center gap-1.5 ${
-                            selectedTags.includes(tag)
-                              ? "bg-gradient-to-r from-[#3B82F6]/20 to-[#8B5CF6]/20 text-[#3B82F6] border border-[#3B82F6]/30"
-                              : "bg-white/5 text-[#A1A1AA] hover:bg-white/10 border border-transparent"
+                          className={`filter-btn-v11 flex items-center gap-1.5 ${
+                            selectedTags.includes(tag) ? 'active' : ''
                           }`}
                         >
                           <Tag className="w-3 h-3" />
@@ -520,7 +512,7 @@ export default function TaskBoard({ tasks }: TaskBoardProps) {
             return (
               <div 
                 key={column.id} 
-                className={`glass-card-v4 min-h-[500px] flex flex-col transition-all duration-300 ${
+                className={`glass-card-v5 min-h-[500px] flex flex-col transition-all duration-300 ${
                   isDragOver ? 'ring-2 ring-[#3B82F6]/50 bg-[#3B82F6]/5 drop-zone-active' : ''
                 }`}
                 style={{ backgroundColor: 'rgba(17, 17, 24, 0.6)' }}
@@ -590,9 +582,9 @@ export default function TaskBoard({ tasks }: TaskBoardProps) {
                     <motion.div 
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      className="empty-state-v4"
+                      className="empty-state-v11"
                     >
-                      <div className="empty-state-v4-icon w-16 h-16 rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] flex items-center justify-center border border-white/5">
+                      <div className="empty-state-v11-icon w-16 h-16 rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] flex items-center justify-center border border-white/5">
                         <Plus className="w-6 h-6 opacity-50" />
                       </div>
                       <span className="text-sm font-medium text-[#71717A]">暂无任务</span>
@@ -797,7 +789,7 @@ function TaskCard({
       animate={{ 
         opacity: isDragging ? 0.92 : 1, 
         y: isDragging ? -10 : 0,
-        scale: isDragging ? 1.05 : 1,
+        scale: isDragging ? 1.04 : 1,
         rotate: isDragging ? 2 : 0,
         boxShadow: isDragging 
           ? `${priorityConfig.shadow}, 0 0 50px ${priorityConfig.glow}` 
@@ -815,23 +807,24 @@ function TaskCard({
         mass: 1
       }}
       whileHover={{ 
-        scale: isDragging ? 1.05 : 1.03, 
-        y: isDragging ? -10 : -6,
+        scale: isDragging ? 1.04 : 1.03, 
+        y: isDragging ? -10 : -8,
         boxShadow: isDragging 
           ? undefined 
           : `${priorityConfig.shadow}, 0 0 35px ${priorityConfig.glow}`,
         borderColor: priorityConfig.border
       }}
-      className={`kanban-card-v4 glass-card-v4 p-4 cursor-grab group relative overflow-hidden ${
-        isDragging ? 'cursor-grabbing ring-2 dragging-enhanced' : ''
+      className={`kanban-card-v11 glass-card-v5 p-4 cursor-grab group relative overflow-hidden ${
+        isDragging ? 'cursor-grabbing dragging-enhanced' : ''
       } ${isSelected ? 'ring-2' : ''}`}
       style={{ 
         borderLeftWidth: '4px',
         borderLeftColor: priorityConfig.text,
         borderColor: isDragging ? priorityConfig.border : isSelected ? priorityConfig.text : undefined,
         transformStyle: 'preserve-3d',
-        perspective: '1000px'
-      }}
+        perspective: '1000px',
+        '--accent-glow': priorityConfig.glow
+      } as React.CSSProperties}
       draggable
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
