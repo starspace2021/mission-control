@@ -2,9 +2,19 @@
 
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { memories } from '@/data/mockData';
-import { Memory } from '@/types';
+import { memories } from '@/data/memories';
 import { Search, X, Brain, Calendar, Folder, Settings, Tag } from 'lucide-react';
+
+interface Memory {
+  id: string;
+  title: string;
+  content: string;
+  type: 'long_term' | 'daily' | 'project' | 'system';
+  tags: string[];
+  importance: number;
+  updatedAt: string;
+  createdAt?: string;
+}
 
 // ========== 配置 ==========
 const TYPE_CONFIG: Record<string, { icon: React.ElementType; label: string; color: string; bg: string }> = {
@@ -43,8 +53,17 @@ function MemoryCard({
   search: string;
   onClick: () => void;
 }) {
-  const cfg = TYPE_CONFIG[memory.type];
+  const cfg = TYPE_CONFIG[memory.type] || TYPE_CONFIG.daily;
   const Icon = cfg.icon;
+  
+  const formatDate = (dateStr: string) => {
+    try {
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' });
+    } catch {
+      return dateStr;
+    }
+  };
   
   return (
     <motion.div 
@@ -71,7 +90,7 @@ function MemoryCard({
               <HighlightedText text={memory.title} search={search} />
             </h4>
             <span className="text-[11px] text-[#52525B] flex-shrink-0">
-              {memory.updatedAt}
+              {formatDate(memory.updatedAt)}
             </span>
           </div>
           
@@ -87,7 +106,7 @@ function MemoryCard({
               {cfg.label}
             </span>
             
-            {memory.tags.map(tag => (
+            {memory.tags?.map(tag => (
               <motion.span 
                 key={tag}
                 className="text-[10px] px-2 py-0.5 rounded-full bg-white/5 text-[#71717A] hover:bg-white/10 transition-colors"
@@ -104,8 +123,23 @@ function MemoryCard({
 }
 
 function MemoryModal({ memory, onClose }: { memory: Memory; onClose: () => void }) {
-  const cfg = TYPE_CONFIG[memory.type];
+  const cfg = TYPE_CONFIG[memory.type] || TYPE_CONFIG.daily;
   const Icon = cfg.icon;
+  
+  const formatDate = (dateStr: string) => {
+    try {
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('zh-CN', { 
+        year: 'numeric',
+        month: 'long', 
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch {
+      return dateStr;
+    }
+  };
   
   return (
     <motion.div
@@ -133,7 +167,7 @@ function MemoryModal({ memory, onClose }: { memory: Memory; onClose: () => void 
               </div>
               <div>
                 <h2 className="text-lg font-bold text-white">{memory.title}</h2>
-                <span className="text-xs text-[#71717A]">{memory.updatedAt}</span>
+                <span className="text-xs text-[#71717A]">{formatDate(memory.updatedAt)}</span>
               </div>
             </div>
             
@@ -147,10 +181,10 @@ function MemoryModal({ memory, onClose }: { memory: Memory; onClose: () => void 
         </div>
         
         <div className="p-6">
-          <p className="text-[#A1A1AA] leading-relaxed mb-4">{memory.content}</p>
+          <p className="text-[#A1A1AA] leading-relaxed mb-4 whitespace-pre-wrap">{memory.content}</p>
           
           <div className="flex flex-wrap gap-2">
-            {memory.tags.map(tag => (
+            {memory.tags?.map(tag => (
               <span 
                 key={tag}
                 className="text-xs px-3 py-1 rounded-full bg-[#4A7BFF]/10 text-[#4A7BFF] font-medium"
@@ -181,15 +215,16 @@ export default function MemoryArchive() {
   const [activeTags, setActiveTags] = useState<string[]>([]);
   const [selected, setSelected] = useState<Memory | null>(null);
 
+  // 使用构建时加载的记忆数据
   const allTags = useMemo(() => 
-    Array.from(new Set(memories.flatMap(m => m.tags))),
+    Array.from(new Set(memories.flatMap(m => m.tags || []))),
     []
   );
 
   const filtered = useMemo(() => 
     memories.filter(m => {
       if (activeType && m.type !== activeType) return false;
-      if (activeTags.length > 0 && !activeTags.some(t => m.tags.includes(t))) return false;
+      if (activeTags.length > 0 && !activeTags.some(t => (m.tags || []).includes(t))) return false;
       if (search && !m.title.toLowerCase().includes(search.toLowerCase()) && 
           !m.content.toLowerCase().includes(search.toLowerCase())) return false;
       return true;
@@ -242,18 +277,20 @@ export default function MemoryArchive() {
         </div>
 
         {/* 标签云 */}
-        <div className="tag-cloud">
-          {allTags.map(tag => (
-            <button 
-              key={tag} 
-              onClick={() => toggleTag(tag)}
-              className={`tag-cloud-item ${activeTags.includes(tag) ? 'active' : ''}`}
-            >
-              <Tag className="w-3 h-3 mr-1" />
-              {tag}
-            </button>
-          ))}
-        </div>
+        {allTags.length > 0 && (
+          <div className="tag-cloud">
+            {allTags.map(tag => (
+              <button 
+                key={tag} 
+                onClick={() => toggleTag(tag)}
+                className={`tag-cloud-item ${activeTags.includes(tag) ? 'active' : ''}`}
+              >
+                <Tag className="w-3 h-3 mr-1" />
+                {tag}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* 记忆卡片列表 */}

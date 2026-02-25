@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard,
@@ -28,7 +28,6 @@ import {
   Terminal,
   Server,
   HardDrive,
-  MemoryStick,
   Network,
   ChevronRight,
   RefreshCw,
@@ -40,9 +39,21 @@ import {
   Calendar,
   Bot,
   BrainCircuit,
-  Eye
+  Eye,
+  TrendingDown,
+  ActivitySquare,
+  Gauge,
+  ZapIcon,
+  AlertOctagon,
+  ArrowRight,
+  Play,
+  Pause,
+  StopCircle,
+  ScanLine,
+  Radio as RadioIcon,
+  CpuIcon,
+  Workflow
 } from 'lucide-react';
-import { taskTrend, departmentLoad, tasks, agents } from '@/data/mockData';
 
 // ========== 类型定义 ==========
 interface Metric {
@@ -126,6 +137,24 @@ const PIPELINE_STEPS = [
   { id: '5', title: 'Distribution', status: 'pending', progress: 0, icon: Globe },
 ];
 
+const TASK_TREND = [
+  { day: 'Mon', completed: 18, created: 12 },
+  { day: 'Tue', completed: 22, created: 15 },
+  { day: 'Wed', completed: 19, created: 14 },
+  { day: 'Thu', completed: 24, created: 18 },
+  { day: 'Fri', completed: 28, created: 16 },
+  { day: 'Sat', completed: 15, created: 8 },
+  { day: 'Sun', completed: 20, created: 12 },
+];
+
+const DEPARTMENT_LOAD = [
+  { name: 'Intel', value: 78, color: '#0ea5e9' },
+  { name: 'Policy', value: 65, color: '#8b5cf6' },
+  { name: 'Market', value: 82, color: '#10b981' },
+  { name: 'Engineering', value: 45, color: '#f59e0b' },
+  { name: 'Admin', value: 32, color: '#06b6d4' },
+];
+
 // ========== 子组件 ==========
 
 function CountUp({ value, duration = 1.5, suffix = '' }: { value: number; duration?: number; suffix?: string }) {
@@ -159,9 +188,9 @@ function TrendIndicator({ trend }: { trend: { value: number; direction: string }
 
   return (
     <div className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-semibold ${
-      isPositive ? 'bg-[#10b981]/10 text-[#10b981]' :
-      isNeutral ? 'bg-[#6b6b78]/10 text-[#6b6b78]' :
-      'bg-[#ef4444]/10 text-[#ef4444]'
+      isPositive ? 'bg-[#10b981]/10 text-[#10b981] border border-[#10b981]/20' :
+      isNeutral ? 'bg-[#6b6b78]/10 text-[#6b6b78] border border-[#6b6b78]/20' :
+      'bg-[#ef4444]/10 text-[#ef4444] border border-[#ef4444]/20'
     }`}>
       {isPositive ? <ArrowUpRight className="w-3.5 h-3.5" /> :
        isNeutral ? <Minus className="w-3.5 h-3.5" /> :
@@ -340,7 +369,7 @@ function StatCard({ metric, index }: { metric: Metric; index: number }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.08, duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
       whileHover={{ y: -4, transition: { duration: 0.2 } }}
-      className="card card-interactive p-5 relative overflow-hidden group"
+      className="data-card group"
     >
       <div
         className="absolute top-0 left-0 right-0 h-1"
@@ -443,7 +472,7 @@ function TaskTrendChart() {
       </div>
 
       <div className="flex items-end gap-2 h-28">
-        {taskTrend.map((day, i) => (
+        {TASK_TREND.map((day, i) => (
           <div key={day.day} className="flex-1 flex flex-col items-center gap-2">
             <div className="w-full flex gap-1 items-end justify-center h-20">
               <motion.div
@@ -452,7 +481,7 @@ function TaskTrendChart() {
                   background: 'linear-gradient(to top, #0ea5e9, #0ea5e980)'
                 }}
                 initial={{ height: 0 }}
-                animate={{ height: `${(day.completed / 25) * 100}%` }}
+                animate={{ height: `${(day.completed / 30) * 100}%` }}
                 transition={{ delay: i * 0.05, duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
               >
                 <div className="absolute inset-0 bg-gradient-to-t from-transparent to-white/10" />
@@ -463,7 +492,7 @@ function TaskTrendChart() {
                   background: 'linear-gradient(to top, #10b981, #10b98180)'
                 }}
                 initial={{ height: 0 }}
-                animate={{ height: `${(day.created / 25) * 100}%` }}
+                animate={{ height: `${(day.created / 30) * 100}%` }}
                 transition={{ delay: i * 0.05 + 0.08, duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
               >
                 <div className="absolute inset-0 bg-gradient-to-t from-transparent to-white/10" />
@@ -496,7 +525,7 @@ function DepartmentLoadChart() {
       </div>
 
       <div className="space-y-3">
-        {departmentLoad.map((dept, i) => (
+        {DEPARTMENT_LOAD.map((dept, i) => (
           <div key={dept.name} className="group">
             <div className="flex items-center gap-3 mb-2">
               <div
@@ -560,9 +589,8 @@ function TrafficMonitor() {
           <h3 className="font-semibold text-white text-sm">实时流量监控</h3>
           <p className="text-xs text-[#a1a1aa]">数据请求/秒</p>
         </div>
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#10b981]/10 border border-[#10b981]/20">
-          <span className="w-2 h-2 bg-[#10b981] rounded-full animate-pulse" />
-          <span className="text-xs text-[#10b981] font-medium">Live</span>
+        <div className="live-indicator">
+          <span className="text-xs font-medium">Live</span>
         </div>
       </div>
 
@@ -659,6 +687,13 @@ function RecentActivity() {
 }
 
 function SystemResources() {
+  const resources = [
+    { label: 'CPU Usage', value: 42, color: '#3b82f6', icon: Cpu, max: 100 },
+    { label: 'Memory', value: 68, color: '#10b981', icon: Database, max: 128 },
+    { label: 'Disk I/O', value: 35, color: '#f59e0b', icon: HardDrive, max: 1000 },
+    { label: 'Network', value: 78, color: '#a855f7', icon: Network, max: 1000 },
+  ];
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -682,12 +717,7 @@ function SystemResources() {
       </div>
 
       <div className="space-y-4">
-        {[
-          { label: 'CPU Usage', value: 42, color: '#3b82f6', icon: Cpu, max: 100 },
-          { label: 'Memory', value: 68, color: '#10b981', icon: Database, max: 128 },
-          { label: 'Disk I/O', value: 35, color: '#f59e0b', icon: HardDrive, max: 1000 },
-          { label: 'Network', value: 78, color: '#a855f7', icon: Network, max: 1000 },
-        ].map((item, i) => (
+        {resources.map((item, i) => (
           <div key={item.label}>
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm text-[#b4b4be] flex items-center gap-2">
@@ -821,7 +851,7 @@ function AgentStatusPanel() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className="w-2 h-2 bg-[#10b981] rounded-full animate-pulse" />
+          <span className="status-dot online" />
           <span className="text-xs text-[#10b981]">4 online</span>
         </div>
       </div>
@@ -835,11 +865,7 @@ function AgentStatusPanel() {
             transition={{ delay: 0.5 + i * 0.05 }}
             className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.04] transition-colors cursor-pointer group"
           >
-            <div className={`w-2.5 h-2.5 rounded-full ${
-              agent.status === 'working' ? 'bg-[#f59e0b] animate-pulse' :
-              agent.status === 'online' ? 'bg-[#10b981]' :
-              'bg-[#6b6b78]'
-            }`} style={agent.status !== 'offline' ? { boxShadow: `0 0 10px ${agent.status === 'working' ? '#f59e0b' : '#10b981'}` } : {}} />
+            <div className={`status-dot ${agent.status === 'working' ? 'busy' : agent.status === 'online' ? 'online' : 'offline'}`} />
 
             <div className="flex-1">
               <div className="flex items-center justify-between">
@@ -880,7 +906,7 @@ function AlertsPanel() {
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
-      case 'critical': return { bg: 'bg-[#ef4444]/10', border: 'border-[#ef4444]/30', text: 'text-[#ef4444]', icon: AlertTriangle };
+      case 'critical': return { bg: 'bg-[#ef4444]/10', border: 'border-[#ef4444]/30', text: 'text-[#ef4444]', icon: AlertOctagon };
       case 'high': return { bg: 'bg-[#f59e0b]/10', border: 'border-[#f59e0b]/30', text: 'text-[#f59e0b]', icon: AlertTriangle };
       case 'medium': return { bg: 'bg-[#3b82f6]/10', border: 'border-[#3b82f6]/30', text: 'text-[#3b82f6]', icon: Bell };
       default: return { bg: 'bg-[#6b6b78]/10', border: 'border-[#6b6b78]/30', text: 'text-[#6b6b78]', icon: Bell };
@@ -920,7 +946,7 @@ function AlertsPanel() {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                className={`p-3 rounded-xl ${severity.bg} border ${severity.border} flex items-start gap-3`}
+                className={`p-3 rounded-xl ${severity.bg} border ${severity.border} flex items-start gap-3 group hover:scale-[1.02] transition-transform cursor-pointer`}
               >
                 <Icon className={`w-4 h-4 ${severity.text} flex-shrink-0 mt-0.5`} />
                 <div className="flex-1 min-w-0">
@@ -928,7 +954,7 @@ function AlertsPanel() {
                     <span className={`text-sm font-medium ${severity.text}`}>{alert.title}</span>
                     <button
                       onClick={() => dismissAlert(alert.id)}
-                      className="p-1 hover:bg-white/10 rounded transition-colors"
+                      className="p-1 hover:bg-white/10 rounded transition-colors opacity-0 group-hover:opacity-100"
                     >
                       <span className="text-[#6b6b78] text-lg leading-none">&times;</span>
                     </button>
@@ -942,10 +968,17 @@ function AlertsPanel() {
         </AnimatePresence>
 
         {alerts.length === 0 && (
-          <div className="text-center py-8">
-            <CheckCircle2 className="w-10 h-10 text-[#10b981] mx-auto mb-2 opacity-50" />
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center py-8"
+          >
+            <div className="w-12 h-12 rounded-full bg-[#10b981]/10 flex items-center justify-center mx-auto mb-3">
+              <CheckCircle2 className="w-6 h-6 text-[#10b981]" />
+            </div>
             <p className="text-sm text-[#8a8a96]">暂无警报</p>
-          </div>
+            <p className="text-xs text-[#52525B] mt-1">系统运行正常</p>
+          </motion.div>
         )}
       </div>
     </motion.div>
@@ -971,7 +1004,7 @@ function PipelineVisualization() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className="w-2 h-2 bg-[#10b981] rounded-full animate-pulse" />
+          <span className="status-dot online" />
           <span className="text-xs text-[#10b981]">运行中</span>
         </div>
       </div>
@@ -1069,7 +1102,7 @@ function QuickActions() {
 // ========== 主组件 ==========
 export default function Dashboard() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 page-transition-v11">
       <WelcomeBanner />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

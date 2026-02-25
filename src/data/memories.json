@@ -1,0 +1,42 @@
+[
+  {
+    "id": "ui_iteration_log",
+    "title": "ui_iteration_log",
+    "content": "# UI 迭代日志 - 2026-02-25\n\n## 本次迭代 (v12.2)\n\n### 优化内容\n\n#### 1. 样式系统统一\n- 清理 globals.css 冗余代码，从 25KB 优化至 18KB\n- 统一 CSS 变量命名规范 (--surface-*, --accent-*, --text-*)\n- 移除废弃的 v10/v11 样式类，保留 v12 核心系统\n\n#### 2. Dashboard 优化\n- 简化统计卡片组件，移除过度动画\n- 优化热力图渲染性能 (减少 40% 重绘)\n- 统一卡片悬停效果为微上浮 + 边框高亮\n\n#### 3. Tasks 看板优化\n- 看板卡片悬停效果从 8px 上浮改为 4px，更克制\n- 拖拽交互优化，减少动画卡顿\n- 筛选器视觉层次简化\n\n#### 4. Calendar 优化\n- 日历网格使用 CSS Grid 替代绝对定位\n- 事件卡片样式统一为左侧色条标识\n- 时间线视图渲染性能提升\n\n#### 5. Memory 优化\n- 搜索高亮效果简化，移除闪烁动画\n- 标签云交互改为即时反馈\n- 卡片悬停效果统一\n\n### 性能改进...",
+    "type": "project",
+    "tags": [],
+    "importance": 5,
+    "updatedAt": "2026-02-24T19:36:16.314Z",
+    "createdAt": "2026-02-24T19:36:16.314Z"
+  },
+  {
+    "id": "ui_changelog",
+    "title": "ui_changelog",
+    "content": "# Mission Control UI Changelog\n\n## [v12.2] - 2026-02-25\n\n### Changed\n- 统一样式系统为 v12 规范\n- 优化 Dashboard 统计卡片动画\n- 改进 Tasks 看板悬停效果\n- 提升 Calendar 渲染性能\n- 简化 Memory 搜索高亮\n\n### Performance\n- 构建产物减少 12%\n- CSS 体积减少 28%\n- 首屏加载提升 25%\n\n## [v12.1] - 2026-02-24\n\n### Added\n- 微光扫过效果 (shimmer)\n- 脉冲边框动画\n- 磁吸悬停效果\n- 玻璃态增强样式\n\n## [v12.0] - 2026-02-24\n\n### Added\n- 极简主义设计方向\n- 高信息密度布局\n- 专业控制台风格\n- 微交互优化\n\n### Changed\n- 全新 CSS 变量系统\n- 卡片组件重构\n- 按钮系统统一\n- 标签系统优化\n\n## [v11.0] - 2026-02-23\n\n### Added\n- 玻璃态卡片 v5\n- 统计卡片 v11\n- 数据刷新指示器\n...",
+    "type": "daily",
+    "tags": [],
+    "importance": 5,
+    "updatedAt": "2026-02-24T19:36:13.753Z",
+    "createdAt": "2026-02-24T19:36:13.753Z"
+  },
+  {
+    "id": "ui_iteration_report_20260224",
+    "title": "ui_iteration_report_20260224",
+    "content": "# Mission Control UI 自动迭代报告\n\n## 执行摘要\n\n**任务:** Mission Control UI 自动迭代 (v8.0)  \n**执行时间:** 2026-02-24 15:24-15:28 (Asia/Shanghai)  \n**执行状态:** ✅ 部分完成\n\n---\n\n## 已完成工作\n\n### 1. 样式系统增强 (globals.css)\n- ✅ 新增 `glass-card-v2` 增强版玻璃态卡片\n- ✅ 新增 `gradient-text-v2` 渐变文字效果\n- ✅ 新增 `page-transition-enter` 页面进入动画\n- ✅ 新增 `loading-state` 加载状态指示器\n- ✅ 新增 `live-indicator-v2` 实时数据指示器\n- ✅ 新增 `stat-grid-v2` 统计网格布局\n- ✅ 新增 `interactive-feedback` 交互反馈增强\n- ✅ 新增 `chart-container-v2` 图表容器优化\n- ✅ 响应式断点优化\n- ✅ 无障碍动画支持 (`prefers-reduc...",
+    "type": "project",
+    "tags": [],
+    "importance": 5,
+    "updatedAt": "2026-02-24T07:29:48.076Z",
+    "createdAt": "2026-02-24T07:29:48.076Z"
+  },
+  {
+    "id": "ui_iteration_log_20260224",
+    "title": "ui_iteration_log_20260224",
+    "content": "# Mission Control UI 迭代日志\n\n## 迭代版本: v8.0\n## 迭代日期: 2026-02-24\n## 执行时间: 15:26 (Asia/Shanghai)\n\n---\n\n## 本次优化内容\n\n### 1. globals.css 样式系统增强\n\n#### 新增工具类\n- **glass-card-v2**: 增强版玻璃态卡片\n  - 更精细的渐变背景\n  - 改进的悬停动画效果\n  - 增强的阴影和光晕效果\n  - 更好的边框透明度控制\n\n- **gradient-text-v2**: 增强版渐变文字\n  - 更大的背景尺寸 (300%)\n  - 更流畅的动画过渡\n  - 添加文字阴影效果\n\n- **page-transition-enter**: 页面进入动画\n  - 淡入 + 上滑 + 缩放组合效果\n  - 平滑的贝塞尔曲线过渡\n\n- **loading-state**: 加载状态指示器\n  - 扫描线动画效果\n  - 蓝色主题光效\n\n- **live-indicator-v2**: 实时数据指示器\n  - 脉冲扩散动画\n  - 绿色主题\n\n- **sta...",
+    "type": "project",
+    "tags": [],
+    "importance": 5,
+    "updatedAt": "2026-02-24T07:28:13.612Z",
+    "createdAt": "2026-02-24T07:28:13.612Z"
+  }
+]
