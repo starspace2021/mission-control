@@ -83,7 +83,7 @@ function MemoryCard({
               style={{ background: cfg.bg, color: cfg.color }}
             >
               {cfg.label}
-            </span㺎
+            </span>
             
             {memory.tags.map(tag => (
               <span 
