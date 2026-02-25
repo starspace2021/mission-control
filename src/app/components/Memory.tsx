@@ -18,7 +18,7 @@ interface Memory {
 
 // ========== 配置 ==========
 const TYPE_CONFIG: Record<string, { icon: React.ElementType; label: string; color: string; bg: string }> = {
-  long_term: { icon: Brain, label: 'Long Term', color: '#4A7BFF', bg: 'rgba(74, 123, 255, 0.1)' },
+  long_term: { icon: Brain, label: 'Long Term', color: '#3b82f6', bg: 'rgba(59, 130, 246, 0.1)' },
   daily: { icon: Calendar, label: 'Daily', color: '#22C55E', bg: 'rgba(34, 197, 94, 0.1)' },
   project: { icon: Folder, label: 'Project', color: '#8B5CF6', bg: 'rgba(139, 92, 246, 0.1)' },
   system: { icon: Settings, label: 'System', color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.1)' },
@@ -73,7 +73,7 @@ function MemoryCard({
       exit={{ opacity: 0, scale: 0.95 }}
       onClick={onClick}
       className="memory-card group cursor-pointer"
-      whileHover={{ y: -2, transition: { duration: 0.2 } }}
+      whileHover={{ y: -4, transition: { duration: 0.2 } }}
     >
       <div className="flex items-start gap-3">
         <motion.div 
@@ -187,7 +187,7 @@ function MemoryModal({ memory, onClose }: { memory: Memory; onClose: () => void 
             {memory.tags?.map(tag => (
               <span 
                 key={tag}
-                className="text-xs px-3 py-1 rounded-full bg-[#4A7BFF]/10 text-[#4A7BFF] font-medium"
+                className="text-xs px-3 py-1 rounded-full bg-[#3b82f6]/10 text-[#3b82f6] font-medium"
               >
                 #{tag}
               </span>
@@ -241,14 +241,14 @@ export default function MemoryArchive() {
   return (
     <div className="space-y-5">
       {/* 搜索和筛选 */}
-      <div className="card p-5">
+      <div className="glass-card-v4 p-5">
         <div className="relative mb-4">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#52525B]" />
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search memories..."
-            className="input pl-10"
+            className="input pl-10 bg-[#0a0a0f]"
           />
         </div>
 

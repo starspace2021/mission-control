@@ -92,14 +92,14 @@ interface Alert {
 
 // ========== 数据 ==========
 const METRICS: Metric[] = [
-  { label: 'Online Agents', value: '6', sub: '2 offline', color: '#0ea5e9', icon: Bot, trend: { value: 12, direction: 'up' } },
+  { label: 'Online Agents', value: '6', sub: '2 offline', color: '#3b82f6', icon: Bot, trend: { value: 12, direction: 'up' } },
   { label: 'Task Completion', value: '78%', sub: '+12% today', color: '#10b981', icon: CheckCircle2, trend: { value: 5, direction: 'up' } },
   { label: 'System Health', value: '99.2%', sub: 'All systems go', color: '#8b5cf6', icon: Activity, trend: { value: 0.3, direction: 'up' } },
   { label: 'Active Tasks', value: '12', sub: '3 pending', color: '#f59e0b', icon: Zap, trend: { value: 2, direction: 'down' } },
 ];
 
 const SYSTEM_METRICS: SystemMetric[] = [
-  { label: 'CPU Usage', value: 42, suffix: '%', icon: Cpu, color: '#0ea5e9' },
+  { label: 'CPU Usage', value: 42, suffix: '%', icon: Cpu, color: '#3b82f6' },
   { label: 'Memory', value: 68, suffix: '%', icon: Database, color: '#8b5cf6' },
   { label: 'Network', value: 95, suffix: 'ms', icon: Wifi, color: '#10b981' },
   { label: 'Security', value: 100, suffix: '%', icon: Shield, color: '#f59e0b' },
@@ -108,7 +108,7 @@ const SYSTEM_METRICS: SystemMetric[] = [
 const RECENT_ACTIVITIES: Activity[] = [
   { text: 'Africa Intel report generated', time: '2m ago', icon: CheckCircle2, color: '#10b981', type: 'success', meta: 'Intel Dept' },
   { text: 'US-China policy monitoring started', time: '15m ago', icon: Activity, color: '#3b82f6', type: 'info', meta: 'Policy Dept' },
-  { text: 'Polymarket briefing created', time: '32m ago', icon: BarChart3, color: '#a855f7', type: 'info', meta: 'Market Dept' },
+  { text: 'Polymarket briefing created', time: '32m ago', icon: BarChart3, color: '#8b5cf6', type: 'info', meta: 'Market Dept' },
   { text: 'System alert: API rate limit at 85%', time: '1h ago', icon: AlertTriangle, color: '#f59e0b', type: 'warning', meta: 'System' },
   { text: 'QQ Mail cleanup completed', time: '2h ago', icon: CheckCircle2, color: '#10b981', type: 'success', meta: 'Engineering' },
   { text: 'Memory system backup finished', time: '3h ago', icon: Database, color: '#06b6d4', type: 'success', meta: 'Admin' },
@@ -121,7 +121,7 @@ const ALERTS: Alert[] = [
 ];
 
 const AGENT_STATUS = [
-  { name: 'Africa Intel', status: 'working', progress: 65, color: '#0ea5e9', dept: 'Intel' },
+  { name: 'Africa Intel', status: 'working', progress: 65, color: '#3b82f6', dept: 'Intel' },
   { name: 'Policy Monitor', status: 'online', progress: 0, color: '#8b5cf6', dept: 'Policy' },
   { name: 'Market Analyst', status: 'online', progress: 0, color: '#10b981', dept: 'Market' },
   { name: 'Risk Scoring', status: 'offline', progress: 0, color: '#71717a', dept: 'Intel' },
@@ -148,7 +148,7 @@ const TASK_TREND = [
 ];
 
 const DEPARTMENT_LOAD = [
-  { name: 'Intel', value: 78, color: '#0ea5e9' },
+  { name: 'Intel', value: 78, color: '#3b82f6' },
   { name: 'Policy', value: 65, color: '#8b5cf6' },
   { name: 'Market', value: 82, color: '#10b981' },
   { name: 'Engineering', value: 45, color: '#f59e0b' },
@@ -221,7 +221,7 @@ function MiniChart({ data, color }: { data: number[]; color: string }) {
   );
 }
 
-function CircularProgress({ value, size = 44, strokeWidth = 4, color = "#4A7BFF" }: {
+function CircularProgress({ value, size = 44, strokeWidth = 4, color = "#3b82f6" }: {
   value: number;
   size?: number;
   strokeWidth?: number;
@@ -238,7 +238,7 @@ function CircularProgress({ value, size = 44, strokeWidth = 4, color = "#4A7BFF"
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke="rgba(255,255,255,0.08)"
+          stroke="rgba(255,255,255,0.06)"
           strokeWidth={strokeWidth}
           fill="none"
         />
@@ -267,9 +267,9 @@ function CircularProgress({ value, size = 44, strokeWidth = 4, color = "#4A7BFF"
 
 function DataStreamBar() {
   return (
-    <div className="absolute top-0 left-0 right-0 h-0.5 overflow-hidden opacity-30">
+    <div className="absolute top-0 left-0 right-0 h-0.5 overflow-hidden opacity-40">
       <motion.div
-        className="h-full bg-gradient-to-r from-transparent via-[#0ea5e9] to-transparent"
+        className="h-full bg-gradient-to-r from-transparent via-[#3b82f6] to-transparent"
         animate={{ x: ['-100%', '100%'] }}
         transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
       />
@@ -300,8 +300,8 @@ function WelcomeBanner() {
       <DataStreamBar />
 
       {/* 背景光效 */}
-      <div className="absolute inset-0 bg-gradient-to-r from-[#0ea5e9]/5 via-[#8b5cf6]/3 to-transparent" />
-      <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-bl from-[#0ea5e9]/10 via-[#8b5cf6]/5 to-transparent rounded-full blur-3xl" />
+      <div className="absolute inset-0 bg-gradient-to-r from-[#3b82f6]/5 via-[#8b5cf6]/3 to-transparent" />
+      <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-bl from-[#3b82f6]/10 via-[#8b5cf6]/5 to-transparent rounded-full blur-3xl" />
       <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-[#10b981]/5 to-transparent rounded-full blur-3xl" />
 
       <div className="relative flex items-center justify-between">
@@ -340,7 +340,7 @@ function WelcomeBanner() {
           </div>
           <div className="w-px h-16 bg-white/10" />
           <div className="text-center">
-            <div className="text-2xl font-bold text-[#0ea5e9] tabular-nums">
+            <div className="text-2xl font-bold text-[#3b82f6] tabular-nums">
               {currentTime.toLocaleTimeString('zh-CN', { hour12: false, hour: '2-digit', minute: '2-digit' })}
             </div>
             <div className="text-sm text-[#a1a1aa] mt-1">当前时间</div>
@@ -447,12 +447,12 @@ function TaskTrendChart() {
       transition={{ delay: 0.15 }}
       className="card p-5 relative overflow-hidden"
     >
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0ea5e9]/5 to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-[#3b82f6]/5 to-transparent pointer-events-none" />
 
       <div className="relative flex items-center justify-between mb-5">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#0ea5e9]/10 flex items-center justify-center">
-            <BarChart3 className="w-5 h-5 text-[#0ea5e9]" />
+          <div className="w-10 h-10 rounded-xl bg-[#3b82f6]/10 flex items-center justify-center">
+            <BarChart3 className="w-5 h-5 text-[#3b82f6]" />
           </div>
           <div>
             <h3 className="font-semibold text-white text-sm">Task Trend (7 days)</h3>
@@ -461,7 +461,7 @@ function TaskTrendChart() {
         </div>
         <div className="flex gap-4 text-xs">
           <span className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-[#0ea5e9]" />
+            <span className="w-3 h-3 rounded-full bg-[#3b82f6]" />
             <span className="text-[#a1a1aa]">已完成</span>
           </span>
           <span className="flex items-center gap-2">
@@ -478,7 +478,7 @@ function TaskTrendChart() {
               <motion.div
                 className="flex-1 rounded-t-lg min-w-[6px] relative overflow-hidden"
                 style={{
-                  background: 'linear-gradient(to top, #0ea5e9, #0ea5e980)'
+                  background: 'linear-gradient(to top, #3b82f6, #3b82f680)'
                 }}
                 initial={{ height: 0 }}
                 animate={{ height: `${(day.completed / 30) * 100}%` }}
@@ -515,8 +515,8 @@ function DepartmentLoadChart() {
       className="card p-5"
     >
       <div className="flex items-center gap-3 mb-5">
-        <div className="w-10 h-10 rounded-xl bg-[#a855f7]/10 flex items-center justify-center">
-          <PieChart className="w-5 h-5 text-[#a855f7]" />
+        <div className="w-10 h-10 rounded-xl bg-[#8b5cf6]/10 flex items-center justify-center">
+          <PieChart className="w-5 h-5 text-[#8b5cf6]" />
         </div>
         <div>
           <h3 className="font-semibold text-white text-sm">Department Load</h3>
@@ -604,7 +604,7 @@ function TrafficMonitor() {
           <div className="text-xs text-[#a1a1aa] mt-1">平均延迟</div>
         </div>
         <div className="text-center">
-          <div className="text-xl font-bold text-[#0ea5e9] tabular-nums">{metrics.uptime}%</div>
+          <div className="text-xl font-bold text-[#3b82f6] tabular-nums">{metrics.uptime}%</div>
           <div className="text-xs text-[#a1a1aa] mt-1">可用性</div>
         </div>
       </div>
@@ -650,7 +650,7 @@ function RecentActivity() {
             <p className="text-xs text-[#a1a1aa]">系统操作记录</p>
           </div>
         </div>
-        <button className="text-xs text-[#0ea5e9] hover:text-[#38bdf8] transition-colors flex items-center gap-1">
+        <button className="text-xs text-[#3b82f6] hover:text-[#60a5fa] transition-colors flex items-center gap-1">
           查看全部 <ChevronRight className="w-3 h-3" />
         </button>
       </div>
@@ -691,7 +691,7 @@ function SystemResources() {
     { label: 'CPU Usage', value: 42, color: '#3b82f6', icon: Cpu, max: 100 },
     { label: 'Memory', value: 68, color: '#10b981', icon: Database, max: 128 },
     { label: 'Disk I/O', value: 35, color: '#f59e0b', icon: HardDrive, max: 1000 },
-    { label: 'Network', value: 78, color: '#a855f7', icon: Network, max: 1000 },
+    { label: 'Network', value: 78, color: '#8b5cf6', icon: Network, max: 1000 },
   ];
 
   return (
@@ -1066,7 +1066,7 @@ function PipelineVisualization() {
 function QuickActions() {
   const actions = [
     { icon: Zap, label: '新建任务', color: '#3b82f6', bg: 'bg-[#3b82f6]/10' },
-    { icon: Terminal, label: '系统命令', color: '#a855f7', bg: 'bg-[#a855f7]/10' },
+    { icon: Terminal, label: '系统命令', color: '#8b5cf6', bg: 'bg-[#8b5cf6]/10' },
     { icon: Settings, label: '设置', color: '#f59e0b', bg: 'bg-[#f59e0b]/10' },
     { icon: RefreshCw, label: '刷新数据', color: '#10b981', bg: 'bg-[#10b981]/10' },
   ];
@@ -1105,18 +1105,21 @@ export default function Dashboard() {
     <div className="space-y-6 page-transition-v11">
       <WelcomeBanner />
 
+      {/* 核心指标 - 更紧凑的网格 */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {METRICS.map((m, i) => (
           <StatCard key={m.label} metric={m} index={i} />
         ))}
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {/* 系统指标 - 合并到更紧凑的行 */}
+      <div className="grid grid-cols-4 gap-3">
         {SYSTEM_METRICS.map((m, i) => (
           <SystemMetricCard key={m.label} metric={m} index={i} />
         ))}
       </div>
 
+      {/* 主要图表区域 - 优化布局比例 */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           <TaskTrendChart />
@@ -1124,25 +1127,27 @@ export default function Dashboard() {
         <DepartmentLoadChart />
       </div>
 
+      {/* 实时监控与活动 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <TrafficMonitor />
         <RecentActivity />
       </div>
 
+      {/* 系统资源与热力图 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <SystemResources />
         <HeatmapChart />
       </div>
 
+      {/* 代理状态、警报、快捷操作 */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <AgentStatusPanel />
         <AlertsPanel />
         <QuickActions />
       </div>
 
-      <div className="grid grid-cols-1 gap-6">
-        <PipelineVisualization />
-      </div>
+      {/* 数据管道 */}
+      <PipelineVisualization />
     </div>
   );
 }

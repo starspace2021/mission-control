@@ -60,7 +60,7 @@ function LiveClock() {
 
 function StatusChart({ value, color = "blue" }: { value: number; color?: string }) {
   const colorMap: Record<string, string> = {
-    blue: "#4A7BFF",
+    blue: "#3b82f6",
     green: "#22C55E",
     yellow: "#F59E0B",
     red: "#EF4444",
@@ -69,7 +69,7 @@ function StatusChart({ value, color = "blue" }: { value: number; color?: string 
   const mainColor = colorMap[color] || colorMap.blue;
   
   return (
-    <div className="w-full bg-[#1A1A24] rounded-full h-1.5 overflow-hidden">
+    <div className="w-full bg-[#0a0a0f] rounded-full h-1.5 overflow-hidden">
       <motion.div 
         className="h-full rounded-full"
         style={{ backgroundColor: mainColor }}
@@ -152,11 +152,11 @@ export default function MissionControl() {
     <div className="min-h-screen bg-[#0a0a0f] text-[#fafafa]">
       <div className="flex h-screen">
         {/* 侧边栏 */}
-        <aside className={`${sidebarCollapsed ? 'w-16' : 'w-64'} bg-[#111118] border-r border-white/5 flex flex-col transition-all duration-300`}>
+        <aside className={`${sidebarCollapsed ? 'w-16' : 'w-64'} bg-[#0a0a0f] border-r border-white/5 flex flex-col transition-all duration-300`}>
           {/* Logo */}
           <div className="p-4 border-b border-white/5">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-[#4A7BFF] to-[#8B5CF6] rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-[#3b82f6] to-[#8b5cf6] rounded-xl flex items-center justify-center shadow-lg shadow-[#3b82f6]/20">
                 <Terminal className="w-5 h-5 text-white" />
               </div>
               {!sidebarCollapsed && (
@@ -180,12 +180,12 @@ export default function MissionControl() {
                   onClick={() => setActiveTab(item.id)}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
                     isActive
-                      ? "bg-[#4A7BFF]/15 text-[#4A7BFF] border border-[#4A7BFF]/20"
+                      ? "bg-gradient-to-r from-[#3b82f6]/20 to-transparent text-[#3b82f6] border border-[#3b82f6]/20"
                       : "text-[#A1A1AA] hover:text-white hover:bg-white/5"
                   }`}
                   title={sidebarCollapsed ? item.label : undefined}
                 >
-                  <Icon className={`w-5 h-5 ${isActive ? 'text-[#4A7BFF]' : ''}`} />
+                  <Icon className={`w-5 h-5 ${isActive ? 'text-[#3b82f6]' : ''}`} />
                   {!sidebarCollapsed && (
                     <>
                       <span className="flex-1 text-left">{item.label}</span>
@@ -239,8 +239,8 @@ export default function MissionControl() {
 
         {/* 主内容区 */}
         <main className="flex-1 overflow-auto">
-          {/* 顶部栏 */}
-          <header className="h-16 border-b border-white/5 flex items-center justify-between px-6 bg-[#0a0a0f]/80 backdrop-blur-sm sticky top-0 z-10">
+          {/* 顶部栏 - 毛玻璃效果 */}
+          <header className="h-16 border-b border-white/5 flex items-center justify-between px-6 bg-[#0a0a0f]/80 backdrop-blur-md sticky top-0 z-10">
             <div className="flex items-center gap-4">
               <h1 className="text-xl font-semibold">
                 {NAV_ITEMS.find(n => n.id === activeTab)?.label}
@@ -255,7 +255,7 @@ export default function MissionControl() {
             <div className="flex items-center gap-3">
               <button 
                 onClick={() => setIsSearchOpen(true)}
-                className="flex items-center gap-2 px-3 py-2 bg-[#1A1A24] border border-white/10 rounded-lg text-sm text-[#71717A] hover:text-white hover:border-white/20 transition-all"
+                className="flex items-center gap-2 px-3 py-2 bg-[#111118] border border-white/10 rounded-lg text-sm text-[#71717A] hover:text-white hover:border-[#3b82f6]/30 transition-all"
               >
                 <Search className="w-4 h-4" />
                 <span className="hidden sm:inline">搜索...</span>
