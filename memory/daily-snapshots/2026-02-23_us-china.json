@@ -1,0 +1,35 @@
+{
+  "date": "2026-02-23",
+  "topic": "us-china",
+  "summary": {
+    "totalEvents": 23,
+    "p0Count": 0,
+    "p1Count": 6,
+    "p2Count": 6,
+    "dataSources": [
+      "Source A",
+      "Source B",
+      "Source C"
+    ],
+    "keyMetrics": {
+      "关税": "25%",
+      "概率": "60%"
+    }
+  },
+  "events": [
+    {
+      "id": "event_2026-02-23_1",
+      "title": "示例事件1 - 2026-02-23",
+      "priority": "P1"
+    },
+    {
+      "id": "event_2026-02-23_2",
+      "title": "示例事件2 - 2026-02-23",
+      "priority": "P2"
+    }
+  ],
+  "metadata": {
+    "createdAt": "2026-02-25T00:13:33.363Z",
+    "version": "1.0"
+  }
+}

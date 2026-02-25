@@ -1,0 +1,87 @@
+[
+  {
+    "taskName": "非洲涉华情报",
+    "reportDate": "2026-02-22",
+    "assessedAt": "2026-02-25T00:13:38.011Z",
+    "scores": {
+      "coverage": 8,
+      "accuracy": 10,
+      "timeliness": 6,
+      "readability": 10,
+      "completeness": 10,
+      "total": 9,
+      "grade": "A+"
+    },
+    "details": {
+      "coverage": [
+        "信息来源: 4个 (路透社, 新华社, 半岛电视台, 政府官网)",
+        "主题覆盖: 4/5 类别",
+        "内容长度: 1589字符"
+      ],
+      "accuracy": [
+        "引用来源: 5处",
+        "数据点: 25个",
+        "日期引用: 5个"
+      ],
+      "timeliness": [
+        "时效标识: 1个",
+        "平均时效: 7天前"
+      ],
+      "readability": [
+        "标题结构: 14个层级",
+        "列表项: 28个",
+        "段落数: 23",
+        "包含数据表格",
+        "使用视觉标记"
+      ],
+      "completeness": [
+        "必填字段: 4/4",
+        "关键章节: 5/5",
+        "元数据项: 3/3",
+        "包含结论/建议"
+      ]
+    },
+    "flags": {
+      "accuracy": [],
+      "completeness": []
+    },
+    "metadata": {
+      "coverage": {
+        "sourceCount": 4,
+        "categoryCount": 4,
+        "charCount": 1589,
+        "sources": [
+          "路透社",
+          "新华社",
+          "半岛电视台",
+          "政府官网"
+        ]
+      },
+      "accuracy": {
+        "sourceCount": 5,
+        "dataPoints": 25,
+        "uniqueDates": 5
+      },
+      "timeliness": {
+        "markerCount": 1,
+        "contentDates": 7,
+        "avgDaysOffset": 7
+      },
+      "readability": {
+        "headingCount": 14,
+        "listItemCount": 28,
+        "paragraphCount": 23,
+        "hasTable": true,
+        "hasEmoji": true
+      },
+      "completeness": {
+        "sectionCount": 5,
+        "metadataCount": 3,
+        "hasConclusion": true
+      }
+    },
+    "suggestions": [
+      "报告质量良好，继续保持"
+    ]
+  }
+]

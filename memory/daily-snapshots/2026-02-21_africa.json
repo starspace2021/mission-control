@@ -1,0 +1,35 @@
+{
+  "date": "2026-02-21",
+  "topic": "africa",
+  "summary": {
+    "totalEvents": 27,
+    "p0Count": 2,
+    "p1Count": 4,
+    "p2Count": 9,
+    "dataSources": [
+      "Source A",
+      "Source B",
+      "Source C"
+    ],
+    "keyMetrics": {
+      "关税": "25%",
+      "概率": "60%"
+    }
+  },
+  "events": [
+    {
+      "id": "event_2026-02-21_1",
+      "title": "示例事件1 - 2026-02-21",
+      "priority": "P1"
+    },
+    {
+      "id": "event_2026-02-21_2",
+      "title": "示例事件2 - 2026-02-21",
+      "priority": "P2"
+    }
+  ],
+  "metadata": {
+    "createdAt": "2026-02-25T00:13:33.364Z",
+    "version": "1.0"
+  }
+}

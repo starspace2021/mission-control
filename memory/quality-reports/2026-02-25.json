@@ -1,0 +1,85 @@
+[
+  {
+    "taskName": "非洲涉华情报",
+    "reportDate": "2026-02-25",
+    "assessedAt": "2026-02-25T00:16:32.136Z",
+    "scores": {
+      "coverage": 7,
+      "accuracy": 10,
+      "timeliness": 7,
+      "readability": 10,
+      "completeness": 10,
+      "total": 9,
+      "grade": "A+"
+    },
+    "details": {
+      "coverage": [
+        "信息来源: 2个 (路透社, 新华社)",
+        "主题覆盖: 5/5 类别",
+        "内容长度: 3114字符"
+      ],
+      "accuracy": [
+        "引用来源: 10处",
+        "数据点: 34个",
+        "日期引用: 6个"
+      ],
+      "timeliness": [
+        "时效标识: 2个",
+        "平均时效: 6天前"
+      ],
+      "readability": [
+        "标题结构: 25个层级",
+        "列表项: 50个",
+        "段落数: 36",
+        "包含数据表格",
+        "使用视觉标记"
+      ],
+      "completeness": [
+        "必填字段: 4/4",
+        "关键章节: 5/5",
+        "元数据项: 3/3",
+        "包含结论/建议"
+      ]
+    },
+    "flags": {
+      "accuracy": [],
+      "completeness": []
+    },
+    "metadata": {
+      "coverage": {
+        "sourceCount": 2,
+        "categoryCount": 5,
+        "charCount": 3114,
+        "sources": [
+          "路透社",
+          "新华社"
+        ]
+      },
+      "accuracy": {
+        "sourceCount": 10,
+        "dataPoints": 34,
+        "uniqueDates": 6
+      },
+      "timeliness": {
+        "markerCount": 2,
+        "contentDates": 12,
+        "avgDaysOffset": 6
+      },
+      "readability": {
+        "headingCount": 25,
+        "listItemCount": 50,
+        "paragraphCount": 36,
+        "hasTable": true,
+        "hasEmoji": true
+      },
+      "completeness": {
+        "sectionCount": 5,
+        "metadataCount": 3,
+        "hasConclusion": true
+      }
+    },
+    "suggestions": [
+      "可适当增加更多权威来源引用"
+    ]
+  }
+]

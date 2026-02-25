@@ -1,0 +1,43 @@
+[
+  {
+    "id": "fb_1771978427756_f2zlc10zx",
+    "taskName": "Africa Intel Daily",
+    "reportDate": "2026-02-25",
+    "feedbackType": "useful",
+    "detail": "内容详实，数据准确",
+    "userId": "anonymous",
+    "userName": "匿名用户",
+    "timestamp": 1771978427756,
+    "channel": "feishu",
+    "replyTo": null,
+    "status": "pending"
+  },
+  {
+    "id": "fb_1771978427789_ur3px0hl6",
+    "taskName": "Africa Intel Daily",
+    "reportDate": "2026-02-25",
+    "feedbackType": "not_useful",
+    "detail": "信息太泛，缺乏深度分析",
+    "userId": "anonymous",
+    "userName": "匿名用户",
+    "timestamp": 1771978427789,
+    "channel": "feishu",
+    "replyTo": null,
+    "status": "pending",
+    "alertTriggered": false
+  },
+  {
+    "id": "fb_1771978427818_2pmj03b0m",
+    "taskName": "US-China Policy",
+    "reportDate": "2026-02-25",
+    "feedbackType": "missing",
+    "detail": "缺少具体政策条文引用",
+    "userId": "anonymous",
+    "userName": "匿名用户",
+    "timestamp": 1771978427818,
+    "channel": "feishu",
+    "replyTo": null,
+    "status": "pending",
+    "alertTriggered": false
+  }
+]
