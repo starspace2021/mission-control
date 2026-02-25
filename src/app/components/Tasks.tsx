@@ -4,9 +4,9 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { tasks as initialTasks } from '@/data/mockData';
 import { Task } from '@/types';
-import { 
-  GripVertical, 
-  Clock, 
+import {
+  GripVertical,
+  Clock,
   Calendar,
   Tag,
   CheckCircle2,
@@ -24,27 +24,31 @@ import {
   Zap,
   AlertTriangle,
   User,
-  CalendarDays
+  CalendarDays,
+  Bot,
+  LayoutGrid,
+  List,
+  ArrowUpDown
 } from 'lucide-react';
 
 // ========== 配置 ==========
 const PRIORITY_CONFIG: Record<string, { color: string; bg: string; border: string; label: string; icon: React.ElementType }> = {
-  high: { 
-    color: '#ef4444', 
+  high: {
+    color: '#ef4444',
     bg: 'rgba(239, 68, 68, 0.12)',
     border: 'rgba(239, 68, 68, 0.35)',
     label: '高优先级',
     icon: AlertTriangle
   },
-  medium: { 
-    color: '#f59e0b', 
+  medium: {
+    color: '#f59e0b',
     bg: 'rgba(245, 158, 11, 0.12)',
     border: 'rgba(245, 158, 11, 0.35)',
     label: '中优先级',
     icon: Zap
   },
-  low: { 
-    color: '#3b82f6', 
+  low: {
+    color: '#3b82f6',
     bg: 'rgba(59, 130, 246, 0.12)',
     border: 'rgba(59, 130, 246, 0.35)',
     label: '低优先级',
@@ -73,25 +77,25 @@ const COLUMNS = [
 
 // ========== 子组件 ==========
 
-function TaskCard({ 
-  task, 
+function TaskCard({
+  task,
   onClick,
   isDragging = false,
-}: { 
-  task: Task; 
+}: {
+  task: Task;
   onClick: () => void;
   isDragging?: boolean;
 }) {
   const priority = PRIORITY_CONFIG[task.priority || 'medium'];
   const dept = DEPT_CONFIG[task.department] || { bg: 'rgba(113, 113, 122, 0.1)', color: '#71717A', gradient: 'from-[#71717A] to-[#A1A1AA]' };
   const PriorityIcon = priority.icon;
-  
+
   return (
-    <motion.div 
+    <motion.div
       layout
       initial={{ opacity: 0, y: 15, scale: 0.95 }}
-      animate={{ 
-        opacity: isDragging ? 0.95 : 1, 
+      animate={{
+        opacity: isDragging ? 0.95 : 1,
         y: isDragging ? -4 : 0,
         scale: isDragging ? 1.03 : 1,
       }}
@@ -107,7 +111,7 @@ function TaskCard({
       draggable
     >
       {/* 顶部渐变条 */}
-      <div 
+      <div
         className="absolute top-0 left-0 right-0 h-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
         style={{ background: `linear-gradient(to right, ${priority.color}, ${dept.color})` }}
       />
@@ -116,34 +120,34 @@ function TaskCard({
         <h4 className="font-medium text-sm text-white line-clamp-2 pr-8 leading-relaxed">
           {task.title}
         </h4>
-        <motion.div 
+        <motion.div
           className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all cursor-grab active:cursor-grabbing"
           whileHover={{ scale: 1.1 }}
         >
           <GripVertical className="w-4 h-4 text-[#52525B]" />
         </motion.div>
       </div>
-      
+
       <div className="flex flex-wrap gap-2 mb-3">
-        <motion.span 
+        <motion.span
           className="text-[10px] px-2.5 py-1 rounded-lg border font-medium flex items-center gap-1"
-          style={{ 
-            background: dept.bg, 
+          style={{
+            background: dept.bg,
             color: dept.color,
             borderColor: `${dept.color}30`
           }}
           whileHover={{ scale: 1.05 }}
         >
-          <span 
+          <span
             className="w-1.5 h-1.5 rounded-full"
             style={{ background: dept.color }}
           />
           {task.department}
         </motion.span>
-        <motion.span 
+        <motion.span
           className="text-[10px] px-2.5 py-1 rounded-lg border font-medium flex items-center gap-1"
-          style={{ 
-            background: priority.bg, 
+          style={{
+            background: priority.bg,
             color: priority.color,
             borderColor: priority.border
           }}
@@ -153,7 +157,7 @@ function TaskCard({
           {priority.label}
         </motion.span>
       </div>
-      
+
       <div className="flex items-center justify-between pt-3 border-t border-white/5">
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1.5 text-[#71717A]">
@@ -163,11 +167,11 @@ function TaskCard({
             </span>
           </div>
         </div>
-        
+
         <div className="flex items-center gap-2">
-          <motion.div 
+          <motion.div
             className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold"
-            style={{ 
+            style={{
               background: `linear-gradient(135deg, ${dept.color}30, ${dept.color}10)`,
               color: dept.color,
               border: `1px solid ${dept.color}40`
@@ -189,14 +193,14 @@ function TaskModal({ task, onClose }: { task: Task; onClose: () => void }) {
   const PriorityIcon = priority.icon;
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       className="modal-overlay"
       onClick={onClose}
     >
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -206,9 +210,9 @@ function TaskModal({ task, onClose }: { task: Task; onClose: () => void }) {
         <div className="p-6 border-b border-white/5">
           <div className="flex items-start justify-between">
             <div className="flex items-start gap-4">
-              <div 
+              <div
                 className="w-14 h-14 rounded-2xl flex items-center justify-center"
-                style={{ 
+                style={{
                   background: `linear-gradient(135deg, ${priority.bg}, ${dept.bg})`,
                   border: `1px solid ${priority.border}`
                 }}
@@ -218,10 +222,10 @@ function TaskModal({ task, onClose }: { task: Task; onClose: () => void }) {
               <div>
                 <h2 className="text-xl font-bold text-white mb-2">{task.title}</h2>
                 <div className="flex gap-2">
-                  <span 
+                  <span
                     className="text-xs px-3 py-1.5 rounded-lg border font-medium flex items-center gap-1.5"
-                    style={{ 
-                      background: dept.bg, 
+                    style={{
+                      background: dept.bg,
                       color: dept.color,
                       borderColor: `${dept.color}30`
                     }}
@@ -229,10 +233,10 @@ function TaskModal({ task, onClose }: { task: Task; onClose: () => void }) {
                     <span className="w-1.5 h-1.5 rounded-full" style={{ background: dept.color }} />
                     {task.department}
                   </span>
-                  <span 
+                  <span
                     className="text-xs px-3 py-1.5 rounded-lg border font-medium flex items-center gap-1.5"
-                    style={{ 
-                      background: priority.bg, 
+                    style={{
+                      background: priority.bg,
                       color: priority.color,
                       borderColor: priority.border
                     }}
@@ -243,23 +247,23 @@ function TaskModal({ task, onClose }: { task: Task; onClose: () => void }) {
                 </div>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-2">
-              <motion.button 
+              <motion.button
                 className="p-2.5 hover:bg-white/5 rounded-xl transition-colors"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
                 <Edit3 className="w-5 h-5 text-[#71717A]" />
               </motion.button>
-              <motion.button 
+              <motion.button
                 className="p-2.5 hover:bg-white/5 rounded-xl transition-colors"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
                 <Trash2 className="w-5 h-5 text-[#71717A] hover:text-[#EF4444]" />
               </motion.button>
-              <motion.button 
+              <motion.button
                 onClick={onClose}
                 className="p-2.5 hover:bg-white/5 rounded-xl transition-colors"
                 whileHover={{ scale: 1.05 }}
@@ -270,7 +274,7 @@ function TaskModal({ task, onClose }: { task: Task; onClose: () => void }) {
             </div>
           </div>
         </div>
-        
+
         <div className="p-6 space-y-5">
           <div className="grid grid-cols-2 gap-4">
             <div className="flex items-center gap-4 p-4 rounded-xl bg-[#1A1A24] border border-white/5">
@@ -282,7 +286,7 @@ function TaskModal({ task, onClose }: { task: Task; onClose: () => void }) {
                 <div className="text-white font-medium">{task.scheduledTime}</div>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-4 p-4 rounded-xl bg-[#1A1A24] border border-white/5">
               <div className="w-12 h-12 rounded-xl bg-[#8B5CF6]/10 flex items-center justify-center">
                 <Tag className="w-6 h-6 text-[#8B5CF6]" />
@@ -295,13 +299,13 @@ function TaskModal({ task, onClose }: { task: Task; onClose: () => void }) {
               </div>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-4 p-4 rounded-xl bg-[#1A1A24] border border-white/5">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br flex items-center justify-center"
-            style={{ background: `linear-gradient(135deg, ${dept.color}20, ${dept.color}10)` }}>
-              <div 
+              style={{ background: `linear-gradient(135deg, ${dept.color}20, ${dept.color}10)` }}>
+              <div
                 className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border"
-                style={{ 
+                style={{
                   background: `${dept.color}20`,
                   color: dept.color,
                   borderColor: `${dept.color}40`
@@ -328,9 +332,9 @@ function TaskModal({ task, onClose }: { task: Task; onClose: () => void }) {
             </p>
           </div>
         </div>
-        
+
         <div className="p-5 border-t border-white/5 flex gap-3">
-          <motion.button 
+          <motion.button
             className="btn btn-primary flex-1"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
@@ -338,7 +342,7 @@ function TaskModal({ task, onClose }: { task: Task; onClose: () => void }) {
             <Edit3 className="w-4 h-4" />
             编辑任务
           </motion.button>
-          <motion.button 
+          <motion.button
             className="btn btn-secondary"
             onClick={onClose}
             whileHover={{ scale: 1.02 }}
@@ -361,7 +365,7 @@ function TaskStats() {
   ];
 
   return (
-    <div className="grid grid-cols-4 gap-4 mb-6">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
       {stats.map((stat, i) => (
         <motion.div
           key={stat.label}
@@ -371,7 +375,7 @@ function TaskStats() {
           whileHover={{ y: -2, scale: 1.02 }}
           className="card p-4 flex items-center gap-3 cursor-pointer"
         >
-          <div 
+          <div
             className="w-10 h-10 rounded-xl flex items-center justify-center"
             style={{ background: `${stat.color}15` }}
           >
@@ -438,7 +442,7 @@ function FilterBar() {
             <option value="low">低优先级</option>
           </select>
 
-          <motion.button 
+          <motion.button
             className="btn btn-primary"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
@@ -490,10 +494,10 @@ export default function Tasks() {
           const colTasks = allTasks.filter(t => t.status === col.key);
           const Icon = col.icon;
           const isDragOver = dragOverColumn === col.key;
-          
+
           return (
-            <motion.div 
-              key={col.key} 
+            <motion.div
+              key={col.key}
               className={`card min-h-[600px] flex flex-col transition-all duration-300 ${
                 isDragOver ? 'ring-2 ring-[#4A7BFF]/50 bg-[#4A7BFF]/5' : ''
               }`}
@@ -514,7 +518,7 @@ export default function Tasks() {
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <motion.div 
+                    <motion.div
                       className="w-11 h-11 rounded-xl flex items-center justify-center"
                       style={{ backgroundColor: col.bg }}
                       whileHover={{ scale: 1.05 }}
@@ -526,8 +530,8 @@ export default function Tasks() {
                       <p className="text-xs text-[#71717A]">{col.description}</p>
                     </div>
                   </div>
-                  
-                  <motion.span 
+
+                  <motion.span
                     className="text-sm px-3 py-1.5 rounded-full font-bold"
                     style={{ backgroundColor: col.bg, color: col.color }}
                     initial={{ scale: 0 }}
@@ -538,7 +542,7 @@ export default function Tasks() {
                   </motion.span>
                 </div>
               </div>
-              
+
               <div className="p-3 space-y-3 flex-1">
                 <AnimatePresence mode="popLayout">
                   {colTasks.map((task, taskIndex) => (
@@ -548,17 +552,17 @@ export default function Tasks() {
                       onDragStart={() => handleDragStart(task)}
                       onDragEnd={handleDragEnd}
                     >
-                      <TaskCard 
-                        task={task} 
+                      <TaskCard
+                        task={task}
                         onClick={() => setSelected(task)}
                         isDragging={draggedTask?.id === task.id}
                       />
                     </div>
                   ))}
                 </AnimatePresence>
-                
+
                 {colTasks.length === 0 && (
-                  <motion.div 
+                  <motion.div
                     className="empty-state py-16"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -571,11 +575,11 @@ export default function Tasks() {
                   </motion.div>
                 )}
               </div>
-              
+
               <div className="p-4 border-t border-white/5">
-                <motion.button 
-                  className="w-full py-3 flex items-center justify-center gap-2 text-sm text-[#71717A] 
-                           hover:text-white hover:bg-white/5 rounded-xl transition-all 
+                <motion.button
+                  className="w-full py-3 flex items-center justify-center gap-2 text-sm text-[#71717A]
+                           hover:text-white hover:bg-white/5 rounded-xl transition-all
                            border border-dashed border-white/10 hover:border-white/20"
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
@@ -591,9 +595,9 @@ export default function Tasks() {
 
       <AnimatePresence>
         {selected && (
-          <TaskModal 
-            task={selected} 
-            onClose={() => setSelected(null)} 
+          <TaskModal
+            task={selected}
+            onClose={() => setSelected(null)}
           />
         )}
       </AnimatePresence>

@@ -34,7 +34,13 @@ import {
   RefreshCw,
   MoreHorizontal,
   Bell,
-  Settings
+  Settings,
+  Radio,
+  FileText,
+  Calendar,
+  Bot,
+  BrainCircuit,
+  Eye
 } from 'lucide-react';
 import { taskTrend, departmentLoad, tasks, agents } from '@/data/mockData';
 
@@ -62,6 +68,7 @@ interface Activity {
   icon: React.ElementType;
   color: string;
   type?: 'success' | 'info' | 'warning' | 'error';
+  meta?: string;
 }
 
 interface Alert {
@@ -74,7 +81,7 @@ interface Alert {
 
 // ========== 数据 ==========
 const METRICS: Metric[] = [
-  { label: 'Online Agents', value: '6', sub: '2 offline', color: '#0ea5e9', icon: Users, trend: { value: 12, direction: 'up' } },
+  { label: 'Online Agents', value: '6', sub: '2 offline', color: '#0ea5e9', icon: Bot, trend: { value: 12, direction: 'up' } },
   { label: 'Task Completion', value: '78%', sub: '+12% today', color: '#10b981', icon: CheckCircle2, trend: { value: 5, direction: 'up' } },
   { label: 'System Health', value: '99.2%', sub: 'All systems go', color: '#8b5cf6', icon: Activity, trend: { value: 0.3, direction: 'up' } },
   { label: 'Active Tasks', value: '12', sub: '3 pending', color: '#f59e0b', icon: Zap, trend: { value: 2, direction: 'down' } },
@@ -88,12 +95,12 @@ const SYSTEM_METRICS: SystemMetric[] = [
 ];
 
 const RECENT_ACTIVITIES: Activity[] = [
-  { text: 'Africa Intel report generated', time: '2m ago', icon: CheckCircle2, color: '#10b981', type: 'success' },
-  { text: 'US-China policy monitoring started', time: '15m ago', icon: Activity, color: '#3b82f6', type: 'info' },
-  { text: 'Polymarket briefing created', time: '32m ago', icon: BarChart3, color: '#a855f7', type: 'info' },
-  { text: 'System alert: API rate limit at 85%', time: '1h ago', icon: AlertTriangle, color: '#f59e0b', type: 'warning' },
-  { text: 'QQ Mail cleanup completed', time: '2h ago', icon: CheckCircle2, color: '#10b981', type: 'success' },
-  { text: 'Memory system backup finished', time: '3h ago', icon: Database, color: '#06b6d4', type: 'success' },
+  { text: 'Africa Intel report generated', time: '2m ago', icon: CheckCircle2, color: '#10b981', type: 'success', meta: 'Intel Dept' },
+  { text: 'US-China policy monitoring started', time: '15m ago', icon: Activity, color: '#3b82f6', type: 'info', meta: 'Policy Dept' },
+  { text: 'Polymarket briefing created', time: '32m ago', icon: BarChart3, color: '#a855f7', type: 'info', meta: 'Market Dept' },
+  { text: 'System alert: API rate limit at 85%', time: '1h ago', icon: AlertTriangle, color: '#f59e0b', type: 'warning', meta: 'System' },
+  { text: 'QQ Mail cleanup completed', time: '2h ago', icon: CheckCircle2, color: '#10b981', type: 'success', meta: 'Engineering' },
+  { text: 'Memory system backup finished', time: '3h ago', icon: Database, color: '#06b6d4', type: 'success', meta: 'Admin' },
 ];
 
 const ALERTS: Alert[] = [
@@ -103,12 +110,20 @@ const ALERTS: Alert[] = [
 ];
 
 const AGENT_STATUS = [
-  { name: 'Africa Intel', status: 'working', progress: 65, color: '#0ea5e9' },
-  { name: 'Policy Monitor', status: 'online', progress: 0, color: '#8b5cf6' },
-  { name: 'Market Analyst', status: 'online', progress: 0, color: '#10b981' },
-  { name: 'Risk Scoring', status: 'offline', progress: 0, color: '#71717a' },
-  { name: 'Memory Manager', status: 'working', progress: 42, color: '#f59e0b' },
-  { name: 'System Maint', status: 'online', progress: 0, color: '#06b6d4' },
+  { name: 'Africa Intel', status: 'working', progress: 65, color: '#0ea5e9', dept: 'Intel' },
+  { name: 'Policy Monitor', status: 'online', progress: 0, color: '#8b5cf6', dept: 'Policy' },
+  { name: 'Market Analyst', status: 'online', progress: 0, color: '#10b981', dept: 'Market' },
+  { name: 'Risk Scoring', status: 'offline', progress: 0, color: '#71717a', dept: 'Intel' },
+  { name: 'Memory Manager', status: 'working', progress: 42, color: '#f59e0b', dept: 'Admin' },
+  { name: 'System Maint', status: 'online', progress: 0, color: '#06b6d4', dept: 'Engineering' },
+];
+
+const PIPELINE_STEPS = [
+  { id: '1', title: 'Data Collection', status: 'completed', progress: 100, icon: Radio },
+  { id: '2', title: 'Processing', status: 'completed', progress: 100, icon: Cpu },
+  { id: '3', title: 'Analysis', status: 'active', progress: 65, icon: BarChart3 },
+  { id: '4', title: 'Report Gen', status: 'pending', progress: 0, icon: FileText },
+  { id: '5', title: 'Distribution', status: 'pending', progress: 0, icon: Globe },
 ];
 
 // ========== 子组件 ==========
@@ -254,23 +269,23 @@ function WelcomeBanner() {
       className="glass-card-v2 p-6 relative overflow-hidden"
     >
       <DataStreamBar />
-      
+
       {/* 背景光效 */}
       <div className="absolute inset-0 bg-gradient-to-r from-[#0ea5e9]/5 via-[#8b5cf6]/3 to-transparent" />
       <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-bl from-[#0ea5e9]/10 via-[#8b5cf6]/5 to-transparent rounded-full blur-3xl" />
       <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-[#10b981]/5 to-transparent rounded-full blur-3xl" />
-      
+
       <div className="relative flex items-center justify-between">
         <div>
           <div className="flex items-center gap-3 mb-3">
-            <motion.div 
+            <motion.div
               className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#f59e0b]/10 border border-[#f59e0b]/20"
               whileHover={{ scale: 1.02 }}
             >
               <Sparkles className="w-4 h-4 text-[#f59e0b]" />
               <span className="text-sm text-[#f59e0b] font-medium">{greeting}</span>
             </motion.div>
-            <motion.div 
+            <motion.div
               className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#10b981]/10 border border-[#10b981]/20"
               whileHover={{ scale: 1.02 }}
             >
@@ -284,7 +299,7 @@ function WelcomeBanner() {
 
         <div className="hidden md:flex items-center gap-8">
           <div className="text-center">
-            <motion.div 
+            <motion.div
               className="text-4xl font-bold text-[#10b981]"
               key={currentTime.getSeconds()}
               initial={{ opacity: 0, y: 10 }}
@@ -314,7 +329,7 @@ function WelcomeBanner() {
 
 function StatCard({ metric, index }: { metric: Metric; index: number }) {
   const Icon = metric.icon;
-  const chartData = useMemo(() => 
+  const chartData = useMemo(() =>
     [30, 45, 35, 50, 40, 60, 55, 70, 65, 80, 75, 85].map(v => v + Math.random() * 20),
     []
   );
@@ -327,11 +342,11 @@ function StatCard({ metric, index }: { metric: Metric; index: number }) {
       whileHover={{ y: -4, transition: { duration: 0.2 } }}
       className="card card-interactive p-5 relative overflow-hidden group"
     >
-      <div 
+      <div
         className="absolute top-0 left-0 right-0 h-1"
         style={{ background: `linear-gradient(to right, ${metric.color}, ${metric.color}60, transparent)` }}
       />
-      
+
       <div className="absolute -top-20 -right-20 w-40 h-40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"
         style={{ background: `radial-gradient(circle, ${metric.color}20, transparent)` }}
       />
@@ -404,7 +419,7 @@ function TaskTrendChart() {
       className="card p-5 relative overflow-hidden"
     >
       <div className="absolute inset-0 bg-gradient-to-b from-[#0ea5e9]/5 to-transparent pointer-events-none" />
-      
+
       <div className="relative flex items-center justify-between mb-5">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-[#0ea5e9]/10 flex items-center justify-center">
@@ -426,14 +441,14 @@ function TaskTrendChart() {
           </span>
         </div>
       </div>
-      
+
       <div className="flex items-end gap-2 h-28">
         {taskTrend.map((day, i) => (
           <div key={day.day} className="flex-1 flex flex-col items-center gap-2">
             <div className="w-full flex gap-1 items-end justify-center h-20">
               <motion.div
                 className="flex-1 rounded-t-lg min-w-[6px] relative overflow-hidden"
-                style={{ 
+                style={{
                   background: 'linear-gradient(to top, #0ea5e9, #0ea5e980)'
                 }}
                 initial={{ height: 0 }}
@@ -444,7 +459,7 @@ function TaskTrendChart() {
               </motion.div>
               <motion.div
                 className="flex-1 rounded-t-lg min-w-[6px] relative overflow-hidden"
-                style={{ 
+                style={{
                   background: 'linear-gradient(to top, #10b981, #10b98180)'
                 }}
                 initial={{ height: 0 }}
@@ -479,7 +494,7 @@ function DepartmentLoadChart() {
           <p className="text-xs text-[#a1a1aa]">各部门工作负载</p>
         </div>
       </div>
-      
+
       <div className="space-y-3">
         {departmentLoad.map((dept, i) => (
           <div key={dept.name} className="group">
@@ -496,7 +511,7 @@ function DepartmentLoadChart() {
             <div className="h-2 bg-[#1e1e28] rounded-full overflow-hidden">
               <motion.div
                 className="h-full rounded-full"
-                style={{ 
+                style={{
                   background: `linear-gradient(to right, ${dept.color}, ${dept.color}80)`,
                   boxShadow: `0 0 12px ${dept.color}50`
                 }}
@@ -550,7 +565,7 @@ function TrafficMonitor() {
           <span className="text-xs text-[#10b981] font-medium">Live</span>
         </div>
       </div>
-      
+
       <div className="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-white/5">
         <div className="text-center">
           <div className="text-xl font-bold text-white tabular-nums">{(metrics.requests / 1000).toFixed(1)}K</div>
@@ -573,10 +588,10 @@ function TrafficMonitor() {
             key={i}
             className="flex-1 bg-gradient-to-t from-[#10b981] to-[#10b981]/50 rounded-t"
             initial={{ height: '20%' }}
-            animate={{ 
+            animate={{
               height: `${20 + Math.random() * 60}%`,
             }}
-            transition={{ 
+            transition={{
               duration: 0.5,
               repeat: Infinity,
               repeatType: "reverse",
@@ -611,7 +626,7 @@ function RecentActivity() {
           查看全部 <ChevronRight className="w-3 h-3" />
         </button>
       </div>
-      
+
       <div className="space-y-1">
         {RECENT_ACTIVITIES.map((a, i) => {
           const Icon = a.icon;
@@ -632,7 +647,7 @@ function RecentActivity() {
               </motion.div>
               <div className="flex-1 min-w-0">
                 <span className="text-sm text-white block truncate group-hover:text-[#3b82f6] transition-colors">{a.text}</span>
-                <span className="text-xs text-[#52525B]">{a.type}</span>
+                <span className="text-xs text-[#52525B]">{a.meta}</span>
               </div>
               <span className="text-xs text-[#a1a1aa] tabular-nums whitespace-nowrap">{a.time}</span>
             </motion.div>
@@ -665,7 +680,7 @@ function SystemResources() {
           <RefreshCw className="w-4 h-4 text-[#8a8a96]" />
         </button>
       </div>
-      
+
       <div className="space-y-4">
         {[
           { label: 'CPU Usage', value: 42, color: '#3b82f6', icon: Cpu, max: 100 },
@@ -689,7 +704,7 @@ function SystemResources() {
             <div className="h-2 bg-[#1e1e28] rounded-full overflow-hidden">
               <motion.div
                 className="h-full rounded-full"
-                style={{ 
+                style={{
                   background: `linear-gradient(to right, ${item.color}, ${item.color}80)`,
                   boxShadow: `0 0 12px ${item.color}50`
                 }}
@@ -825,7 +840,7 @@ function AgentStatusPanel() {
               agent.status === 'online' ? 'bg-[#10b981]' :
               'bg-[#6b6b78]'
             }`} style={agent.status !== 'offline' ? { boxShadow: `0 0 10px ${agent.status === 'working' ? '#f59e0b' : '#10b981'}` } : {}} />
-            
+
             <div className="flex-1">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-white font-medium">{agent.name}</span>
@@ -911,7 +926,7 @@ function AlertsPanel() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
                     <span className={`text-sm font-medium ${severity.text}`}>{alert.title}</span>
-                    <button 
+                    <button
                       onClick={() => dismissAlert(alert.id)}
                       className="p-1 hover:bg-white/10 rounded transition-colors"
                     >
@@ -925,13 +940,91 @@ function AlertsPanel() {
             );
           })}
         </AnimatePresence>
-        
+
         {alerts.length === 0 && (
           <div className="text-center py-8">
             <CheckCircle2 className="w-10 h-10 text-[#10b981] mx-auto mb-2 opacity-50" />
             <p className="text-sm text-[#8a8a96]">暂无警报</p>
           </div>
         )}
+      </div>
+    </motion.div>
+  );
+}
+
+function PipelineVisualization() {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.52 }}
+      className="card p-5"
+    >
+      <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-[#06b6d4]/10 flex items-center justify-center">
+            <Layers className="w-5 h-5 text-[#06b6d4]" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-white text-sm">Data Pipeline</h3>
+            <p className="text-xs text-[#8a8a96]">数据处理流程</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 bg-[#10b981] rounded-full animate-pulse" />
+          <span className="text-xs text-[#10b981]">运行中</span>
+        </div>
+      </div>
+
+      <div className="relative">
+        {/* 连接线 */}
+        <div className="absolute top-6 left-8 right-8 h-0.5 bg-gradient-to-r from-[#10b981] via-[#f59e0b] to-[#6b6b78]" />
+
+        <div className="flex justify-between">
+          {PIPELINE_STEPS.map((step, i) => {
+            const Icon = step.icon;
+            const isCompleted = step.status === 'completed';
+            const isActive = step.status === 'active';
+
+            return (
+              <motion.div
+                key={step.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.55 + i * 0.05 }}
+                className="flex flex-col items-center"
+              >
+                <motion.div
+                  className={`w-12 h-12 rounded-xl flex items-center justify-center relative z-10 ${
+                    isCompleted ? 'bg-[#10b981]' :
+                    isActive ? 'bg-[#f59e0b]' :
+                    'bg-[#1e1e28]'
+                  }`}
+                  whileHover={{ scale: 1.1 }}
+                >
+                  <Icon className={`w-5 h-5 ${isCompleted || isActive ? 'text-white' : 'text-[#6b6b78]'}`} />
+                  {isActive && (
+                    <motion.div
+                      className="absolute inset-0 rounded-xl border-2 border-[#f59e0b]"
+                      animate={{ scale: [1, 1.2, 1], opacity: [1, 0, 1] }}
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                    />
+                  )}
+                </motion.div>
+                <span className={`text-xs mt-2 font-medium ${
+                  isCompleted ? 'text-[#10b981]' :
+                  isActive ? 'text-[#f59e0b]' :
+                  'text-[#6b6b78]'
+                }`}>
+                  {step.title}
+                </span>
+                {isActive && (
+                  <span className="text-[10px] text-[#8a8a96] mt-0.5">{step.progress}%</span>
+                )}
+              </motion.div>
+            );
+          })}
+        </div>
       </div>
     </motion.div>
   );
@@ -1012,6 +1105,10 @@ export default function Dashboard() {
         <AgentStatusPanel />
         <AlertsPanel />
         <QuickActions />
+      </div>
+
+      <div className="grid grid-cols-1 gap-6">
+        <PipelineVisualization />
       </div>
     </div>
   );
