@@ -1036,6 +1036,46 @@ html, body {
   font-variant-numeric: tabular-nums;
 }
 
+/* 文本平衡 */
+.text-balance {
+  text-wrap: balance;
+}
+
+/* 优化滚动条 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* 响应式工具类 */
+@media (max-width: 640px) {
+  .hide-mobile {
+    display: none;
+  }
+}
+
+@media (min-width: 641px) {
+  .show-mobile-only {
+    display: none;
+  }
+}
+
 /* ========== 热力图单元格 ========== */
 .heatmap-cell {
   border-radius: 4px;
@@ -1223,4 +1263,79 @@ html, body {
   height: 1px;
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
   margin: 16px 0;
+}
+
+/* ========== 文本平衡 ========== */
+.text-balance {
+  text-wrap: balance;
+}
+
+/* ========== 响应式工具类 ========== */
+@media (max-width: 640px) {
+  .card {
+    border-radius: var(--radius-md);
+  }
+  
+  .stat-value {
+    font-size: 20px;
+  }
+}
+
+/* ========== 优化滚动条 ========== */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* 隐藏滚动条但保持功能 */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* ========== 快捷键提示 ========== */
+.kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 6px;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* ========== 紧凑模式 ========== */
+.compact .card {
+  padding: 12px;
+}
+
+.compact .stat-card {
+  padding: 12px;
+}
+
+.compact .kanban-card {
+  padding: 12px;
 }

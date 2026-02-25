@@ -79,7 +79,7 @@ function MemoryCard({
       onClick={onClick}
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
-      className="memory-card group cursor-pointer relative overflow-hidden"
+      className="memory-card group cursor-pointer relative overflow-hidden p-3"
       whileHover={{ y: -6, transition: { duration: 0.2 } }}
     >
       {/* 顶部渐变线 */}
@@ -295,8 +295,11 @@ export default function MemoryArchive() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search memories..."
-            className="input pl-10 bg-[#0a0a0f]"
+            className="input pl-10 pr-16 bg-[#0a0a0f]"
           />
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-[#52525B] bg-white/5 px-1.5 py-0.5 rounded">
+            ⌘K
+          </span>
         </div>
 
         {/* 类型筛选 */}
@@ -325,7 +328,7 @@ export default function MemoryArchive() {
 
         {/* 标签云 */}
         {allTags.length > 0 && (
-          <div className="tag-cloud">
+          <div className="tag-cloud gap-y-2">
             {allTags.map(tag => (
               <button 
                 key={tag} 

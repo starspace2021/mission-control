@@ -35,31 +35,37 @@ import {
   ChevronDown,
   CheckSquare,
   Play,
-  Pause
+  Pause,
+  Target,
+  Flag,
+  Layers
 } from 'lucide-react';
 
 // ========== 配置 ==========
-const PRIORITY_CONFIG: Record<string, { color: string; bg: string; border: string; label: string; icon: React.ElementType }> = {
+const PRIORITY_CONFIG: Record<string, { color: string; bg: string; border: string; label: string; icon: React.ElementType; gradient: string }> = {
   high: {
     color: '#ef4444',
     bg: 'rgba(239, 68, 68, 0.12)',
     border: 'rgba(239, 68, 68, 0.35)',
     label: '高优先级',
-    icon: AlertTriangle
+    icon: AlertTriangle,
+    gradient: 'from-[#ef4444] to-[#f97316]'
   },
   medium: {
     color: '#f59e0b',
     bg: 'rgba(245, 158, 11, 0.12)',
     border: 'rgba(245, 158, 11, 0.35)',
     label: '中优先级',
-    icon: Zap
+    icon: Zap,
+    gradient: 'from-[#f59e0b] to-[#fbbf24]'
   },
   low: {
     color: '#3b82f6',
     bg: 'rgba(59, 130, 246, 0.12)',
     border: 'rgba(59, 130, 246, 0.35)',
     label: '低优先级',
-    icon: Clock4
+    icon: Clock4,
+    gradient: 'from-[#3b82f6] to-[#60a5fa]'
   },
 };
 
@@ -77,9 +83,9 @@ const DEPT_CONFIG: Record<string, { color: string; bg: string; gradient: string 
 };
 
 const COLUMNS = [
-  { key: 'todo', label: 'To Do', color: '#64748b', bg: 'rgba(100,116,139,0.1)', icon: AlertCircle, description: '待处理任务' },
-  { key: 'in_progress', label: 'In Progress', color: '#3b82f6', bg: 'rgba(59, 130, 246, 0.1)', icon: Clock4, description: '进行中任务' },
-  { key: 'completed', label: 'Completed', color: '#10b981', bg: 'rgba(16, 185, 129, 0.1)', icon: CheckCircle2, description: '已完成任务' },
+  { key: 'todo', label: 'To Do', color: '#64748b', bg: 'rgba(100,116,139,0.1)', icon: AlertCircle, description: '待处理任务', gradient: 'from-[#64748b] to-[#94a3b8]' },
+  { key: 'in_progress', label: 'In Progress', color: '#3b82f6', bg: 'rgba(59, 130, 246, 0.1)', icon: Clock4, description: '进行中任务', gradient: 'from-[#3b82f6] to-[#60a5fa]' },
+  { key: 'completed', label: 'Completed', color: '#10b981', bg: 'rgba(16, 185, 129, 0.1)', icon: CheckCircle2, description: '已完成任务', gradient: 'from-[#10b981] to-[#34d399]' },
 ];
 
 // ========== 子组件 ==========
@@ -98,7 +104,6 @@ function TaskCard({
   const priority = PRIORITY_CONFIG[task.priority || 'medium'];
   const dept = DEPT_CONFIG[task.department] || { bg: 'rgba(113, 113, 122, 0.1)', color: '#71717A', gradient: 'from-[#71717A] to-[#A1A1AA]' };
   const PriorityIcon = priority.icon;
-  const [isHovered, setIsHovered] = useState(false);
 
   return (
     <motion.div
@@ -107,73 +112,68 @@ function TaskCard({
       initial={{ opacity: 0, y: 15, scale: 0.95 }}
       animate={{
         opacity: isDragging ? 0.95 : 1,
-        y: isDragging ? -10 : 0,
+        y: isDragging ? -8 : 0,
         scale: isDragging ? 1.05 : isDragOver ? 1.02 : 1,
         rotate: isDragging ? 3 : 0,
         boxShadow: isDragging 
-          ? `0 25px 60px rgba(0,0,0,0.6), 0 0 40px ${priority.color}40` 
-          : isHovered 
-            ? `0 8px 30px rgba(0,0,0,0.4), 0 0 20px ${priority.color}20`
-            : '0 4px 12px rgba(0,0,0,0.2)',
+          ? `0 25px 60px rgba(0, 0, 0, 0.6), 0 0 40px ${priority.color}40`
+          : isDragOver
+          ? `0 0 0 2px ${priority.color}50, 0 10px 30px rgba(0, 0, 0, 0.3)`
+          : '0 4px 20px rgba(0, 0, 0, 0.2)',
       }}
       exit={{ opacity: 0, scale: 0.9, y: -10 }}
       transition={{ type: "spring", stiffness: 400, damping: 25 }}
       onClick={onClick}
-      onHoverStart={() => setIsHovered(true)}
-      onHoverEnd={() => setIsHovered(false)}
       className={`kanban-card ${isDragging ? 'dragging' : ''} ${isDragOver ? 'ring-2 ring-[#3b82f6]/50' : ''} group`}
       style={{
         borderLeftWidth: '4px',
         borderLeftColor: priority.color,
-        background: `linear-gradient(135deg, rgba(17, 24, 39, 0.95), rgba(10, 10, 15, 0.98))`,
+        background: isDragging 
+          ? `linear-gradient(135deg, rgba(17, 24, 39, 0.98), rgba(10, 10, 15, 0.99))`
+          : `linear-gradient(135deg, rgba(17, 24, 39, 0.95), rgba(10, 10, 15, 0.98))`,
+        cursor: isDragging ? 'grabbing' : 'grab',
       }}
       draggable
     >
-      {/* 顶部渐变条 - 动态显示 */}
+      {/* 顶部渐变条 */}
       <motion.div
-        className="absolute top-0 left-0 right-0 h-0.5"
+        className="absolute top-0 left-0 right-0 h-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
         style={{ background: `linear-gradient(to right, ${priority.color}, ${dept.color})` }}
-        initial={{ opacity: 0, scaleX: 0 }}
-        animate={{ opacity: isHovered || isDragging ? 1 : 0, scaleX: isHovered || isDragging ? 1 : 0 }}
-        transition={{ duration: 0.3 }}
-      />
-
-      {/* 悬停时的发光边框效果 */}
-      <motion.div
-        className="absolute inset-0 rounded-lg pointer-events-none"
-        style={{ 
-          boxShadow: `inset 0 0 0 1px ${priority.color}30`,
-        }}
-        animate={{ opacity: isHovered ? 1 : 0 }}
+        animate={{ opacity: isDragging ? 1 : undefined }}
       />
 
       {/* 拖拽时的发光效果 */}
       {isDragging && (
         <motion.div 
-          className="absolute inset-0 rounded-lg opacity-30 pointer-events-none"
+          className="absolute inset-0 rounded-lg pointer-events-none"
           style={{ 
-            background: `radial-gradient(circle at center, ${priority.color}, transparent)`,
+            background: `radial-gradient(circle at center, ${priority.color}30, transparent 70%)`,
           }}
-          initial={{ scale: 0.8 }}
-          animate={{ scale: 1.2 }}
-          transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse" }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
         />
       )}
 
-      <div className="flex items-start justify-between mb-3">
+      {/* 优先级指示条 */}
+      <div 
+        className="absolute left-0 top-0 bottom-0 w-1 rounded-l-lg"
+        style={{ background: `linear-gradient(to bottom, ${priority.color}, ${priority.color}60)` }}
+      />
+
+      <div className="flex items-start justify-between mb-3 pl-2">
         <h4 className="font-medium text-sm text-white line-clamp-2 pr-8 leading-relaxed">
           {task.title}
         </h4>
         <motion.div
-          className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all cursor-grab active:cursor-grabbing p-1.5 rounded-lg hover:bg-white/10"
+          className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all p-1.5 rounded-lg hover:bg-white/10 cursor-grab active:cursor-grabbing"
           whileHover={{ scale: 1.1 }}
-          dragHandle
+          whileTap={{ scale: 0.95 }}
         >
           <GripVertical className="w-4 h-4 text-[#52525B]" />
         </motion.div>
       </div>
 
-      <div className="flex flex-wrap gap-2 mb-3">
+      <div className="flex flex-wrap gap-2 mb-3 pl-2">
         <motion.span
           className="text-[10px] px-2.5 py-1 rounded-lg border font-medium flex items-center gap-1.5 cursor-pointer"
           style={{
@@ -184,11 +184,9 @@ function TaskCard({
           whileHover={{ scale: 1.05, y: -1, boxShadow: `0 4px 12px ${dept.color}30` }}
           whileTap={{ scale: 0.95 }}
         >
-          <motion.span
+          <span
             className="w-1.5 h-1.5 rounded-full"
             style={{ background: dept.color }}
-            animate={{ scale: isHovered ? [1, 1.2, 1] : 1 }}
-            transition={{ duration: 0.5, repeat: isHovered ? Infinity : 0 }}
           />
           {task.department}
         </motion.span>
@@ -207,7 +205,7 @@ function TaskCard({
         </motion.span>
       </div>
 
-      <div className="flex items-center justify-between pt-3 border-t border-white/5">
+      <div className="flex items-center justify-between pt-3 border-t border-white/5 pl-2">
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1.5 text-[#71717A]">
             <Clock className="w-3.5 h-3.5" />
@@ -241,6 +239,14 @@ function TaskModal({ task, onClose }: { task: Task; onClose: () => void }) {
   const dept = DEPT_CONFIG[task.department] || { bg: 'rgba(113, 113, 122, 0.1)', color: '#71717A', gradient: 'from-[#71717A] to-[#A1A1AA]' };
   const PriorityIcon = priority.icon;
   const [activeTab, setActiveTab] = useState('details');
+  const [isEditing, setIsEditing] = useState(false);
+
+  const tabs = [
+    { id: 'details', label: '详情', icon: Target },
+    { id: 'comments', label: '评论', icon: MessageSquare, count: 3 },
+    { id: 'history', label: '历史', icon: Clock },
+    { id: 'subtasks', label: '子任务', icon: CheckSquare, count: 4 },
+  ];
 
   return (
     <motion.div
@@ -257,43 +263,73 @@ function TaskModal({ task, onClose }: { task: Task; onClose: () => void }) {
         className="modal-content max-w-2xl"
         onClick={e => e.stopPropagation()}
       >
-        <div className="p-6 border-b border-white/5">
-          <div className="flex items-start justify-between">
+        {/* 头部 - 更清晰的层级 */}
+        <div className="p-6 border-b border-white/5 relative overflow-hidden">
+          {/* 背景装饰 */}
+          <div 
+            className="absolute top-0 right-0 w-64 h-64 opacity-10"
+            style={{ 
+              background: `radial-gradient(circle at top right, ${priority.color}, transparent 70%)`,
+            }}
+          />
+          
+          <div className="relative flex items-start justify-between">
             <div className="flex items-start gap-4">
-              <div
-                className="w-14 h-14 rounded-2xl flex items-center justify-center"
+              <motion.div
+                className="w-14 h-14 rounded-2xl flex items-center justify-center relative overflow-hidden"
                 style={{
                   background: `linear-gradient(135deg, ${priority.bg}, ${dept.bg})`,
                   border: `1px solid ${priority.border}`
                 }}
+                whileHover={{ scale: 1.05, rotate: 5 }}
               >
-                <PriorityIcon className="w-7 h-7" style={{ color: priority.color }} />
-              </div>
+                <div 
+                  className="absolute inset-0 opacity-30"
+                  style={{ background: `linear-gradient(135deg, ${priority.color}, transparent)` }}
+                />
+                <PriorityIcon className="w-7 h-7 relative z-10" style={{ color: priority.color }} />
+              </motion.div>
               <div>
-                <h2 className="text-xl font-bold text-white mb-2">{task.title}</h2>
-                <div className="flex gap-2">
-                  <span
+                <motion.h2 
+                  className="text-xl font-bold text-white mb-2"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1 }}
+                >
+                  {task.title}
+                </motion.h2>
+                <div className="flex gap-2 flex-wrap">
+                  <motion.span
                     className="text-xs px-3 py-1.5 rounded-lg border font-medium flex items-center gap-1.5"
                     style={{
                       background: dept.bg,
                       color: dept.color,
                       borderColor: `${dept.color}30`
                     }}
+                    whileHover={{ scale: 1.05 }}
                   >
                     <span className="w-1.5 h-1.5 rounded-full" style={{ background: dept.color }} />
                     {task.department}
-                  </span>
-                  <span
+                  </motion.span>
+                  <motion.span
                     className="text-xs px-3 py-1.5 rounded-lg border font-medium flex items-center gap-1.5"
                     style={{
                       background: priority.bg,
                       color: priority.color,
                       borderColor: priority.border
                     }}
+                    whileHover={{ scale: 1.05 }}
                   >
                     <PriorityIcon className="w-3.5 h-3.5" />
                     {priority.label}
-                  </span>
+                  </motion.span>
+                  <motion.span
+                    className="text-xs px-3 py-1.5 rounded-lg border font-medium flex items-center gap-1.5 bg-white/5 text-[#A1A1AA] border-white/10"
+                    whileHover={{ scale: 1.05 }}
+                  >
+                    <Flag className="w-3.5 h-3.5" />
+                    {task.status === 'in_progress' ? '进行中' : task.status === 'completed' ? '已完成' : '待处理'}
+                  </motion.span>
                 </div>
               </div>
             </div>
@@ -303,6 +339,7 @@ function TaskModal({ task, onClose }: { task: Task; onClose: () => void }) {
                 className="p-2.5 hover:bg-white/5 rounded-xl transition-colors"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
+                onClick={() => setIsEditing(!isEditing)}
               >
                 <Edit3 className="w-5 h-5 text-[#71717A]" />
               </motion.button>
@@ -325,106 +362,181 @@ function TaskModal({ task, onClose }: { task: Task; onClose: () => void }) {
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="border-b border-white/5">
-          <div className="flex gap-1 px-6">
-            {['details', 'comments', 'history'].map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
-                  activeTab === tab 
-                    ? 'border-[#3b82f6] text-[#3b82f6]' 
-                    : 'border-transparent text-[#71717A] hover:text-white'
-                }`}
-              >
-                {tab === 'details' ? '详情' : tab === 'comments' ? '评论 (3)' : '历史'}
-              </button>
-            ))}
+        {/* Tabs - 更现代的样式 */}
+        <div className="border-b border-white/5 px-6">
+          <div className="flex gap-1 -mb-px">
+            {tabs.map((tab, index) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              return (
+                <motion.button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`relative px-4 py-3 text-sm font-medium flex items-center gap-2 transition-colors ${
+                    isActive 
+                      ? 'text-[#3b82f6]' 
+                      : 'text-[#71717A] hover:text-white'
+                  }`}
+                  whileHover={{ y: -1 }}
+                  whileTap={{ y: 0 }}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                >
+                  <Icon className="w-4 h-4" />
+                  {tab.label}
+                  {tab.count && (
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
+                      isActive ? 'bg-[#3b82f6]/20 text-[#3b82f6]' : 'bg-white/10 text-[#71717A]'
+                    }`}>
+                      {tab.count}
+                    </span>
+                  )}
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeTab"
+                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#3b82f6]"
+                      initial={false}
+                      transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                    />
+                  )}
+                </motion.button>
+              );
+            })}
           </div>
         </div>
 
-        <div className="p-6 space-y-5">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex items-center gap-4 p-4 rounded-xl bg-[#1A1A24] border border-white/5">
-              <div className="w-12 h-12 rounded-xl bg-[#3b82f6]/10 flex items-center justify-center">
-                <Clock className="w-6 h-6 text-[#3b82f6]" />
-              </div>
-              <div>
-                <div className="text-xs text-[#71717A] mb-1">计划时间</div>
-                <div className="text-white font-medium">{task.scheduledTime}</div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4 p-4 rounded-xl bg-[#1A1A24] border border-white/5">
-              <div className="w-12 h-12 rounded-xl bg-[#8B5CF6]/10 flex items-center justify-center">
-                <Tag className="w-6 h-6 text-[#8B5CF6]" />
-              </div>
-              <div>
-                <div className="text-xs text-[#71717A] mb-1">状态</div>
-                <div className="text-white font-medium capitalize">
-                  {task.status === 'in_progress' ? '进行中' : task.status === 'completed' ? '已完成' : '待处理'}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-4 p-4 rounded-xl bg-[#1A1A24] border border-white/5">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br flex items-center justify-center"
-              style={{ background: `linear-gradient(135deg, ${dept.color}20, ${dept.color}10)` }}>
-              <div
-                className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border"
-                style={{
-                  background: `${dept.color}20`,
-                  color: dept.color,
-                  borderColor: `${dept.color}40`
-                }}
+        {/* 内容区域 */}
+        <div className="p-6 space-y-5 max-h-[50vh] overflow-y-auto">
+          <AnimatePresence mode="wait">
+            {activeTab === 'details' && (
+              <motion.div
+                key="details"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="space-y-4"
               >
-                {task.executor.charAt(0)}
-              </div>
-            </div>
-            <div className="flex-1">
-              <div className="text-xs text-[#71717A] mb-1">执行者</div>
-              <div className="text-white font-medium">{task.executor}</div>
-            </div>
-          </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <motion.div 
+                    className="flex items-center gap-4 p-4 rounded-xl bg-[#1A1A24] border border-white/5 hover:border-white/10 transition-colors"
+                    whileHover={{ scale: 1.02 }}
+                  >
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#3b82f6]/20 to-[#3b82f6]/5 flex items-center justify-center">
+                      <Clock className="w-6 h-6 text-[#3b82f6]" />
+                    </div>
+                    <div>
+                      <div className="text-xs text-[#71717A] mb-1">计划时间</div>
+                      <div className="text-white font-medium">{task.scheduledTime}</div>
+                    </div>
+                  </motion.div>
 
-          {/* 任务描述 */}
-          <div className="p-4 rounded-xl bg-[#1A1A24] border border-white/5">
-            <div className="text-xs text-[#71717A] mb-2 flex items-center gap-2">
-              <Sparkles className="w-4 h-4" />
-              任务描述
-            </div>
-            <p className="text-white/80 leading-relaxed">
-              此任务由系统自动创建，属于{task.department}部门的常规工作流程。
-              优先级为{priority.label}，计划执行时间为{task.scheduledTime}。
-            </p>
-          </div>
-
-          {/* 子任务 */}
-          <div className="p-4 rounded-xl bg-[#1A1A24] border border-white/5">
-            <div className="text-xs text-[#71717A] mb-3 flex items-center justify-between">
-              <span className="flex items-center gap-2">
-                <CheckSquare className="w-4 h-4" />
-                子任务 (2/4)
-              </span>
-              <span className="text-[#10b981]">50%</span>
-            </div>
-            <div className="space-y-2">
-              {['数据收集', '初步分析', '报告撰写', '质量检查'].map((subtask, i) => (
-                <div key={subtask} className="flex items-center gap-3">
-                  <div className={`w-4 h-4 rounded border flex items-center justify-center ${
-                    i < 2 ? 'bg-[#10b981] border-[#10b981]' : 'border-[#52525B]'
-                  }`}>
-                    {i < 2 && <CheckCircle2 className="w-3 h-3 text-white" />}
-                  </div>
-                  <span className={`text-sm ${i < 2 ? 'text-[#71717A] line-through' : 'text-white'}`}>
-                    {subtask}
-                  </span>
+                  <motion.div 
+                    className="flex items-center gap-4 p-4 rounded-xl bg-[#1A1A24] border border-white/5 hover:border-white/10 transition-colors"
+                    whileHover={{ scale: 1.02 }}
+                  >
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#8B5CF6]/20 to-[#8B5CF6]/5 flex items-center justify-center">
+                      <Tag className="w-6 h-6 text-[#8B5CF6]" />
+                    </div>
+                    <div>
+                      <div className="text-xs text-[#71717A] mb-1">任务ID</div>
+                      <div className="text-white font-medium font-mono text-sm">#{task.id.slice(-6)}</div>
+                    </div>
+                  </motion.div>
                 </div>
-              ))}
-            </div>
-          </div>
+
+                <motion.div 
+                  className="flex items-center gap-4 p-4 rounded-xl bg-[#1A1A24] border border-white/5"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1 }}
+                >
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br flex items-center justify-center"
+                    style={{ background: `linear-gradient(135deg, ${dept.color}20, ${dept.color}10)` }}>
+                    <div
+                      className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border"
+                      style={{
+                        background: `${dept.color}20`,
+                        color: dept.color,
+                        borderColor: `${dept.color}40`
+                      }}
+                    >
+                      {task.executor.charAt(0)}
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-xs text-[#71717A] mb-1">执行者</div>
+                    <div className="text-white font-medium">{task.executor}</div>
+                  </div>
+                  <motion.button
+                    className="px-3 py-1.5 text-xs rounded-lg bg-white/5 text-[#A1A1AA] hover:bg-white/10 transition-colors"
+                    whileHover={{ scale: 1.05 }}
+                  >
+                    重新分配
+                  </motion.button>
+                </motion.div>
+
+                {/* 任务描述 */}
+                <motion.div 
+                  className="p-4 rounded-xl bg-[#1A1A24] border border-white/5"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.15 }}
+                >
+                  <div className="text-xs text-[#71717A] mb-2 flex items-center gap-2">
+                    <Sparkles className="w-4 h-4" />
+                    任务描述
+                  </div>
+                  <p className="text-white/80 leading-relaxed">
+                    此任务由系统自动创建，属于{task.department}部门的常规工作流程。
+                    优先级为{priority.label}，计划执行时间为{task.scheduledTime}。
+                  </p>
+                </motion.div>
+              </motion.div>
+            )}
+
+            {activeTab === 'subtasks' && (
+              <motion.div
+                key="subtasks"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="p-4 rounded-xl bg-[#1A1A24] border border-white/5"
+              >
+                <div className="text-xs text-[#71717A] mb-3 flex items-center justify-between">
+                  <span className="flex items-center gap-2">
+                    <CheckSquare className="w-4 h-4" />
+                    子任务 (2/4)
+                  </span>
+                  <span className="text-[#10b981] font-medium">50%</span>
+                </div>
+                <div className="space-y-2">
+                  {['数据收集', '初步分析', '报告撰写', '质量检查'].map((subtask, i) => (
+                    <motion.div 
+                      key={subtask} 
+                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors cursor-pointer"
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.05 }}
+                    >
+                      <motion.div 
+                        className={`w-5 h-5 rounded border flex items-center justify-center cursor-pointer ${
+                          i < 2 ? 'bg-[#10b981] border-[#10b981]' : 'border-[#52525B] hover:border-[#3b82f6]'
+                        }`}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        {i < 2 && <CheckCircle2 className="w-3.5 h-3.5 text-white" />}
+                      </motion.div>
+                      <span className={`text-sm ${i < 2 ? 'text-[#71717A] line-through' : 'text-white'}`}>
+                        {subtask}
+                      </span>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         <div className="p-5 border-t border-white/5 flex gap-3">
@@ -452,10 +564,10 @@ function TaskModal({ task, onClose }: { task: Task; onClose: () => void }) {
 
 function TaskStats() {
   const stats = [
-    { label: '总任务', value: 24, color: '#3b82f6', icon: Calendar },
-    { label: '进行中', value: 8, color: '#F59E0B', icon: Clock4 },
-    { label: '已完成', value: 12, color: '#22C55E', icon: CheckCircle2 },
-    { label: '高优先级', value: 4, color: '#EF4444', icon: AlertTriangle },
+    { label: '总任务', value: 24, color: '#3b82f6', icon: Calendar, bg: 'from-[#3b82f6]/20 to-[#3b82f6]/5' },
+    { label: '进行中', value: 8, color: '#F59E0B', icon: Clock4, bg: 'from-[#F59E0B]/20 to-[#F59E0B]/5' },
+    { label: '已完成', value: 12, color: '#22C55E', icon: CheckCircle2, bg: 'from-[#22C55E]/20 to-[#22C55E]/5' },
+    { label: '高优先级', value: 4, color: '#EF4444', icon: AlertTriangle, bg: 'from-[#EF4444]/20 to-[#EF4444]/5' },
   ];
 
   return (
@@ -466,17 +578,23 @@ function TaskStats() {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: i * 0.05 }}
-          whileHover={{ y: -2, scale: 1.02 }}
-          className="card p-4 flex items-center gap-3 cursor-pointer"
+          whileHover={{ y: -4, scale: 1.02, transition: { duration: 0.2 } }}
+          className="card p-4 flex items-center gap-3 cursor-pointer group"
         >
           <div
-            className="w-10 h-10 rounded-xl flex items-center justify-center"
-            style={{ background: `${stat.color}15` }}
+            className={`w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br ${stat.bg} group-hover:scale-110 transition-transform`}
           >
             <stat.icon className="w-5 h-5" style={{ color: stat.color }} />
           </div>
           <div>
-            <div className="text-2xl font-bold text-white">{stat.value}</div>
+            <motion.div 
+              className="text-2xl font-bold text-white"
+              initial={{ scale: 0.5 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 300, delay: i * 0.1 }}
+            >
+              {stat.value}
+            </motion.div>
             <div className="text-xs text-[#71717A]">{stat.label}</div>
           </div>
         </motion.div>
@@ -485,20 +603,35 @@ function TaskStats() {
   );
 }
 
-function FilterBar() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedDept, setSelectedDept] = useState('all');
-  const [selectedPriority, setSelectedPriority] = useState('all');
+function FilterBar({ 
+  searchQuery, 
+  setSearchQuery, 
+  selectedDept, 
+  setSelectedDept, 
+  selectedPriority, 
+  setSelectedPriority 
+}: { 
+  searchQuery: string;
+  setSearchQuery: (q: string) => void;
+  selectedDept: string;
+  setSelectedDept: (d: string) => void;
+  selectedPriority: string;
+  setSelectedPriority: (p: string) => void;
+}) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const departments = ['all', 'Intel', 'Policy', 'Market', 'Engineering'];
+  const priorities = ['all', 'high', 'medium', 'low'];
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="glass-card-v4 p-4 mb-6"
+      className="glass-card-v4 p-4"
     >
       <div className="flex flex-col lg:flex-row gap-4">
-        <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#71717A]" />
+        <div className="flex-1 relative group">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#71717A] group-focus-within:text-[#3b82f6] transition-colors" />
           <input
             type="text"
             placeholder="搜索任务..."
@@ -506,35 +639,70 @@ function FilterBar() {
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 bg-[#0a0a0f] border border-white/10 rounded-xl
                        text-white placeholder:text-[#52525B] focus:border-[#3b82f6]/50
-                       focus:outline-none transition-all text-sm"
+                       focus:outline-none transition-all text-sm focus:ring-2 focus:ring-[#3b82f6]/20"
           />
+          {searchQuery && (
+            <motion.button
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-white/10 rounded transition-colors"
+              onClick={() => setSearchQuery('')}
+            >
+              <X className="w-3 h-3 text-[#71717A]" />
+            </motion.button>
+          )}
         </div>
 
-        <div className="flex gap-3">
-          <select
-            value={selectedDept}
-            onChange={(e) => setSelectedDept(e.target.value)}
-            className="px-4 py-2.5 bg-[#0a0a0f] border border-white/10 rounded-xl
-                       text-white focus:border-[#3b82f6]/50 focus:outline-none text-sm"
-          >
-            <option value="all">全部部门</option>
-            <option value="Intel">情报部</option>
-            <option value="Policy">政策部</option>
-            <option value="Market">市场部</option>
-            <option value="Engineering">工程部</option>
-          </select>
+        <div className="flex gap-3 flex-wrap">
+          {/* 部门筛选 - 按钮组 */}
+          <div className="flex gap-1 bg-[#0a0a0f] rounded-xl p-1 border border-white/10 flex-wrap">
+            {departments.map((dept) => (
+              <motion.button
+                key={dept}
+                onClick={() => setSelectedDept(dept)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  selectedDept === dept
+                    ? 'bg-[#3b82f6] text-white'
+                    : 'text-[#71717A] hover:text-white hover:bg-white/5'
+                }`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                {dept === 'all' ? '全部' : dept}
+              </motion.button>
+            ))}
+          </div>
 
-          <select
-            value={selectedPriority}
-            onChange={(e) => setSelectedPriority(e.target.value)}
-            className="px-4 py-2.5 bg-[#0a0a0f] border border-white/10 rounded-xl
-                       text-white focus:border-[#3b82f6]/50 focus:outline-none text-sm"
-          >
-            <option value="all">全部优先级</option>
-            <option value="high">高优先级</option>
-            <option value="medium">中优先级</option>
-            <option value="low">低优先级</option>
-          </select>
+          {/* 优先级筛选 - 颜色编码 */}
+          <div className="flex gap-1 bg-[#0a0a0f] rounded-xl p-1 border border-white/10 flex-wrap">
+            {priorities.map((p) => {
+              const config = p === 'all' ? null : PRIORITY_CONFIG[p];
+              return (
+                <motion.button
+                  key={p}
+                  onClick={() => setSelectedPriority(p)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${
+                    selectedPriority === p
+                      ? config 
+                        ? '' 
+                        : 'bg-[#3b82f6] text-white'
+                      : 'text-[#71717A] hover:text-white hover:bg-white/5'
+                  }`}
+                  style={selectedPriority === p && config ? {
+                    background: config.bg,
+                    color: config.color,
+                    border: `1px solid ${config.border}`
+                  } : {}}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  {config && <config.icon className="w-3 h-3" />}
+                  {p === 'all' ? '全部' : config?.label}
+                </motion.button>
+              );
+            })}
+          </div>
 
           <motion.button
             className="btn btn-primary"
@@ -595,63 +763,14 @@ export default function Tasks() {
     <div className="space-y-6">
       <TaskStats />
       
-      {/* 增强的筛选栏 */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="glass-card-v4 p-4"
-      >
-        <div className="flex flex-col lg:flex-row gap-4">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#71717A]" />
-            <input
-              type="text"
-              placeholder="搜索任务..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-[#0a0a0f] border border-white/10 rounded-xl
-                         text-white placeholder:text-[#52525B] focus:border-[#3b82f6]/50
-                         focus:outline-none transition-all text-sm"
-            />
-          </div>
-
-          <div className="flex gap-3">
-            <select
-              value={selectedDept}
-              onChange={(e) => setSelectedDept(e.target.value)}
-              className="px-4 py-2.5 bg-[#0a0a0f] border border-white/10 rounded-xl
-                         text-white focus:border-[#3b82f6]/50 focus:outline-none text-sm"
-            >
-              <option value="all">全部部门</option>
-              <option value="Intel">情报部</option>
-              <option value="Policy">政策部</option>
-              <option value="Market">市场部</option>
-              <option value="Engineering">工程部</option>
-            </select>
-
-            <select
-              value={selectedPriority}
-              onChange={(e) => setSelectedPriority(e.target.value)}
-              className="px-4 py-2.5 bg-[#0a0a0f] border border-white/10 rounded-xl
-                         text-white focus:border-[#3b82f6]/50 focus:outline-none text-sm"
-            >
-              <option value="all">全部优先级</option>
-              <option value="high">高优先级</option>
-              <option value="medium">中优先级</option>
-              <option value="low">低优先级</option>
-            </select>
-
-            <motion.button
-              className="btn btn-primary"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <Plus className="w-4 h-4" />
-              新建任务
-            </motion.button>
-          </div>
-        </div>
-      </motion.div>
+      <FilterBar 
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        selectedDept={selectedDept}
+        setSelectedDept={setSelectedDept}
+        selectedPriority={selectedPriority}
+        setSelectedPriority={setSelectedPriority}
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {COLUMNS.map((col, colIndex) => {
@@ -662,7 +781,7 @@ export default function Tasks() {
           return (
             <motion.div
               key={col.key}
-              className={`card min-h-[600px] flex flex-col transition-all duration-300 ${
+              className={`card min-h-[400px] flex flex-col transition-all duration-300 ${
                 isDragOver ? 'ring-2 ring-[#3b82f6]/50 bg-[#3b82f6]/5 scale-[1.01]' : ''
               }`}
               initial={{ opacity: 0, y: 20 }}
@@ -678,13 +797,14 @@ export default function Tasks() {
                 handleDrop(col.key);
               }}
             >
+              {/* 列标题 */}
               <div className="p-4 border-b border-white/5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <motion.div
                       className="w-11 h-11 rounded-xl flex items-center justify-center"
                       style={{ backgroundColor: col.bg }}
-                      whileHover={{ scale: 1.05 }}
+                      whileHover={{ scale: 1.05, rotate: 5 }}
                     >
                       <Icon className="w-5 h-5" style={{ color: col.color }} />
                     </motion.div>
@@ -706,6 +826,7 @@ export default function Tasks() {
                 </div>
               </div>
 
+              {/* 任务列表 */}
               <div className="p-3 space-y-3 flex-1">
                 <AnimatePresence mode="popLayout">
                   {colTasks.map((task, taskIndex) => (
@@ -727,21 +848,26 @@ export default function Tasks() {
 
                 {colTasks.length === 0 && (
                   <motion.div
-                    className={`empty-state py-16 transition-all duration-300 ${
+                    className={`empty-state py-12 transition-all duration-300 ${
                       isDragOver ? 'bg-[#3b82f6]/10 rounded-lg border-2 border-dashed border-[#3b82f6]/30' : ''
                     }`}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                   >
-                    <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mb-4">
-                      <Plus className="w-6 h-6 text-[#52525B]" />
-                    </div>
+                    <motion.div 
+                      className="w-14 h-14 rounded-2xl bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center mb-4"
+                      animate={isDragOver ? { scale: [1, 1.1, 1], y: [0, -5, 0] } : {}}
+                      transition={{ duration: 1, repeat: Infinity }}
+                    >
+                      <Plus className="w-6 h-6 text-[#71717A]" />
+                    </motion.div>
                     <span className="text-sm font-medium text-[#71717A]">{isDragOver ? '释放以添加任务' : '暂无任务'}</span>
                     <span className="text-xs text-[#52525B] mt-1">{isDragOver ? '' : '拖拽任务到此处'}</span>
                   </motion.div>
                 )}
               </div>
 
+              {/* 添加按钮 */}
               <div className="p-4 border-t border-white/5">
                 <motion.button
                   className="w-full py-3 flex items-center justify-center gap-2 text-sm text-[#71717A]

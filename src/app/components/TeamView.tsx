@@ -378,7 +378,10 @@ function AgentCard({ agent, deptColor }: { agent: any; deptColor: string }) {
       </div>
 
       {/* 当前任务 */}
-      <div className={`mt-3 p-2.5 rounded-lg text-xs truncate transition-all ${isWorking ? 'bg-[#F59E0B]/10 text-[#FBBF24] border border-[#F59E0B]/20' : 'bg-white/5 text-[#A1A1AA]'}`}>
+      <div 
+        className={`mt-3 p-2.5 rounded-lg text-xs truncate transition-all ${isWorking ? 'bg-[#F59E0B]/10 text-[#FBBF24] border border-[#F59E0B]/20' : 'bg-white/5 text-[#A1A1AA]'}`}
+        title={agent.currentTask}
+      >
         {isWorking && (
           <motion.span 
             className="inline-block w-1.5 h-1.5 rounded-full bg-[#F59E0B] mr-2"
@@ -415,7 +418,7 @@ function DepartmentSection({ dept }: { dept: any }) {
     >
       {/* 部门头部 */}
       <div
-        className="p-4 border-b border-white/5 relative overflow-hidden"
+        className="p-3 border-b border-white/5 relative overflow-hidden"
         style={{ backgroundColor: `${dept.color}10` }}
       >
         {/* 背景装饰 */}

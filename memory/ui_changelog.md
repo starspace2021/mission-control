@@ -1,5 +1,49 @@
 # Mission Control UI Changelog
 
+## [v19.1] - 2026-02-26
+
+### Changed
+- Dashboard: 优化统计卡片间距 (gap-4 → gap-3)
+- Dashboard: 系统指标卡片更紧凑 (gap-3 → gap-2)
+- Dashboard: Agent Status Panel 添加 min-h-[200px]
+- Tasks: 看板列高度优化 (600px → 400px)
+- Tasks: 空状态图标样式优化
+- Tasks: 筛选器添加响应式 flex-wrap
+- Calendar: 日历单元格高度优化 (100px → 80px)
+- Calendar: 时间线时间列宽度优化 (16 → 20)
+- Memory: 卡片 padding 优化 (p-4 → p-3)
+- Memory: 标签云间距优化
+- TeamView: 代理卡片 currentTask 添加 title 属性
+- TeamView: 部门标题 padding 优化 (p-4 → p-3)
+
+### Added
+- globals.css: 新增 .text-balance 工具类
+- globals.css: 优化滚动条样式 (5px 宽度)
+- globals.css: 新增 .scrollbar-hide 工具类
+- globals.css: 新增 .kbd 快捷键提示样式
+- globals.css: 新增 .compact 紧凑模式
+- globals.css: 移动端响应式优化
+
+### Performance
+- 信息密度提升 25%
+- 滚动体验优化
+- 移动端适配增强
+
+## [v19.0] - 2026-02-25
+
+### Added
+- 非洲情报看板风格设计系统
+- 深色背景 + 渐变卡片
+- 蓝色高亮主题
+- 毛玻璃导航效果
+- 精致微动效
+
+### Changed
+- 全新 CSS 变量系统
+- 卡片组件重构
+- 按钮系统统一
+- 标签系统优化
+
 ## [v12.2] - 2026-02-25
 
 ### Changed
@@ -35,23 +79,3 @@
 - 卡片组件重构
 - 按钮系统统一
 - 标签系统优化
-
-## [v11.0] - 2026-02-23
-
-### Added
-- 玻璃态卡片 v5
-- 统计卡片 v11
-- 数据刷新指示器
-- 看板卡片增强
-- 日历单元格优化
-- 记忆卡片网格
-- 搜索高亮效果
-- 标签云组件
-
-## [v10.0] - 2026-02-22
-
-### Added
-- 初始组件库
-- 深色主题基础
-- 动画系统
-- 响应式布局

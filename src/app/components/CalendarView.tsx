@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { format, startOfWeek, addDays, isSameDay, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday as isDateToday } from "date-fns";
 import { zhCN } from "date-fns/locale";
@@ -20,7 +20,12 @@ import {
   MapPin,
   Users,
   Tag,
-  X
+  X,
+  Bell,
+  ArrowRight,
+  CalendarDays,
+  Clock4,
+  Flame
 } from "lucide-react";
 
 // ========== 类型定义 ==========
@@ -131,37 +136,41 @@ const MOCK_EVENTS: Event[] = [
 ];
 
 // ========== 配置 ==========
-const TYPE_CONFIG: Record<string, { color: string; bg: string; label: string; icon: React.ElementType }> = {
+const TYPE_CONFIG: Record<string, { color: string; bg: string; label: string; icon: React.ElementType; gradient: string }> = {
   cron: { 
     color: "#22C55E", 
     bg: "rgba(34, 197, 94, 0.1)",
     label: "定时任务", 
     icon: Repeat,
+    gradient: "from-[#22C55E] to-[#16a34a]"
   },
   onetime: { 
     color: "#4A7BFF", 
     bg: "rgba(74, 123, 255, 0.1)",
     label: "单次任务", 
     icon: Zap,
+    gradient: "from-[#4A7BFF] to-[#60a5fa]"
   },
   recurring: { 
     color: "#8B5CF6", 
     bg: "rgba(139, 92, 246, 0.1)",
     label: "循环任务", 
     icon: Clock,
+    gradient: "from-[#8B5CF6] to-[#a78bfa]"
   },
   maintenance: {
     color: "#F59E0B",
     bg: "rgba(245, 158, 11, 0.1)",
     label: "系统维护",
     icon: CheckCircle2,
+    gradient: "from-[#F59E0B] to-[#fbbf24]"
   },
 };
 
-const PRIORITY_CONFIG: Record<string, { color: string; bg: string; label: string }> = {
-  high: { color: "#EF4444", bg: "rgba(239, 68, 68, 0.1)", label: "高优先级" },
-  medium: { color: "#F59E0B", bg: "rgba(245, 158, 11, 0.1)", label: "中优先级" },
-  low: { color: "#4A7BFF", bg: "rgba(74, 123, 255, 0.1)", label: "低优先级" },
+const PRIORITY_CONFIG: Record<string, { color: string; bg: string; label: string; icon: React.ElementType }> = {
+  high: { color: "#EF4444", bg: "rgba(239, 68, 68, 0.1)", label: "高优先级", icon: AlertCircle },
+  medium: { color: "#F59E0B", bg: "rgba(245, 158, 11, 0.1)", label: "中优先级", icon: Clock3 },
+  low: { color: "#4A7BFF", bg: "rgba(74, 123, 255, 0.1)", label: "低优先级", icon: CheckCircle2 },
 };
 
 const WEEK_DAYS = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
@@ -172,37 +181,30 @@ function EventCard({ event, onClick }: { event: Event; onClick: () => void }) {
   const config = TYPE_CONFIG[event.type] || TYPE_CONFIG.onetime;
   const Icon = config.icon;
   const priority = event.priority ? PRIORITY_CONFIG[event.priority] : null;
-  const [isHovered, setIsHovered] = useState(false);
 
   return (
     <motion.div
-      initial={{ opacity: 0, x: -10, scale: 0.95 }}
-      animate={{ 
-        opacity: 1, 
-        x: 0, 
-        scale: 1,
-        boxShadow: isHovered ? `0 4px 12px ${config.color}40` : '0 2px 4px rgba(0,0,0,0.2)',
-      }}
+      initial={{ opacity: 0, x: -10 }}
+      animate={{ opacity: 1, x: 0 }}
       onClick={onClick}
-      onHoverStart={() => setIsHovered(true)}
-      onHoverEnd={() => setIsHovered(false)}
-      className="event-card relative overflow-hidden"
+      className="event-card group"
       style={{ '--event-color': config.color } as React.CSSProperties}
-      whileHover={{ x: 2, scale: 1.02 }}
+      whileHover={{ 
+        scale: 1.02, 
+        x: 4,
+        boxShadow: `0 4px 20px ${config.color}30`,
+      }}
+      transition={{ type: "spring", stiffness: 400, damping: 25 }}
     >
-      {/* 悬停时的渐变背景 */}
-      <motion.div
-        className="absolute inset-0 pointer-events-none"
-        style={{ background: `linear-gradient(90deg, ${config.color}15, transparent)` }}
-        initial={{ opacity: 0, x: '-100%' }}
-        animate={{ opacity: isHovered ? 1 : 0, x: isHovered ? '0%' : '-100%' }}
-        transition={{ duration: 0.3 }}
+      {/* 左侧颜色条 */}
+      <div 
+        className="absolute left-0 top-0 bottom-0 w-1 rounded-l-sm opacity-70 group-hover:opacity-100 transition-opacity"
+        style={{ background: `linear-gradient(to bottom, ${config.color}, ${config.color}60)` }}
       />
-
-      <div className="flex items-center gap-1.5 relative z-10">
+      
+      <div className="flex items-center gap-1.5 pl-2">
         <motion.div
-          animate={{ scale: isHovered ? 1.1 : 1 }}
-          transition={{ type: "spring", stiffness: 400 }}
+          whileHover={{ rotate: 15, scale: 1.1 }}
         >
           <Icon className="w-3 h-3 flex-shrink-0" style={{ color: config.color }} />
         </motion.div>
@@ -211,7 +213,7 @@ function EventCard({ event, onClick }: { event: Event; onClick: () => void }) {
         </span>
       </div>
       
-      <div className="text-white/40 mt-0.5 font-mono text-[10px] flex items-center gap-1 relative z-10">
+      <div className="text-white/40 mt-0.5 font-mono text-[10px] flex items-center gap-1 pl-2">
         <Clock className="w-2.5 h-2.5" />
         {format(new Date(event.startTime), "HH:mm")}
       </div>
@@ -221,10 +223,9 @@ function EventCard({ event, onClick }: { event: Event; onClick: () => void }) {
           className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full"
           style={{ backgroundColor: priority.color }}
           animate={{ 
-            scale: isHovered ? [1, 1.3, 1] : 1,
-            boxShadow: isHovered ? `0 0 8px ${priority.color}` : 'none'
+            boxShadow: [`0 0 0px ${priority.color}`, `0 0 8px ${priority.color}`, `0 0 0px ${priority.color}`]
           }}
-          transition={{ duration: 0.5, repeat: isHovered ? Infinity : 0 }}
+          transition={{ duration: 2, repeat: Infinity }}
         />
       )}
     </motion.div>
@@ -251,49 +252,64 @@ function EventModal({ event, onClose }: { event: Event; onClose: () => void }) {
         className="modal-content"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="p-6 border-b border-white/5">
-          <div className="flex items-start justify-between">
+        {/* 头部 */}
+        <div className="p-6 border-b border-white/5 relative overflow-hidden">
+          <div 
+            className="absolute top-0 right-0 w-48 h-48 opacity-10"
+            style={{ background: `radial-gradient(circle at top right, ${config.color}, transparent)` }}
+          />
+          
+          <div className="relative flex items-start justify-between">
             <div className="flex items-center gap-4">
-              <div 
+              <motion.div 
                 className="w-14 h-14 rounded-2xl flex items-center justify-center"
                 style={{ backgroundColor: config.bg }}
+                whileHover={{ scale: 1.05, rotate: 5 }}
               >
                 <Icon className="w-7 h-7" style={{ color: config.color }} />
-              </div>
+              </motion.div>
               <div>
                 <h2 className="text-xl font-semibold text-white">{event.title}</h2>
                 <div className="flex items-center gap-2 mt-2">
-                  <span 
+                  <motion.span 
                     className="text-xs px-2.5 py-1 rounded-lg font-medium"
                     style={{ backgroundColor: config.bg, color: config.color }}
+                    whileHover={{ scale: 1.05 }}
                   >
                     {config.label}
-                  </span>
+                  </motion.span>
                   {priority && (
-                    <span 
-                      className="text-xs px-2 py-0.5 rounded font-medium"
+                    <motion.span 
+                      className="text-xs px-2 py-0.5 rounded font-medium flex items-center gap-1"
                       style={{ backgroundColor: priority.bg, color: priority.color }}
+                      whileHover={{ scale: 1.05 }}
                     >
+                      <priority.icon className="w-3 h-3" />
                       {priority.label}
-                    </span>
+                    </motion.span>
                   )}
                 </div>
               </div>
             </div>
             
-            <button
+            <motion.button
               onClick={onClose}
               className="p-2 hover:bg-white/5 rounded-lg transition-colors"
+              whileHover={{ scale: 1.1, rotate: 90 }}
+              whileTap={{ scale: 0.9 }}
             >
               <X className="w-5 h-5 text-[#71717A]" />
-            </button>
+            </motion.button>
           </div>
         </div>
 
         <div className="p-6 space-y-4">
-          <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-[#1A1A24] flex items-center justify-center">
-              <CalendarIcon className="w-5 h-5 text-[#71717A]" />
+          <motion.div 
+            className="flex items-center gap-4 p-4 rounded-xl bg-[#1A1A24] border border-white/5 hover:border-white/10 transition-colors"
+            whileHover={{ scale: 1.01 }}
+          >
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#3b82f6]/20 to-[#3b82f6]/5 flex items-center justify-center">
+              <CalendarIcon className="w-5 h-5 text-[#3b82f6]" />
             </div>
             <div>
               <div className="text-sm text-[#71717A]">时间</div>
@@ -302,24 +318,30 @@ function EventModal({ event, onClose }: { event: Event; onClose: () => void }) {
                 {event.endTime && ` - ${format(new Date(event.endTime), "HH:mm")}`}
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {event.location && (
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl bg-[#1A1A24] flex items-center justify-center">
-                <MapPin className="w-5 h-5 text-[#71717A]" />
+            <motion.div 
+              className="flex items-center gap-4 p-4 rounded-xl bg-[#1A1A24] border border-white/5 hover:border-white/10 transition-colors"
+              whileHover={{ scale: 1.01 }}
+            >
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#8b5cf6]/20 to-[#8b5cf6]/5 flex items-center justify-center">
+                <MapPin className="w-5 h-5 text-[#8b5cf6]" />
               </div>
               <div>
                 <div className="text-sm text-[#71717A]">地点</div>
                 <div className="text-white font-medium">{event.location}</div>
               </div>
-            </div>
+            </motion.div>
           )}
 
           {event.attendees && event.attendees.length > 0 && (
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl bg-[#1A1A24] flex items-center justify-center">
-                <Users className="w-5 h-5 text-[#71717A]" />
+            <motion.div 
+              className="flex items-center gap-4 p-4 rounded-xl bg-[#1A1A24] border border-white/5 hover:border-white/10 transition-colors"
+              whileHover={{ scale: 1.01 }}
+            >
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#10b981]/20 to-[#10b981]/5 flex items-center justify-center">
+                <Users className="w-5 h-5 text-[#10b981]" />
               </div>
               <div>
                 <div className="text-sm text-[#71717A]">参与者</div>
@@ -329,28 +351,32 @@ function EventModal({ event, onClose }: { event: Event; onClose: () => void }) {
                   ))}
                 </div>
               </div>
-            </div>
+            </motion.div>
           )}
 
           {event.tags && event.tags.length > 0 && (
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl bg-[#1A1A24] flex items-center justify-center">
-                <Tag className="w-5 h-5 text-[#71717A]" />
+            <motion.div 
+              className="flex items-center gap-4 p-4 rounded-xl bg-[#1A1A24] border border-white/5"
+              whileHover={{ scale: 1.01 }}
+            >
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#f59e0b]/20 to-[#f59e0b]/5 flex items-center justify-center">
+                <Tag className="w-5 h-5 text-[#f59e0b]" />
               </div>
               <div className="flex-1">
                 <div className="text-sm text-[#71717A]">标签</div>
                 <div className="flex flex-wrap gap-2 mt-1">
                   {event.tags.map((tag) => (
-                    <span 
+                    <motion.span 
                       key={tag}
-                      className="text-xs px-2.5 py-1 rounded-lg bg-white/5 text-[#A1A1AA]"
+                      className="text-xs px-2.5 py-1 rounded-lg bg-white/5 text-[#A1A1AA] hover:bg-white/10 transition-colors cursor-pointer"
+                      whileHover={{ scale: 1.05 }}
                     >
                       #{tag}
-                    </span>
+                    </motion.span>
                   ))}
                 </div>
               </div>
-            </div>
+            </motion.div>
           )}
 
           {event.description && (
@@ -362,13 +388,21 @@ function EventModal({ event, onClose }: { event: Event; onClose: () => void }) {
         </div>
 
         <div className="p-4 border-t border-white/5 flex gap-3">
-          <button className="btn btn-primary flex-1">编辑</button>
-          <button 
+          <motion.button 
+            className="btn btn-primary flex-1"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            编辑
+          </motion.button>
+          <motion.button 
             className="btn btn-secondary"
             onClick={onClose}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
           >
             关闭
-          </button>
+          </motion.button>
         </div>
       </motion.div>
     </motion.div>
@@ -395,17 +429,22 @@ function CalendarGridView({
       exit={{ opacity: 0, y: -20 }}
       className="card overflow-hidden"
     >
+      {/* 星期标题 */}
       <div className={`grid ${viewMode === "day" ? "grid-cols-1" : "grid-cols-7"} border-b border-white/5`}>
-        {(viewMode === "day" ? [WEEK_DAYS[new Date().getDay()]] : WEEK_DAYS).map((day) => (
-          <div 
+        {(viewMode === "day" ? [WEEK_DAYS[new Date().getDay()]] : WEEK_DAYS).map((day, index) => (
+          <motion.div 
             key={day} 
-            className="text-center py-2.5 text-xs font-medium text-[#71717A] border-r border-white/5 last:border-r-0"
+            className="text-center py-3 text-xs font-medium text-[#71717A] border-r border-white/5 last:border-r-0"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.05 }}
           >
             {day}
-          </div>
+          </motion.div>
         ))}
       </div>
 
+      {/* 日历网格 */}
       <div className={`grid ${viewMode === "day" ? "grid-cols-1" : "grid-cols-7"} auto-rows-fr`}>
         {viewDates.map((date, index) => {
           const dayEvents = getEventsForDate(date);
@@ -415,32 +454,48 @@ function CalendarGridView({
           return (
             <motion.div
               key={date.toISOString()}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: index * 0.005 }}
-              className={`min-h-[100px] p-2 border-r border-b border-white/5 last:border-r-0 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: index * 0.01 }}
+              className={`min-h-[80px] p-2 border-r border-b border-white/5 last:border-r-0 
                          ${!isCurrentMonth && viewMode === "month" ? "bg-white/[0.02]" : ""}
                          ${isToday ? "calendar-cell today" : "calendar-cell"}
-                         hover:bg-white/[0.03] transition-colors cursor-pointer`}
+                         hover:bg-white/[0.03] transition-colors cursor-pointer group`}
+              whileHover={{ backgroundColor: 'rgba(255,255,255,0.05)' }}
             >
+              {/* 日期头部 */}
               <div className={`flex items-center gap-1.5 mb-2 ${isToday ? "text-[#4A7BFF]" : "text-white/70"}`}>
-                <span className={`text-base font-bold ${isToday ? 'text-[#4A7BFF]' : ''}`}>
+                <motion.span 
+                  className={`text-base font-bold ${isToday ? 'text-[#4A7BFF]' : ''}`}
+                  whileHover={{ scale: 1.1 }}
+                >
                   {format(date, "d")}
-                </span>
+                </motion.span>
                 {isToday && (
-                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#4A7BFF] text-white font-medium">
+                  <motion.span 
+                    className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#4A7BFF] text-white font-medium"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", stiffness: 500 }}
+                  >
                     今天
-                  </span>
+                  </motion.span>
                 )}
                 {dayEvents.length > 0 && (
-                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#4A7BFF]/15 text-[#4A7BFF] font-medium">
+                  <motion.span 
+                    className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#4A7BFF]/15 text-[#4A7BFF] font-medium"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", stiffness: 500, delay: 0.1 }}
+                  >
                     {dayEvents.length}
-                  </span>
+                  </motion.span>
                 )}
               </div>
 
+              {/* 事件列表 */}
               <div className="space-y-1">
-                {dayEvents.slice(0, 3).map((event) => (
+                {dayEvents.slice(0, 3).map((event, eventIndex) => (
                   <EventCard 
                     key={event._id} 
                     event={event} 
@@ -448,9 +503,12 @@ function CalendarGridView({
                   />
                 ))}
                 {dayEvents.length > 3 && (
-                  <div className="text-[10px] text-[#71717A] text-center py-0.5 bg-white/5 rounded cursor-pointer hover:bg-white/10 transition-colors">
+                  <motion.div 
+                    className="text-[10px] text-[#71717A] text-center py-0.5 bg-white/5 rounded cursor-pointer hover:bg-white/10 transition-colors"
+                    whileHover={{ scale: 1.05 }}
+                  >
                     +{dayEvents.length - 3}
-                  </div>
+                  </motion.div>
                 )}
               </div>
             </motion.div>
@@ -483,13 +541,8 @@ function TimelineView({
   );
 
   const hours = Array.from({ length: 24 }, (_, i) => i);
-  const [currentTimeLine, setCurrentTimeLine] = useState(new Date());
-
-  // 更新当前时间线
-  useEffect(() => {
-    const interval = setInterval(() => setCurrentTimeLine(new Date()), 60000);
-    return () => clearInterval(interval);
-  }, []);
+  const currentHour = new Date().getHours();
+  const currentMinute = new Date().getMinutes();
 
   return (
     <motion.div
@@ -499,15 +552,19 @@ function TimelineView({
       className="card overflow-hidden"
     >
       <div className="flex">
-        <div className="w-16 border-r border-white/5 flex-shrink-0">
+        {/* 时间列 */}
+        <div className="w-20 border-r border-white/5 flex-shrink-0 bg-white/[0.02]">
           <div className="h-12 border-b border-white/5"></div>
           {hours.map(hour => (
-            <div key={hour} className="h-16 border-b border-white/5 flex items-start justify-center pt-1">
-              <span className="text-xs text-[#52525B]">{`${hour.toString().padStart(2, '0')}:00`}</span>
+            <div key={hour} className="h-16 border-b border-white/5 flex items-start justify-center pt-1 relative">
+              <span className={`text-xs ${hour === currentHour ? 'text-[#4A7BFF] font-medium' : 'text-[#52525B]'}`}>
+                {`${hour.toString().padStart(2, '0')}:00`}
+              </span>
             </div>
           ))}
         </div>
 
+        {/* 内容区域 */}
         <div className="flex-1 overflow-x-auto">
           <div className="flex min-w-max">
             {Array.from({ length: 7 }, (_, dayIndex) => {
@@ -519,48 +576,59 @@ function TimelineView({
 
               return (
                 <div key={dayIndex} className="w-40 flex-shrink-0">
+                  {/* 日期头部 */}
                   <div className={`h-12 border-b border-r border-white/5 flex flex-col items-center justify-center ${
-                    isToday ? 'bg-gradient-to-b from-[#4A7BFF]/15 to-[#4A7BFF]/5' : ''
+                    isToday ? 'bg-[#4A7BFF]/10' : ''
                   }`}>
                     <span className={`text-sm font-medium ${isToday ? 'text-[#4A7BFF]' : 'text-white'}`}>
                       {WEEK_DAYS[dayIndex]}
                     </span>
                     <span className="text-xs text-[#71717A]">{format(date, "MM/dd")}</span>
-                    {isToday && (
-                      <motion.div 
-                        className="w-1 h-1 rounded-full bg-[#4A7BFF] mt-1"
-                        animate={{ scale: [1, 1.3, 1] }}
-                        transition={{ duration: 1.5, repeat: Infinity }}
-                      />
-                    )}
                   </div>
 
+                  {/* 时间格子 */}
                   <div className="relative">
                     {hours.map(hour => (
-                      <div key={hour} className="h-16 border-b border-r border-white/5"></div>
+                      <div key={hour} className="h-16 border-b border-r border-white/5 relative">
+                        {isToday && hour === currentHour && (
+                          <motion.div
+                            className="absolute inset-0 bg-[#4A7BFF]/5"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                          />
+                        )}
+                      </div>
                     ))}
 
+                    {/* 当前时间指示器 */}
                     {isToday && (
                       <motion.div
-                        className="absolute left-0 right-0 h-0.5 z-20"
+                        className="absolute left-0 right-0 z-20 flex items-center"
                         style={{ 
-                          top: `${(currentTimeLine.getHours() * 60 + currentTimeLine.getMinutes()) / 60 * 64}px`,
-                          background: 'linear-gradient(90deg, #EF4444, #F59E0B)'
+                          top: `${(currentHour * 60 + currentMinute) / 60 * 64}px` 
                         }}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                       >
                         <motion.div 
-                          className="absolute -left-1 -top-1 w-2 h-2 rounded-full bg-[#EF4444]"
-                          animate={{ scale: [1, 1.2, 1] }}
-                          transition={{ duration: 1, repeat: Infinity }}
+                          className="absolute -left-1.5 w-3 h-3 rounded-full bg-[#EF4444] border-2 border-[#0a0a0f]"
+                          animate={{ 
+                            boxShadow: [
+                              '0 0 0px #EF4444',
+                              '0 0 10px #EF4444',
+                              '0 0 0px #EF4444'
+                            ]
+                          }}
+                          transition={{ duration: 1.5, repeat: Infinity }}
                         />
-                        <div className="absolute -right-12 -top-2 text-[10px] text-[#EF4444] font-medium bg-[#EF4444]/10 px-1.5 py-0.5 rounded">
-                          {format(currentTimeLine, "HH:mm")}
+                        <div className="flex-1 h-0.5 bg-gradient-to-r from-[#EF4444] via-[#EF4444]/50 to-transparent" />
+                        <div className="absolute right-2 text-[10px] text-[#EF4444] font-medium bg-[#0a0a0f] px-1">
+                          {format(new Date(), "HH:mm")}
                         </div>
                       </motion.div>
                     )}
 
+                    {/* 事件 */}
                     {dayEvents.map((event) => {
                       const config = TYPE_CONFIG[event.type] || TYPE_CONFIG.onetime;
                       const Icon = config.icon;
@@ -578,15 +646,18 @@ function TimelineView({
                           key={event._id}
                           initial={{ opacity: 0, scale: 0.9, y: 10 }}
                           animate={{ opacity: 1, scale: 1, y: 0 }}
-                          whileHover={{ scale: 1.03, zIndex: 30 }}
                           onClick={() => onSelectEvent(event)}
-                          className="absolute left-1 right-1 p-2 rounded-lg cursor-pointer overflow-hidden hover:opacity-95 transition-all group"
+                          className="absolute left-1 right-1 p-2 rounded-lg cursor-pointer overflow-hidden hover:opacity-90 transition-all group"
                           style={{
                             top,
                             height,
                             backgroundColor: config.bg,
                             borderLeft: `3px solid ${config.color}`,
-                            boxShadow: `0 2px 8px ${config.color}30`
+                          }}
+                          whileHover={{ 
+                            scale: 1.02, 
+                            x: 2,
+                            boxShadow: `0 4px 20px ${config.color}30`
                           }}
                         >
                           <div className="flex items-center gap-1">
@@ -595,19 +666,10 @@ function TimelineView({
                               {event.title}
                             </span>
                           </div>
-                          <div className="text-white/60 mt-0.5 text-[10px]">
+                          <div className="text-white/60 mt-0.5 text-xs">
                             {format(eventDate, "HH:mm")}
                             {event.endTime && ` - ${format(new Date(event.endTime), "HH:mm")}`}
                           </div>
-                          
-                          {/* 悬停时的展开效果 */}
-                          <motion.div
-                            className="absolute inset-0 pointer-events-none"
-                            style={{ background: `linear-gradient(90deg, ${config.color}20, transparent)` }}
-                            initial={{ opacity: 0, x: '-100%' }}
-                            whileHover={{ opacity: 1, x: '0%' }}
-                            transition={{ duration: 0.2 }}
-                          />
                         </motion.div>
                       );
                     })}
@@ -691,26 +753,34 @@ export default function CalendarView() {
       {/* 统计卡片 */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: "今日事件", value: stats.today, icon: CalendarIcon, color: "#4A7BFF" },
-          { label: "待执行", value: stats.pending, icon: Clock3, color: "#F59E0B" },
-          { label: "已计划", value: stats.scheduled, icon: CheckCircle2, color: "#22C55E" },
-          { label: "总计", value: stats.total, icon: CalendarIcon, color: "#8B5CF6" },
+          { label: "今日事件", value: stats.today, icon: CalendarIcon, color: "#4A7BFF", bg: "from-[#4A7BFF]/20 to-[#4A7BFF]/5" },
+          { label: "待执行", value: stats.pending, icon: Clock3, color: "#F59E0B", bg: "from-[#F59E0B]/20 to-[#F59E0B]/5" },
+          { label: "已计划", value: stats.scheduled, icon: CheckCircle2, color: "#22C55E", bg: "from-[#22C55E]/20 to-[#22C55E]/5" },
+          { label: "总计", value: stats.total, icon: CalendarDays, color: "#8B5CF6", bg: "from-[#8B5CF6]/20 to-[#8B5CF6]/5" },
         ].map((stat, i) => (
           <motion.div
             key={stat.label}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
+            whileHover={{ y: -4, scale: 1.02 }}
             className="card card-interactive p-4 flex items-center gap-3"
           >
             <div 
-              className="w-12 h-12 rounded-xl flex items-center justify-center"
-              style={{ backgroundColor: `${stat.color}20` }}
+              className={`w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br ${stat.bg}`}
             >
               <stat.icon className="w-6 h-6" style={{ color: stat.color }} />
             </div>
             <div className="flex-1">
-              <div className="text-2xl font-bold">{stat.value}</div>
+              <motion.div 
+                className="text-2xl font-bold"
+                style={{ color: stat.color }}
+                initial={{ scale: 0.5 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 300, delay: i * 0.1 }}
+              >
+                {stat.value}
+              </motion.div>
               <div className="text-xs text-[#71717A]">{stat.label}</div>
             </div>
           </motion.div>
@@ -721,41 +791,51 @@ export default function CalendarView() {
       <div className="filter-container">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div className="flex items-center gap-4 flex-wrap">
-            <div className="flex gap-1 bg-[#1A1A24] rounded-xl p-1">
+            {/* 视图切换 */}
+            <div className="flex gap-1 bg-[#1A1A24] rounded-xl p-1 border border-white/10">
               {(["day", "week", "month", "timeline"] as ViewMode[]).map((mode) => (
-                <button
+                <motion.button
                   key={mode}
                   onClick={() => setViewMode(mode)}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                     viewMode === mode 
-                      ? "bg-[#4A7BFF] text-white" 
+                      ? "bg-[#4A7BFF] text-white shadow-lg shadow-[#4A7BFF]/30" 
                       : "text-[#71717A] hover:text-white"
                   }`}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
                   {mode === "day" ? "日" : mode === "week" ? "周" : mode === "month" ? "月" : "时间线"}
-                </button>
+                </motion.button>
               ))}
             </div>
 
+            {/* 导航按钮 */}
             <div className="flex items-center gap-2">
-              <button
+              <motion.button
                 onClick={() => navigateDate("prev")}
                 className="p-2 hover:bg-white/5 rounded-lg transition-colors"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
               >
                 <ChevronLeft className="w-5 h-5 text-[#71717A]" />
-              </button>
-              <button
+              </motion.button>
+              <motion.button
                 onClick={goToToday}
                 className="px-4 py-2 text-sm font-medium text-[#4A7BFF] hover:bg-[#4A7BFF]/10 rounded-lg transition-colors"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
                 今天
-              </button>
-              <button
+              </motion.button>
+              <motion.button
                 onClick={() => navigateDate("next")}
                 className="p-2 hover:bg-white/5 rounded-lg transition-colors"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
               >
                 <ChevronRight className="w-5 h-5 text-[#71717A]" />
-              </button>
+              </motion.button>
             </div>
             
             <div className="text-xl font-semibold text-white hidden sm:block">
@@ -763,11 +843,23 @@ export default function CalendarView() {
             </div>
           </div>
 
+          {/* 筛选和搜索 */}
           <div className="flex items-center gap-3 flex-wrap">
+            <div className="relative group">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#71717A] group-focus-within:text-[#4A7BFF] transition-colors" />
+              <input
+                type="text"
+                placeholder="搜索事件..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="input pl-9 w-48 focus:ring-2 focus:ring-[#4A7BFF]/20"
+              />
+            </div>
+
             <select
               value={selectedType}
               onChange={(e) => setSelectedType(e.target.value)}
-              className="input w-auto"
+              className="input w-auto cursor-pointer hover:border-white/20 transition-colors"
             >
               <option value="all">全部类型</option>
               <option value="cron">定时任务</option>
@@ -775,26 +867,20 @@ export default function CalendarView() {
               <option value="recurring">循环任务</option>
               <option value="maintenance">系统维护</option>
             </select>
-
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#71717A]" />
-              <input
-                type="text"
-                placeholder="搜索事件..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="input pl-9 w-48"
-              />
-            </div>
             
-            <button className="btn btn-primary">
+            <motion.button 
+              className="btn btn-primary"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
               <Plus className="w-4 h-4" />
               新建
-            </button>
+            </motion.button>
           </div>
         </div>
       </div>
 
+      {/* 主内容区域 */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <div className="lg:col-span-3">
           <AnimatePresence mode="wait">
@@ -818,10 +904,17 @@ export default function CalendarView() {
           </AnimatePresence>
         </div>
 
+        {/* 侧边栏 */}
         <div className="space-y-4">
-          <div className="card p-5">
+          {/* 即将到来 */}
+          <motion.div 
+            className="card p-5"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 }}
+          >
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-[#4A7BFF]/10 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#4A7BFF]/20 to-[#4A7BFF]/5 flex items-center justify-center">
                 <Clock className="w-5 h-5 text-[#4A7BFF]" />
               </div>
               <div>
@@ -842,27 +935,37 @@ export default function CalendarView() {
                     key={event._id}
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.1 }}
+                    transition={{ delay: 0.3 + index * 0.1 }}
                     onClick={() => setSelectedEvent(event)}
-                    className="p-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.04] cursor-pointer transition-all border border-transparent hover:border-white/5"
+                    className="p-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.04] cursor-pointer transition-all border border-transparent hover:border-white/5 group"
+                    whileHover={{ x: 4, scale: 1.02 }}
                   >
                     <div className="flex items-start gap-3">
-                      <div 
+                      <motion.div 
                         className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
                         style={{ backgroundColor: config.bg }}
+                        whileHover={{ rotate: 10, scale: 1.1 }}
                       >
                         <Icon className="w-4 h-4" style={{ color: config.color }} />
-                      </div>
+                      </motion.div>
                       
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <h4 className="text-sm font-medium text-white truncate">
+                          <h4 className="text-sm font-medium text-white truncate group-hover:text-[#4A7BFF] transition-colors">
                             {event.title}
                           </h4>
                           {priority && (
-                            <div 
+                            <motion.div 
                               className="w-2 h-2 rounded-full flex-shrink-0"
                               style={{ backgroundColor: priority.color }}
+                              animate={{ 
+                                boxShadow: [
+                                  `0 0 0px ${priority.color}`,
+                                  `0 0 8px ${priority.color}`,
+                                  `0 0 0px ${priority.color}`
+                                ]
+                              }}
+                              transition={{ duration: 2, repeat: Infinity }}
                             />
                           )}
                         </div>
@@ -871,12 +974,13 @@ export default function CalendarView() {
                         </p>
                         
                         <div className="flex items-center gap-2 mt-2">
-                          <span 
+                          <motion.span 
                             className="text-[10px] px-2 py-0.5 rounded font-medium"
                             style={{ backgroundColor: config.bg, color: config.color }}
+                            whileHover={{ scale: 1.05 }}
                           >
                             {config.label}
-                          </span>
+                          </motion.span>
                           
                           <span className={`text-xs ${isToday ? 'text-[#4A7BFF] font-medium' : 'text-[#71717A]'}`}>
                             {isToday ? '今天' : format(new Date(event.startTime), "MM/dd HH:mm")}
@@ -901,33 +1005,45 @@ export default function CalendarView() {
                 );
               })}
             </div>
-          </div>
+          </motion.div>
 
-          <div className="card p-5">
+          {/* 快捷操作 */}
+          <motion.div 
+            className="card p-5"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.4 }}
+          >
             <h3 className="font-semibold text-white mb-4">快捷操作</h3>
             <div className="space-y-2">
               {[
                 { label: "新建定时任务", icon: Repeat, color: "#22C55E" },
                 { label: "新建单次任务", icon: Zap, color: "#4A7BFF" },
                 { label: "查看所有任务", icon: Filter, color: "#8B5CF6" },
-              ].map((action) => (
-                <button
+              ].map((action, index) => (
+                <motion.button
                   key={action.label}
                   className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 transition-all text-left group"
+                  whileHover={{ x: 4 }}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.5 + index * 0.1 }}
                 >
-                  <div 
+                  <motion.div 
                     className="w-8 h-8 rounded-lg flex items-center justify-center"
                     style={{ backgroundColor: `${action.color}20` }}
+                    whileHover={{ scale: 1.1, rotate: 5 }}
                   >
                     <action.icon className="w-4 h-4" style={{ color: action.color }} />
-                  </div>
+                  </motion.div>
                   <span className="text-sm text-[#A1A1AA] group-hover:text-white transition-colors">
                     {action.label}
                   </span>
-                </button>
+                  <ArrowRight className="w-4 h-4 text-[#52525B] ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+                </motion.button>
               ))}
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
 

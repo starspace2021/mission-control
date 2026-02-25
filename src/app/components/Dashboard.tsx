@@ -281,6 +281,7 @@ function WelcomeBanner() {
   const [greeting, setGreeting] = useState('早安');
   const [currentTime, setCurrentTime] = useState(new Date());
   const [hoveredStat, setHoveredStat] = useState<number | null>(null);
+  const [lastUpdated, setLastUpdated] = useState(new Date());
 
   useEffect(() => {
     const hour = new Date().getHours();
@@ -339,6 +340,10 @@ function WelcomeBanner() {
           <p className="text-[#a1a1aa] flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-[#3b82f6] animate-pulse" />
             今日有 5 个定时任务待执行，2 个高优先级警报需要关注
+          </p>
+          <p className="text-xs text-[#52525B] mt-2 flex items-center gap-2">
+            <Clock className="w-3 h-3" />
+            最后更新: {lastUpdated.toLocaleTimeString('zh-CN', { hour12: false })}
           </p>
         </div>
 
@@ -890,7 +895,7 @@ function AgentStatusPanel() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.45 }}
-      className="card p-5"
+      className="card p-5 min-h-[200px]"
     >
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-3">
@@ -1158,14 +1163,14 @@ export default function Dashboard() {
       <WelcomeBanner />
 
       {/* 核心指标 - 更紧凑的网格 */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {METRICS.map((m, i) => (
           <StatCard key={m.label} metric={m} index={i} />
         ))}
       </div>
 
       {/* 系统指标 - 合并到更紧凑的行 */}
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-4 gap-2">
         {SYSTEM_METRICS.map((m, i) => (
           <SystemMetricCard key={m.label} metric={m} index={i} />
         ))}
