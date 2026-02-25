@@ -98,6 +98,7 @@ function TaskCard({
   const priority = PRIORITY_CONFIG[task.priority || 'medium'];
   const dept = DEPT_CONFIG[task.department] || { bg: 'rgba(113, 113, 122, 0.1)', color: '#71717A', gradient: 'from-[#71717A] to-[#A1A1AA]' };
   const PriorityIcon = priority.icon;
+  const [isHovered, setIsHovered] = useState(false);
 
   return (
     <motion.div
@@ -105,36 +106,57 @@ function TaskCard({
       layoutId={task.id}
       initial={{ opacity: 0, y: 15, scale: 0.95 }}
       animate={{
-        opacity: isDragging ? 0.9 : 1,
-        y: isDragging ? -8 : 0,
+        opacity: isDragging ? 0.95 : 1,
+        y: isDragging ? -10 : 0,
         scale: isDragging ? 1.05 : isDragOver ? 1.02 : 1,
         rotate: isDragging ? 3 : 0,
+        boxShadow: isDragging 
+          ? `0 25px 60px rgba(0,0,0,0.6), 0 0 40px ${priority.color}40` 
+          : isHovered 
+            ? `0 8px 30px rgba(0,0,0,0.4), 0 0 20px ${priority.color}20`
+            : '0 4px 12px rgba(0,0,0,0.2)',
       }}
       exit={{ opacity: 0, scale: 0.9, y: -10 }}
       transition={{ type: "spring", stiffness: 400, damping: 25 }}
       onClick={onClick}
-      className={`kanban-card ${isDragging ? 'dragging shadow-2xl' : ''} ${isDragOver ? 'ring-2 ring-[#3b82f6]/50' : ''} group`}
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
+      className={`kanban-card ${isDragging ? 'dragging' : ''} ${isDragOver ? 'ring-2 ring-[#3b82f6]/50' : ''} group`}
       style={{
         borderLeftWidth: '4px',
         borderLeftColor: priority.color,
         background: `linear-gradient(135deg, rgba(17, 24, 39, 0.95), rgba(10, 10, 15, 0.98))`,
-        boxShadow: isDragging ? `0 20px 50px rgba(0,0,0,0.5), 0 0 30px ${priority.color}30` : undefined
       }}
       draggable
     >
-      {/* 顶部渐变条 */}
-      <div
-        className="absolute top-0 left-0 right-0 h-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+      {/* 顶部渐变条 - 动态显示 */}
+      <motion.div
+        className="absolute top-0 left-0 right-0 h-0.5"
         style={{ background: `linear-gradient(to right, ${priority.color}, ${dept.color})` }}
+        initial={{ opacity: 0, scaleX: 0 }}
+        animate={{ opacity: isHovered || isDragging ? 1 : 0, scaleX: isHovered || isDragging ? 1 : 0 }}
+        transition={{ duration: 0.3 }}
+      />
+
+      {/* 悬停时的发光边框效果 */}
+      <motion.div
+        className="absolute inset-0 rounded-lg pointer-events-none"
+        style={{ 
+          boxShadow: `inset 0 0 0 1px ${priority.color}30`,
+        }}
+        animate={{ opacity: isHovered ? 1 : 0 }}
       />
 
       {/* 拖拽时的发光效果 */}
       {isDragging && (
-        <div 
-          className="absolute inset-0 rounded-lg opacity-20 pointer-events-none"
+        <motion.div 
+          className="absolute inset-0 rounded-lg opacity-30 pointer-events-none"
           style={{ 
             background: `radial-gradient(circle at center, ${priority.color}, transparent)`,
           }}
+          initial={{ scale: 0.8 }}
+          animate={{ scale: 1.2 }}
+          transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse" }}
         />
       )}
 
@@ -143,8 +165,9 @@ function TaskCard({
           {task.title}
         </h4>
         <motion.div
-          className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all cursor-grab active:cursor-grabbing p-1 rounded hover:bg-white/10"
+          className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all cursor-grab active:cursor-grabbing p-1.5 rounded-lg hover:bg-white/10"
           whileHover={{ scale: 1.1 }}
+          dragHandle
         >
           <GripVertical className="w-4 h-4 text-[#52525B]" />
         </motion.div>
@@ -152,29 +175,31 @@ function TaskCard({
 
       <div className="flex flex-wrap gap-2 mb-3">
         <motion.span
-          className="text-[10px] px-2.5 py-1 rounded-lg border font-medium flex items-center gap-1 cursor-pointer"
+          className="text-[10px] px-2.5 py-1 rounded-lg border font-medium flex items-center gap-1.5 cursor-pointer"
           style={{
             background: dept.bg,
             color: dept.color,
             borderColor: `${dept.color}30`
           }}
-          whileHover={{ scale: 1.05, y: -1 }}
+          whileHover={{ scale: 1.05, y: -1, boxShadow: `0 4px 12px ${dept.color}30` }}
           whileTap={{ scale: 0.95 }}
         >
-          <span
+          <motion.span
             className="w-1.5 h-1.5 rounded-full"
             style={{ background: dept.color }}
+            animate={{ scale: isHovered ? [1, 1.2, 1] : 1 }}
+            transition={{ duration: 0.5, repeat: isHovered ? Infinity : 0 }}
           />
           {task.department}
         </motion.span>
         <motion.span
-          className="text-[10px] px-2.5 py-1 rounded-lg border font-medium flex items-center gap-1 cursor-pointer"
+          className="text-[10px] px-2.5 py-1 rounded-lg border font-medium flex items-center gap-1.5 cursor-pointer"
           style={{
             background: priority.bg,
             color: priority.color,
             borderColor: priority.border
           }}
-          whileHover={{ scale: 1.05, y: -1 }}
+          whileHover={{ scale: 1.05, y: -1, boxShadow: `0 4px 12px ${priority.color}30` }}
           whileTap={{ scale: 0.95 }}
         >
           <PriorityIcon className="w-3 h-3" />

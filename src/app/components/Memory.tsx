@@ -55,6 +55,7 @@ function MemoryCard({
 }) {
   const cfg = TYPE_CONFIG[memory.type] || TYPE_CONFIG.daily;
   const Icon = cfg.icon;
+  const [isHovered, setIsHovered] = useState(false);
   
   const formatDate = (dateStr: string) => {
     try {
@@ -69,19 +70,58 @@ function MemoryCard({
     <motion.div 
       layout
       initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
+      animate={{ 
+        opacity: 1, 
+        y: 0,
+        boxShadow: isHovered ? `0 8px 30px ${cfg.color}30` : '0 4px 12px rgba(0,0,0,0.2)',
+      }}
       exit={{ opacity: 0, scale: 0.95 }}
       onClick={onClick}
-      className="memory-card group cursor-pointer"
-      whileHover={{ y: -4, transition: { duration: 0.2 } }}
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
+      className="memory-card group cursor-pointer relative overflow-hidden"
+      whileHover={{ y: -6, transition: { duration: 0.2 } }}
     >
-      <div className="flex items-start gap-3">
+      {/* 顶部渐变线 */}
+      <motion.div
+        className="absolute top-0 left-0 right-0 h-0.5"
+        style={{ background: `linear-gradient(90deg, ${cfg.color}, ${cfg.color}60)` }}
+        initial={{ scaleX: 0, opacity: 0 }}
+        animate={{ scaleX: isHovered ? 1 : 0, opacity: isHovered ? 1 : 0 }}
+        transition={{ duration: 0.3 }}
+      />
+
+      {/* 悬停时的背景光效 */}
+      <motion.div
+        className="absolute -top-10 -right-10 w-32 h-32 rounded-full pointer-events-none"
+        style={{ background: `radial-gradient(circle, ${cfg.color}20, transparent)` }}
+        initial={{ opacity: 0, scale: 0.5 }}
+        animate={{ opacity: isHovered ? 1 : 0, scale: isHovered ? 1 : 0.5 }}
+        transition={{ duration: 0.4 }}
+      />
+
+      {/* 底部渐变 */}
+      <motion.div
+        className="absolute bottom-0 left-0 right-0 h-16 pointer-events-none"
+        style={{ background: `linear-gradient(to top, ${cfg.color}08, transparent)` }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: isHovered ? 1 : 0 }}
+      />
+      
+      <div className="flex items-start gap-3 relative z-10">
         <motion.div 
-          className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+          className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 relative overflow-hidden"
           style={{ background: cfg.bg }}
           whileHover={{ scale: 1.1, rotate: 5 }}
+          transition={{ type: "spring", stiffness: 400 }}
         >
-          <Icon className="w-5 h-5" style={{ color: cfg.color }} />
+          {/* 图标背景光效 */}
+          <motion.div
+            className="absolute inset-0"
+            style={{ background: `linear-gradient(135deg, ${cfg.color}30, transparent)` }}
+            animate={{ opacity: isHovered ? 1 : 0 }}
+          />
+          <Icon className="w-5 h-5 relative z-10" style={{ color: cfg.color }} />
         </motion.div>
         
         <div className="flex-1 min-w-0">
@@ -99,22 +139,29 @@ function MemoryCard({
           </p>
           
           <div className="flex items-center gap-2 flex-wrap">
-            <span 
+            <motion.span 
               className="text-[10px] px-2 py-0.5 rounded-full font-medium"
               style={{ background: cfg.bg, color: cfg.color }}
+              whileHover={{ scale: 1.05 }}
             >
               {cfg.label}
-            </span>
+            </motion.span>
             
-            {memory.tags?.map(tag => (
+            {memory.tags?.slice(0, 3).map((tag, index) => (
               <motion.span 
                 key={tag}
                 className="text-[10px] px-2 py-0.5 rounded-full bg-white/5 text-[#71717A] hover:bg-white/10 transition-colors"
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ scale: 1.05, y: -1 }}
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05 }}
               >
                 #{tag}
               </motion.span>
             ))}
+            {memory.tags && memory.tags.length > 3 && (
+              <span className="text-[10px] text-[#52525B]">+{memory.tags.length - 3}</span>
+            )}
           </div>
         </div>
       </div>

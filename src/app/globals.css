@@ -417,16 +417,19 @@ html, body {
   background: linear-gradient(to right, var(--accent-blue), var(--accent-purple));
   opacity: 0;
   transition: opacity var(--transition-normal);
+  transform: scaleX(0);
+  transform-origin: left;
 }
 
 .kanban-card:hover {
   border-color: rgba(59, 130, 246, 0.5);
   transform: translateY(-4px) scale(1.01);
-  box-shadow: 0 0 30px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4), 0 0 30px rgba(59, 130, 246, 0.15);
 }
 
 .kanban-card:hover::before {
   opacity: 1;
+  transform: scaleX(1);
 }
 
 .kanban-card.dragging {
@@ -520,25 +523,39 @@ html, body {
   background: linear-gradient(to right, var(--accent-blue), var(--accent-purple));
   opacity: 0;
   transition: opacity var(--transition-normal);
+  transform: scaleX(0);
+  transform-origin: left;
 }
 
 .memory-card:hover {
   border-color: rgba(59, 130, 246, 0.5);
   transform: translateY(-4px);
-  box-shadow: 0 0 30px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4), 0 0 30px rgba(59, 130, 246, 0.15);
 }
 
 .memory-card:hover::before {
   opacity: 1;
+  transform: scaleX(1);
 }
 
 /* ========== 搜索高亮 ========== */
 .search-highlight {
-  background: rgba(59, 130, 246, 0.35);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.5), rgba(139, 92, 246, 0.4));
   color: white;
-  padding: 0 3px;
-  border-radius: 3px;
-  font-weight: 500;
+  padding: 1px 4px;
+  border-radius: 4px;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+  animation: highlight-pulse 2s ease-in-out infinite;
+}
+
+@keyframes highlight-pulse {
+  0%, 100% { 
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+  }
+  50% { 
+    box-shadow: 0 2px 12px rgba(59, 130, 246, 0.5), 0 0 20px rgba(59, 130, 246, 0.2);
+  }
 }
 
 /* ========== 标签云 ========== */

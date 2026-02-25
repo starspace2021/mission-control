@@ -280,6 +280,7 @@ function DataStreamBar() {
 function WelcomeBanner() {
   const [greeting, setGreeting] = useState('早安');
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [hoveredStat, setHoveredStat] = useState<number | null>(null);
 
   useEffect(() => {
     const hour = new Date().getHours();
@@ -291,6 +292,12 @@ function WelcomeBanner() {
     return () => clearInterval(timer);
   }, []);
 
+  const stats = [
+    { value: '98.5%', label: '系统健康度', color: '#10b981', icon: Activity },
+    { value: currentTime.toLocaleTimeString('zh-CN', { hour12: false, hour: '2-digit', minute: '2-digit' }), label: '当前时间', color: '#3b82f6', icon: Clock, isTime: true },
+    { value: '6', label: '在线代理', color: '#8b5cf6', icon: Bot },
+  ];
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -299,57 +306,75 @@ function WelcomeBanner() {
     >
       <DataStreamBar />
 
-      {/* 背景光效 */}
+      {/* 增强背景光效 */}
       <div className="absolute inset-0 bg-gradient-to-r from-[#3b82f6]/5 via-[#8b5cf6]/3 to-transparent" />
-      <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-bl from-[#3b82f6]/10 via-[#8b5cf6]/5 to-transparent rounded-full blur-3xl" />
-      <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-[#10b981]/5 to-transparent rounded-full blur-3xl" />
+      <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-[#3b82f6]/15 via-[#8b5cf6]/8 to-transparent rounded-full blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
+      <div className="absolute bottom-0 left-0 w-72 h-72 bg-gradient-to-tr from-[#10b981]/10 via-[#06b6d4]/5 to-transparent rounded-full blur-3xl" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-radial from-[#3b82f6]/5 to-transparent rounded-full blur-3xl" />
+
+      {/* 顶部渐变线 */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#3b82f6]/50 to-transparent" />
 
       <div className="relative flex items-center justify-between">
         <div>
           <div className="flex items-center gap-3 mb-3">
             <motion.div
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#f59e0b]/10 border border-[#f59e0b]/20"
-              whileHover={{ scale: 1.02 }}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-[#f59e0b]/15 to-[#f59e0b]/5 border border-[#f59e0b]/30 shadow-lg shadow-[#f59e0b]/10"
+              whileHover={{ scale: 1.03, boxShadow: '0 0 20px rgba(245, 158, 11, 0.2)' }}
+              transition={{ type: "spring", stiffness: 400 }}
             >
               <Sparkles className="w-4 h-4 text-[#f59e0b]" />
               <span className="text-sm text-[#f59e0b] font-medium">{greeting}</span>
             </motion.div>
             <motion.div
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#10b981]/10 border border-[#10b981]/20"
-              whileHover={{ scale: 1.02 }}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-[#10b981]/15 to-[#10b981]/5 border border-[#10b981]/30 shadow-lg shadow-[#10b981]/10"
+              whileHover={{ scale: 1.03, boxShadow: '0 0 20px rgba(16, 185, 129, 0.2)' }}
+              transition={{ type: "spring", stiffness: 400 }}
             >
               <span className="w-2 h-2 bg-[#10b981] rounded-full animate-pulse" />
               <span className="text-sm text-[#10b981] font-medium">系统运行正常</span>
             </motion.div>
           </div>
-          <h2 className="text-2xl font-bold mb-2">欢迎回来，Hourglass</h2>
-          <p className="text-[#a1a1aa]">今日有 5 个定时任务待执行，2 个高优先级警报需要关注。</p>
+          <h2 className="text-2xl font-bold mb-2 bg-gradient-to-r from-white to-white/80 bg-clip-text">欢迎回来，Hourglass</h2>
+          <p className="text-[#a1a1aa] flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#3b82f6] animate-pulse" />
+            今日有 5 个定时任务待执行，2 个高优先级警报需要关注
+          </p>
         </div>
 
-        <div className="hidden md:flex items-center gap-8">
-          <div className="text-center">
+        <div className="hidden md:flex items-center gap-6">
+          {stats.map((stat, index) => (
             <motion.div
-              className="text-4xl font-bold text-[#10b981]"
-              key={currentTime.getSeconds()}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
+              key={stat.label}
+              className="text-center relative"
+              onHoverStart={() => setHoveredStat(index)}
+              onHoverEnd={() => setHoveredStat(null)}
+              whileHover={{ scale: 1.05 }}
             >
-              98.5%
+              <motion.div
+                className="absolute inset-0 -m-4 rounded-2xl bg-white/5 opacity-0"
+                animate={{ opacity: hoveredStat === index ? 1 : 0 }}
+              />
+              <div className="relative">
+                <motion.div
+                  className="text-3xl font-bold tabular-nums"
+                  style={{ color: stat.color }}
+                  key={stat.isTime ? currentTime.getSeconds() : stat.value}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
+                  {stat.value}
+                </motion.div>
+                <div className="text-xs text-[#a1a1aa] mt-1 flex items-center justify-center gap-1">
+                  <stat.icon className="w-3 h-3" style={{ color: stat.color }} />
+                  {stat.label}
+                </div>
+              </div>
+              {index < stats.length - 1 && (
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-3 w-px h-12 bg-gradient-to-b from-transparent via-white/20 to-transparent" />
+              )}
             </motion.div>
-            <div className="text-sm text-[#a1a1aa] mt-1">系统健康度</div>
-          </div>
-          <div className="w-px h-16 bg-white/10" />
-          <div className="text-center">
-            <div className="text-2xl font-bold text-[#3b82f6] tabular-nums">
-              {currentTime.toLocaleTimeString('zh-CN', { hour12: false, hour: '2-digit', minute: '2-digit' })}
-            </div>
-            <div className="text-sm text-[#a1a1aa] mt-1">当前时间</div>
-          </div>
-          <div className="w-px h-16 bg-white/10" />
-          <div className="text-center">
-            <div className="text-4xl font-bold text-[#8b5cf6]">6</div>
-            <div className="text-sm text-[#a1a1aa] mt-1">在线代理</div>
-          </div>
+          ))}
         </div>
       </div>
     </motion.div>
@@ -358,6 +383,7 @@ function WelcomeBanner() {
 
 function StatCard({ metric, index }: { metric: Metric; index: number }) {
   const Icon = metric.icon;
+  const [isHovered, setIsHovered] = useState(false);
   const chartData = useMemo(() =>
     [30, 45, 35, 50, 40, 60, 55, 70, 65, 80, 75, 85].map(v => v + Math.random() * 20),
     []
@@ -368,36 +394,62 @@ function StatCard({ metric, index }: { metric: Metric; index: number }) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.08, duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-      whileHover={{ y: -4, transition: { duration: 0.2 } }}
-      className="data-card group"
+      whileHover={{ y: -6, transition: { duration: 0.2 } }}
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
+      className="data-card group cursor-pointer"
     >
-      <div
+      {/* 顶部渐变线 */}
+      <motion.div
         className="absolute top-0 left-0 right-0 h-1"
+        initial={{ opacity: 0.7 }}
+        animate={{ opacity: isHovered ? 1 : 0.7 }}
         style={{ background: `linear-gradient(to right, ${metric.color}, ${metric.color}60, transparent)` }}
       />
 
-      <div className="absolute -top-20 -right-20 w-40 h-40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-        style={{ background: `radial-gradient(circle, ${metric.color}20, transparent)` }}
+      {/* 悬停发光背景 */}
+      <motion.div 
+        className="absolute -top-20 -right-20 w-40 h-40 rounded-full"
+        style={{ background: `radial-gradient(circle, ${metric.color}25, transparent)` }}
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: isHovered ? 1 : 0, scale: isHovered ? 1 : 0.8 }}
+        transition={{ duration: 0.4 }}
+      />
+
+      {/* 底部渐变装饰 */}
+      <motion.div
+        className="absolute bottom-0 left-0 right-0 h-20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+        style={{ background: `linear-gradient(to top, ${metric.color}08, transparent)` }}
       />
 
       <div className="relative">
         <div className="flex items-start justify-between mb-4">
           <motion.div
-            className="p-3 rounded-xl"
+            className="p-3 rounded-xl relative overflow-hidden"
             style={{ background: `${metric.color}15` }}
             whileHover={{ scale: 1.1, rotate: 5 }}
             transition={{ type: "spring", stiffness: 400 }}
           >
-            <Icon className="w-5 h-5" style={{ color: metric.color }} />
+            <motion.div
+              className="absolute inset-0"
+              style={{ background: `linear-gradient(135deg, ${metric.color}30, transparent)` }}
+              animate={{ opacity: isHovered ? 1 : 0 }}
+            />
+            <Icon className="w-5 h-5 relative z-10" style={{ color: metric.color }} />
           </motion.div>
           <TrendIndicator trend={metric.trend} />
         </div>
 
         <div className="flex items-end justify-between">
           <div>
-            <div className="text-3xl font-bold mb-1" style={{ color: metric.color }}>
+            <motion.div 
+              className="text-3xl font-bold mb-1"
+              style={{ color: metric.color }}
+              animate={{ scale: isHovered ? 1.05 : 1 }}
+              transition={{ type: "spring", stiffness: 400 }}
+            >
               {metric.value}
-            </div>
+            </motion.div>
             <div className="text-sm font-medium text-white mb-1">{metric.label}</div>
             <div className="text-xs text-[#a1a1aa]">{metric.sub}</div>
           </div>

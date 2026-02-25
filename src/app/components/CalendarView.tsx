@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { format, startOfWeek, addDays, isSameDay, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday as isDateToday } from "date-fns";
 import { zhCN } from "date-fns/locale";
@@ -172,31 +172,59 @@ function EventCard({ event, onClick }: { event: Event; onClick: () => void }) {
   const config = TYPE_CONFIG[event.type] || TYPE_CONFIG.onetime;
   const Icon = config.icon;
   const priority = event.priority ? PRIORITY_CONFIG[event.priority] : null;
+  const [isHovered, setIsHovered] = useState(false);
 
   return (
     <motion.div
-      initial={{ opacity: 0, x: -10 }}
-      animate={{ opacity: 1, x: 0 }}
+      initial={{ opacity: 0, x: -10, scale: 0.95 }}
+      animate={{ 
+        opacity: 1, 
+        x: 0, 
+        scale: 1,
+        boxShadow: isHovered ? `0 4px 12px ${config.color}40` : '0 2px 4px rgba(0,0,0,0.2)',
+      }}
       onClick={onClick}
-      className="event-card"
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
+      className="event-card relative overflow-hidden"
       style={{ '--event-color': config.color } as React.CSSProperties}
+      whileHover={{ x: 2, scale: 1.02 }}
     >
-      <div className="flex items-center gap-1.5">
-        <Icon className="w-3 h-3 flex-shrink-0" style={{ color: config.color }} />
+      {/* 悬停时的渐变背景 */}
+      <motion.div
+        className="absolute inset-0 pointer-events-none"
+        style={{ background: `linear-gradient(90deg, ${config.color}15, transparent)` }}
+        initial={{ opacity: 0, x: '-100%' }}
+        animate={{ opacity: isHovered ? 1 : 0, x: isHovered ? '0%' : '-100%' }}
+        transition={{ duration: 0.3 }}
+      />
+
+      <div className="flex items-center gap-1.5 relative z-10">
+        <motion.div
+          animate={{ scale: isHovered ? 1.1 : 1 }}
+          transition={{ type: "spring", stiffness: 400 }}
+        >
+          <Icon className="w-3 h-3 flex-shrink-0" style={{ color: config.color }} />
+        </motion.div>
         <span className="font-medium truncate text-xs" style={{ color: config.color }}>
           {event.title}
         </span>
       </div>
       
-      <div className="text-white/40 mt-0.5 font-mono text-[10px] flex items-center gap-1">
+      <div className="text-white/40 mt-0.5 font-mono text-[10px] flex items-center gap-1 relative z-10">
         <Clock className="w-2.5 h-2.5" />
         {format(new Date(event.startTime), "HH:mm")}
       </div>
 
       {priority && (
-        <div 
+        <motion.div 
           className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full"
           style={{ backgroundColor: priority.color }}
+          animate={{ 
+            scale: isHovered ? [1, 1.3, 1] : 1,
+            boxShadow: isHovered ? `0 0 8px ${priority.color}` : 'none'
+          }}
+          transition={{ duration: 0.5, repeat: isHovered ? Infinity : 0 }}
         />
       )}
     </motion.div>
@@ -455,6 +483,13 @@ function TimelineView({
   );
 
   const hours = Array.from({ length: 24 }, (_, i) => i);
+  const [currentTimeLine, setCurrentTimeLine] = useState(new Date());
+
+  // 更新当前时间线
+  useEffect(() => {
+    const interval = setInterval(() => setCurrentTimeLine(new Date()), 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <motion.div
@@ -485,12 +520,19 @@ function TimelineView({
               return (
                 <div key={dayIndex} className="w-40 flex-shrink-0">
                   <div className={`h-12 border-b border-r border-white/5 flex flex-col items-center justify-center ${
-                    isToday ? 'bg-[#4A7BFF]/10' : ''
+                    isToday ? 'bg-gradient-to-b from-[#4A7BFF]/15 to-[#4A7BFF]/5' : ''
                   }`}>
                     <span className={`text-sm font-medium ${isToday ? 'text-[#4A7BFF]' : 'text-white'}`}>
                       {WEEK_DAYS[dayIndex]}
                     </span>
                     <span className="text-xs text-[#71717A]">{format(date, "MM/dd")}</span>
+                    {isToday && (
+                      <motion.div 
+                        className="w-1 h-1 rounded-full bg-[#4A7BFF] mt-1"
+                        animate={{ scale: [1, 1.3, 1] }}
+                        transition={{ duration: 1.5, repeat: Infinity }}
+                      />
+                    )}
                   </div>
 
                   <div className="relative">
@@ -500,14 +542,22 @@ function TimelineView({
 
                     {isToday && (
                       <motion.div
-                        className="absolute left-0 right-0 h-0.5 bg-[#EF4444] z-20"
+                        className="absolute left-0 right-0 h-0.5 z-20"
                         style={{ 
-                          top: `${(new Date().getHours() * 60 + new Date().getMinutes()) / 60 * 64}px` 
+                          top: `${(currentTimeLine.getHours() * 60 + currentTimeLine.getMinutes()) / 60 * 64}px`,
+                          background: 'linear-gradient(90deg, #EF4444, #F59E0B)'
                         }}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                       >
-                        <div className="absolute -left-1 -top-1 w-2 h-2 rounded-full bg-[#EF4444]" />
+                        <motion.div 
+                          className="absolute -left-1 -top-1 w-2 h-2 rounded-full bg-[#EF4444]"
+                          animate={{ scale: [1, 1.2, 1] }}
+                          transition={{ duration: 1, repeat: Infinity }}
+                        />
+                        <div className="absolute -right-12 -top-2 text-[10px] text-[#EF4444] font-medium bg-[#EF4444]/10 px-1.5 py-0.5 rounded">
+                          {format(currentTimeLine, "HH:mm")}
+                        </div>
                       </motion.div>
                     )}
 
@@ -526,15 +576,17 @@ function TimelineView({
                       return (
                         <motion.div
                           key={event._id}
-                          initial={{ opacity: 0, scale: 0.9 }}
-                          animate={{ opacity: 1, scale: 1 }}
+                          initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                          animate={{ opacity: 1, scale: 1, y: 0 }}
+                          whileHover={{ scale: 1.03, zIndex: 30 }}
                           onClick={() => onSelectEvent(event)}
-                          className="absolute left-1 right-1 p-2 rounded-lg cursor-pointer overflow-hidden hover:opacity-90 transition-all"
+                          className="absolute left-1 right-1 p-2 rounded-lg cursor-pointer overflow-hidden hover:opacity-95 transition-all group"
                           style={{
                             top,
                             height,
                             backgroundColor: config.bg,
                             borderLeft: `3px solid ${config.color}`,
+                            boxShadow: `0 2px 8px ${config.color}30`
                           }}
                         >
                           <div className="flex items-center gap-1">
@@ -547,6 +599,15 @@ function TimelineView({
                             {format(eventDate, "HH:mm")}
                             {event.endTime && ` - ${format(new Date(event.endTime), "HH:mm")}`}
                           </div>
+                          
+                          {/* 悬停时的展开效果 */}
+                          <motion.div
+                            className="absolute inset-0 pointer-events-none"
+                            style={{ background: `linear-gradient(90deg, ${config.color}20, transparent)` }}
+                            initial={{ opacity: 0, x: '-100%' }}
+                            whileHover={{ opacity: 1, x: '0%' }}
+                            transition={{ duration: 0.2 }}
+                          />
                         </motion.div>
                       );
                     })}
