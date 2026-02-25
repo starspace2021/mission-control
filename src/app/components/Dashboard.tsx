@@ -221,6 +221,18 @@ function CircularProgress({ value, size = 44, strokeWidth = 4, color = "#4A7BFF"
   );
 }
 
+function DataStreamBar() {
+  return (
+    <div className="absolute top-0 left-0 right-0 h-0.5 overflow-hidden opacity-30">
+      <motion.div
+        className="h-full bg-gradient-to-r from-transparent via-[#0ea5e9] to-transparent"
+        animate={{ x: ['-100%', '100%'] }}
+        transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
+      />
+    </div>
+  );
+}
+
 function WelcomeBanner() {
   const [greeting, setGreeting] = useState('早安');
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -241,6 +253,8 @@ function WelcomeBanner() {
       animate={{ opacity: 1, y: 0 }}
       className="glass-card-v2 p-6 relative overflow-hidden"
     >
+      <DataStreamBar />
+      
       {/* 背景光效 */}
       <div className="absolute inset-0 bg-gradient-to-r from-[#0ea5e9]/5 via-[#8b5cf6]/3 to-transparent" />
       <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-bl from-[#0ea5e9]/10 via-[#8b5cf6]/5 to-transparent rounded-full blur-3xl" />
@@ -387,9 +401,11 @@ function TaskTrendChart() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.15 }}
-      className="card p-5"
+      className="card p-5 relative overflow-hidden"
     >
-      <div className="flex items-center justify-between mb-5">
+      <div className="absolute inset-0 bg-gradient-to-b from-[#0ea5e9]/5 to-transparent pointer-events-none" />
+      
+      <div className="relative flex items-center justify-between mb-5">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-[#0ea5e9]/10 flex items-center justify-center">
             <BarChart3 className="w-5 h-5 text-[#0ea5e9]" />
@@ -416,17 +432,27 @@ function TaskTrendChart() {
           <div key={day.day} className="flex-1 flex flex-col items-center gap-2">
             <div className="w-full flex gap-1 items-end justify-center h-20">
               <motion.div
-                className="flex-1 bg-gradient-to-t from-[#0ea5e9] to-[#0ea5e9]/70 rounded-t-lg min-w-[6px]"
+                className="flex-1 rounded-t-lg min-w-[6px] relative overflow-hidden"
+                style={{ 
+                  background: 'linear-gradient(to top, #0ea5e9, #0ea5e980)'
+                }}
                 initial={{ height: 0 }}
                 animate={{ height: `${(day.completed / 25) * 100}%` }}
                 transition={{ delay: i * 0.05, duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
-              />
+              >
+                <div className="absolute inset-0 bg-gradient-to-t from-transparent to-white/10" />
+              </motion.div>
               <motion.div
-                className="flex-1 bg-gradient-to-t from-[#10b981] to-[#10b981]/70 rounded-t-lg min-w-[6px]"
+                className="flex-1 rounded-t-lg min-w-[6px] relative overflow-hidden"
+                style={{ 
+                  background: 'linear-gradient(to top, #10b981, #10b98180)'
+                }}
                 initial={{ height: 0 }}
                 animate={{ height: `${(day.created / 25) * 100}%` }}
                 transition={{ delay: i * 0.05 + 0.08, duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
-              />
+              >
+                <div className="absolute inset-0 bg-gradient-to-t from-transparent to-white/10" />
+              </motion.div>
             </div>
             <span className="text-[11px] text-[#8a8a96] font-medium">{day.day}</span>
           </div>

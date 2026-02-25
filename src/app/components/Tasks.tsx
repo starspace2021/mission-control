@@ -117,10 +117,10 @@ function TaskCard({
           {task.title}
         </h4>
         <motion.div 
-          className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all"
+          className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all cursor-grab active:cursor-grabbing"
           whileHover={{ scale: 1.1 }}
         >
-          <GripVertical className="w-4 h-4 text-[#52525B] cursor-grab active:cursor-grabbing" />
+          <GripVertical className="w-4 h-4 text-[#52525B]" />
         </motion.div>
       </div>
       

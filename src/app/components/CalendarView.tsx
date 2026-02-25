@@ -392,7 +392,8 @@ function CalendarGridView({
               transition={{ delay: index * 0.005 }}
               className={`min-h-[100px] p-2 border-r border-b border-white/5 last:border-r-0 
                          ${!isCurrentMonth && viewMode === "month" ? "bg-white/[0.02]" : ""}
-                         ${isToday ? "calendar-cell today" : "calendar-cell"}`}
+                         ${isToday ? "calendar-cell today" : "calendar-cell"}
+                         hover:bg-white/[0.03] transition-colors cursor-pointer`}
             >
               <div className={`flex items-center gap-1.5 mb-2 ${isToday ? "text-[#4A7BFF]" : "text-white/70"}`}>
                 <span className={`text-base font-bold ${isToday ? 'text-[#4A7BFF]' : ''}`}>
