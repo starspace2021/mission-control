@@ -170,28 +170,40 @@ export default function MissionControl() {
 
           {/* 导航 */}
           <nav className="flex-1 p-3 space-y-1">
-            {NAV_ITEMS.map((item) => {
+            {NAV_ITEMS.map((item, index) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
               
               return (
-                <button
+                <motion.button
                   key={item.id}
                   onClick={() => setActiveTab(item.id)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  whileHover={{ x: 4 }}
+                  whileTap={{ scale: 0.98 }}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all relative overflow-hidden ${
                     isActive
-                      ? "bg-gradient-to-r from-[#3b82f6]/20 to-transparent text-[#3b82f6] border border-[#3b82f6]/20"
-                      : "text-[#A1A1AA] hover:text-white hover:bg-white/5"
+                      ? "text-[#3b82f6]"
+                      : "text-[#A1A1AA] hover:text-white"
                   }`}
                   title={sidebarCollapsed ? item.label : undefined}
                 >
-                  <Icon className={`w-5 h-5 ${isActive ? 'text-[#3b82f6]' : ''}`} />
-                  {!sidebarCollapsed && (
-                    <>
-                      <span className="flex-1 text-left">{item.label}</span>
-                    </>
+                  {/* 激活背景 */}
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeNavBg"
+                      className="absolute inset-0 bg-gradient-to-r from-[#3b82f6]/20 to-transparent border border-[#3b82f6]/20 rounded-xl"
+                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                    />
                   )}
-                </button>
+                  
+                  <Icon className={`w-5 h-5 relative z-10 ${isActive ? 'text-[#3b82f6]' : ''}`} />
+                  {!sidebarCollapsed && (
+                    <span className="flex-1 text-left relative z-10">{item.label}</span>
+                  )}
+                </motion.button>
               );
             })}
           </nav>
@@ -253,26 +265,42 @@ export default function MissionControl() {
             </div>
             
             <div className="flex items-center gap-3">
-              <button 
+              <motion.button 
                 onClick={() => setIsSearchOpen(true)}
-                className="flex items-center gap-2 px-3 py-2 bg-[#111118] border border-white/10 rounded-lg text-sm text-[#71717A] hover:text-white hover:border-[#3b82f6]/30 transition-all"
+                className="flex items-center gap-2 px-3 py-2 bg-[#111118] border border-white/10 rounded-lg text-sm text-[#71717A] hover:text-white hover:border-[#3b82f6]/30 transition-all group"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
               >
-                <Search className="w-4 h-4" />
+                <Search className="w-4 h-4 group-hover:text-[#3b82f6] transition-colors" />
                 <span className="hidden sm:inline">搜索...</span>
-              </button>
+                <kbd className="hidden md:inline-flex ml-2 px-1.5 py-0.5 text-[10px] bg-white/5 rounded text-[#52525B]">⌘K</kbd>
+              </motion.button>
               
-              <button className="relative p-2 text-[#71717A] hover:text-white hover:bg-white/5 rounded-lg transition-all">
+              <motion.button 
+                className="relative p-2 text-[#71717A] hover:text-white hover:bg-white/5 rounded-lg transition-all"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
                 <Bell className="w-5 h-5" />
                 {notifications > 0 && (
-                  <span className="absolute top-1 right-1 w-4 h-4 bg-[#EF4444] rounded-full text-[10px] flex items-center justify-center text-white">
+                  <motion.span 
+                    className="absolute top-1 right-1 w-4 h-4 bg-[#EF4444] rounded-full text-[10px] flex items-center justify-center text-white font-medium"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", stiffness: 500 }}
+                  >
                     {notifications}
-                  </span>
+                  </motion.span>
                 )}
-              </button>
+              </motion.button>
               
-              <button className="p-2 text-[#71717A] hover:text-white hover:bg-white/5 rounded-lg transition-all">
+              <motion.button 
+                className="p-2 text-[#71717A] hover:text-white hover:bg-white/5 rounded-lg transition-all"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
                 <Settings className="w-5 h-5" />
-              </button>
+              </motion.button>
               
               <LiveClock />
             </div>

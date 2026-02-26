@@ -305,33 +305,57 @@ export default function MemoryArchive() {
     <div className="space-y-5">
       {/* 搜索和筛选 - v2.0 优化版 */}
       <div className="glass-card-v4 p-5">
-        {/* 搜索框 */}
-        <div className={`relative mb-4 transition-all duration-300 ${isSearchFocused ? 'transform scale-[1.02]' : ''}`}>
-          <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${isSearchFocused ? 'text-[#3b82f6]' : 'text-[#52525B]'}`} />
+        {/* 搜索框 - v3.0 增强版 */}
+        <motion.div 
+          className={`relative mb-4 transition-all duration-300 ${isSearchFocused ? 'transform scale-[1.01]' : ''}`}
+          animate={isSearchFocused ? { boxShadow: '0 0 30px rgba(59, 130, 246, 0.15)' } : {}}
+        >
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10">
+            <motion.div
+              animate={isSearchFocused ? { 
+                rotate: [0, -10, 10, 0],
+                scale: [1, 1.2, 1]
+              } : {}}
+              transition={{ duration: 0.5 }}
+            >
+              <Search className={`w-4 h-4 transition-colors ${isSearchFocused ? 'text-[#3b82f6]' : 'text-[#52525B]'}`} />
+            </motion.div>
+          </div>        
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
             onFocus={() => setIsSearchFocused(true)}
             onBlur={() => setIsSearchFocused(false)}
-            placeholder="Search memories..."
-            className="w-full pl-10 pr-16 py-3 bg-[#0a0a0f] border border-white/10 rounded-xl
+            placeholder="搜索记忆..."
+            className="w-full pl-10 pr-16 py-3.5 bg-[#0a0a0f] border border-white/10 rounded-xl
                        text-white placeholder:text-[#52525B] focus:border-[#3b82f6]/50
                        focus:outline-none transition-all text-sm focus:ring-2 focus:ring-[#3b82f6]/20"
           />
           <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
             {search && (
-              <button
+              <motion.button
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
                 onClick={() => setSearch('')}
-                className="p-1 hover:bg-white/10 rounded transition-colors"
+                className="p-1.5 hover:bg-white/10 rounded-lg transition-colors"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
               >
-                <X className="w-3 h-3 text-[#71717A]" />
-              </button>
+                <X className="w-3.5 h-3.5 text-[#71717A]" />
+              </motion.button>
             )}
-            <span className="text-[10px] text-[#52525B] bg-white/5 px-1.5 py-0.5 rounded">
+            <motion.span 
+              className="text-[10px] text-[#52525B] bg-white/5 px-2 py-1 rounded-md font-medium"
+              animate={isSearchFocused ? { 
+                backgroundColor: 'rgba(59, 130, 246, 0.15)',
+                color: '#3b82f6'
+              } : {}}
+            >
               ⌘K
-            </span>
+            </motion.span>
           </div>
-        </div>
+        </motion.div>
 
         {/* 类型筛选 */}
         <div className="flex gap-2 mb-4 flex-wrap">

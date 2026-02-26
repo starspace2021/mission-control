@@ -401,6 +401,7 @@ function WelcomeBanner() {
   const [greeting, setGreeting] = useState('早安');
   const [currentTime, setCurrentTime] = useState(new Date());
   const [mounted, setMounted] = useState(false);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     setMounted(true);
@@ -413,6 +414,15 @@ function WelcomeBanner() {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
+
+  // 鼠标跟随效果
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setMousePosition({
+      x: (e.clientX - rect.left) / rect.width,
+      y: (e.clientY - rect.top) / rect.height
+    });
+  };
 
   // 防止 hydration 不匹配
   if (!mounted) {
@@ -440,10 +450,27 @@ function WelcomeBanner() {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="welcome-banner relative overflow-hidden"
+      onMouseMove={handleMouseMove}
+      className="welcome-banner relative overflow-hidden cursor-default"
     >
+      {/* 动态光效背景 */}
       <div className="welcome-banner-bg" />
       <DataStreamBar />
+
+      {/* 鼠标跟随光效 */}
+      <motion.div
+        className="absolute w-[600px] h-[600px] rounded-full pointer-events-none opacity-30"
+        style={{
+          background: 'radial-gradient(circle, rgba(59, 130, 246, 0.3), transparent 60%)',
+          left: `${mousePosition.x * 100}%`,
+          top: `${mousePosition.y * 100}%`,
+          transform: 'translate(-50%, -50%)',
+        }}
+        animate={{
+          scale: [1, 1.2, 1],
+        }}
+        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+      />
 
       {/* 动态背景光效 */}
       <motion.div
