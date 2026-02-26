@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard,
   CheckCircle2,
@@ -51,7 +51,14 @@ import {
   MoreHorizontal,
   Settings,
   Menu,
-  X
+  X,
+  Target,
+  Calendar,
+  FolderOpen,
+  Users,
+  Command,
+  MousePointer,
+  Maximize2
 } from 'lucide-react';
 
 // ========== 类型定义 ==========
@@ -91,32 +98,32 @@ interface Alert {
 
 // ========== 数据 ==========
 const METRICS: Metric[] = [
-  { label: 'Online Agents', value: '6', sub: '2 offline', color: '#3b82f6', icon: Bot, trend: { value: 12, direction: 'up' } },
-  { label: 'Task Completion', value: '78%', sub: '+12% today', color: '#10b981', icon: CheckCircle2, trend: { value: 5, direction: 'up' } },
-  { label: 'System Health', value: '99.2%', sub: 'All systems go', color: '#8b5cf6', icon: Activity, trend: { value: 0.3, direction: 'up' } },
-  { label: 'Active Tasks', value: '12', sub: '3 pending', color: '#f59e0b', icon: Zap, trend: { value: 2, direction: 'down' } },
+  { label: '在线代理', value: '6', sub: '2 离线', color: '#3b82f6', icon: Bot, trend: { value: 12, direction: 'up' } },
+  { label: '任务完成率', value: '78%', sub: '+12% 今日', color: '#10b981', icon: CheckCircle2, trend: { value: 5, direction: 'up' } },
+  { label: '系统健康度', value: '99.2%', sub: '运行正常', color: '#8b5cf6', icon: Activity, trend: { value: 0.3, direction: 'up' } },
+  { label: '活跃任务', value: '12', sub: '3 待处理', color: '#f59e0b', icon: Zap, trend: { value: 2, direction: 'down' } },
 ];
 
 const SYSTEM_METRICS: SystemMetric[] = [
-  { label: 'CPU Usage', value: 42, suffix: '%', icon: Cpu, color: '#3b82f6' },
-  { label: 'Memory', value: 68, suffix: '%', icon: Database, color: '#8b5cf6' },
-  { label: 'Network', value: 95, suffix: 'ms', icon: Wifi, color: '#10b981' },
-  { label: 'Security', value: 100, suffix: '%', icon: Shield, color: '#f59e0b' },
+  { label: 'CPU', value: 42, suffix: '%', icon: Cpu, color: '#3b82f6' },
+  { label: '内存', value: 68, suffix: '%', icon: Database, color: '#8b5cf6' },
+  { label: '网络', value: 95, suffix: 'ms', icon: Wifi, color: '#10b981' },
+  { label: '安全', value: 100, suffix: '%', icon: Shield, color: '#f59e0b' },
 ];
 
 const RECENT_ACTIVITIES: Activity[] = [
-  { text: 'Africa Intel report generated', time: '2m ago', icon: CheckCircle2, color: '#10b981', type: 'success', meta: 'Intel Dept' },
-  { text: 'US-China policy monitoring started', time: '15m ago', icon: Activity, color: '#3b82f6', type: 'info', meta: 'Policy Dept' },
-  { text: 'Polymarket briefing created', time: '32m ago', icon: BarChart3, color: '#8b5cf6', type: 'info', meta: 'Market Dept' },
-  { text: 'System alert: API rate limit at 85%', time: '1h ago', icon: AlertTriangle, color: '#f59e0b', type: 'warning', meta: 'System' },
-  { text: 'QQ Mail cleanup completed', time: '2h ago', icon: CheckCircle2, color: '#10b981', type: 'success', meta: 'Engineering' },
-  { text: 'Memory system backup finished', time: '3h ago', icon: Database, color: '#06b6d4', type: 'success', meta: 'Admin' },
+  { text: '非洲情报报告已生成', time: '2分钟前', icon: CheckCircle2, color: '#10b981', type: 'success', meta: 'Intel 部门' },
+  { text: '美国对华政策监控已启动', time: '15分钟前', icon: Activity, color: '#3b82f6', type: 'info', meta: 'Policy 部门' },
+  { text: 'Polymarket 简报已创建', time: '32分钟前', icon: BarChart3, color: '#8b5cf6', type: 'info', meta: 'Market 部门' },
+  { text: '系统警报: API 速率限制 85%', time: '1小时前', icon: AlertTriangle, color: '#f59e0b', type: 'warning', meta: '系统' },
+  { text: 'QQ邮箱清理已完成', time: '2小时前', icon: CheckCircle2, color: '#10b981', type: 'success', meta: 'Engineering' },
+  { text: '记忆系统备份已完成', time: '3小时前', icon: Database, color: '#06b6d4', type: 'success', meta: 'Admin' },
 ];
 
 const ALERTS: Alert[] = [
-  { id: '1', title: 'High CPU Usage', message: 'Intel Collector Agent using 85% CPU', severity: 'medium', timestamp: '5m ago' },
-  { id: '2', title: 'API Rate Limit', message: 'Twitter API approaching rate limit', severity: 'high', timestamp: '12m ago' },
-  { id: '3', title: 'Memory Warning', message: 'System memory at 78% capacity', severity: 'low', timestamp: '1h ago' },
+  { id: '1', title: 'CPU 使用率过高', message: 'Intel Collector Agent 使用 85% CPU', severity: 'medium', timestamp: '5分钟前' },
+  { id: '2', title: 'API 速率限制', message: 'Twitter API 接近速率限制', severity: 'high', timestamp: '12分钟前' },
+  { id: '3', title: '内存警告', message: '系统内存使用率达 78%', severity: 'low', timestamp: '1小时前' },
 ];
 
 const AGENT_STATUS = [
@@ -129,21 +136,21 @@ const AGENT_STATUS = [
 ];
 
 const PIPELINE_STEPS = [
-  { id: '1', title: 'Data Collection', status: 'completed', progress: 100, icon: Radio },
-  { id: '2', title: 'Processing', status: 'completed', progress: 100, icon: Cpu },
-  { id: '3', title: 'Analysis', status: 'active', progress: 65, icon: BarChart3 },
-  { id: '4', title: 'Report Gen', status: 'pending', progress: 0, icon: FileText },
-  { id: '5', title: 'Distribution', status: 'pending', progress: 0, icon: Globe },
+  { id: '1', title: '数据收集', status: 'completed', progress: 100, icon: Radio },
+  { id: '2', title: '数据处理', status: 'completed', progress: 100, icon: Cpu },
+  { id: '3', title: '数据分析', status: 'active', progress: 65, icon: BarChart3 },
+  { id: '4', title: '报告生成', status: 'pending', progress: 0, icon: FileText },
+  { id: '5', title: '分发推送', status: 'pending', progress: 0, icon: Globe },
 ];
 
 const TASK_TREND = [
-  { day: 'Mon', completed: 18, created: 12 },
-  { day: 'Tue', completed: 22, created: 15 },
-  { day: 'Wed', completed: 19, created: 14 },
-  { day: 'Thu', completed: 24, created: 18 },
-  { day: 'Fri', completed: 28, created: 16 },
-  { day: 'Sat', completed: 15, created: 8 },
-  { day: 'Sun', completed: 20, created: 12 },
+  { day: '周一', completed: 18, created: 12 },
+  { day: '周二', completed: 22, created: 15 },
+  { day: '周三', completed: 19, created: 14 },
+  { day: '周四', completed: 24, created: 18 },
+  { day: '周五', completed: 28, created: 16 },
+  { day: '周六', completed: 15, created: 8 },
+  { day: '周日', completed: 20, created: 12 },
 ];
 
 const DEPARTMENT_LOAD = [
@@ -300,23 +307,23 @@ function WelcomeBanner() {
       <DataStreamBar />
 
       {/* 动态背景光效 */}
-      <motion.div 
+      <motion.div
         className="absolute top-0 right-0 w-[500px] h-[500px]"
-        style={{ 
+        style={{
           background: 'radial-gradient(circle at top right, rgba(59, 130, 246, 0.12), transparent 60%)',
         }}
-        animate={{ 
+        animate={{
           scale: [1, 1.1, 1],
           opacity: [0.5, 0.8, 0.5]
         }}
         transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
       />
-      <motion.div 
+      <motion.div
         className="absolute bottom-0 left-0 w-[400px] h-[400px]"
-        style={{ 
+        style={{
           background: 'radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.1), transparent 60%)',
         }}
-        animate={{ 
+        animate={{
           scale: [1, 1.15, 1],
           opacity: [0.4, 0.7, 0.4]
         }}
@@ -326,7 +333,7 @@ function WelcomeBanner() {
       <div className="relative flex items-center justify-between">
         <div>
           <div className="flex items-center gap-3 mb-4">
-            <motion.div 
+            <motion.div
               className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-[#f59e0b]/20 to-[#f59e0b]/5 border border-[#f59e0b]/40"
               whileHover={{ scale: 1.05 }}
               transition={{ type: "spring", stiffness: 400 }}
@@ -334,12 +341,12 @@ function WelcomeBanner() {
               <Sparkles className="w-4 h-4 text-[#f59e0b]" />
               <span className="text-sm text-[#f59e0b] font-semibold">{greeting}</span>
             </motion.div>
-            <motion.div 
+            <motion.div
               className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-[#10b981]/20 to-[#10b981]/5 border border-[#10b981]/40"
               whileHover={{ scale: 1.05 }}
               transition={{ type: "spring", stiffness: 400 }}
             >
-              <motion.span 
+              <motion.span
                 className="w-2.5 h-2.5 bg-[#10b981] rounded-full"
                 animate={{ scale: [1, 1.2, 1], opacity: [1, 0.7, 1] }}
                 transition={{ duration: 2, repeat: Infinity }}
@@ -347,7 +354,7 @@ function WelcomeBanner() {
               <span className="text-sm text-[#10b981] font-semibold">系统运行正常</span>
             </motion.div>
           </div>
-          <motion.h2 
+          <motion.h2
             className="text-3xl font-bold mb-3 bg-gradient-to-r from-white via-white/90 to-white/70 bg-clip-text"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -355,13 +362,13 @@ function WelcomeBanner() {
           >
             欢迎回来，Hourglass
           </motion.h2>
-          <motion.p 
+          <motion.p
             className="text-[#a1a1aa] flex items-center gap-2 text-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
           >
-            <motion.span 
+            <motion.span
               className="w-2 h-2 rounded-full bg-[#3b82f6]"
               animate={{ opacity: [1, 0.3, 1] }}
               transition={{ duration: 1.5, repeat: Infinity }}
@@ -376,16 +383,16 @@ function WelcomeBanner() {
             { value: currentTime.toLocaleTimeString('zh-CN', { hour12: false, hour: '2-digit', minute: '2-digit' }), label: '当前时间', color: '#3b82f6', icon: Clock },
             { value: '6', label: '在线代理', color: '#8b5cf6', icon: Bot, trend: '+1' },
           ].map((stat, index) => (
-            <motion.div 
-              key={stat.label} 
+            <motion.div
+              key={stat.label}
               className="text-center relative"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 + index * 0.1 }}
             >
-              <motion.div 
+              <motion.div
                 className="text-4xl font-bold tabular-nums"
-                style={{ 
+                style={{
                   color: stat.color,
                   textShadow: `0 0 30px ${stat.color}40`
                 }}
@@ -398,9 +405,9 @@ function WelcomeBanner() {
                 {stat.label}
               </div>
               {stat.trend && (
-                <motion.div 
+                <motion.div
                   className="absolute -top-1 -right-6 text-[10px] font-medium px-1.5 py-0.5 rounded"
-                  style={{ 
+                  style={{
                     background: `${stat.color}20`,
                     color: stat.color
                   }}
@@ -444,7 +451,7 @@ function StatCard({ metric, index }: { metric: Metric; index: number }) {
       />
 
       {/* 悬停发光背景 */}
-      <motion.div 
+      <motion.div
         className="absolute -top-20 -right-20 w-40 h-40 rounded-full"
         style={{ background: `radial-gradient(circle, ${metric.color}30, transparent)` }}
         initial={{ opacity: 0, scale: 0.5 }}
@@ -467,9 +474,9 @@ function StatCard({ metric, index }: { metric: Metric; index: number }) {
 
         <div className="flex items-end justify-between">
           <div>
-            <motion.div 
+            <motion.div
               className="text-3xl font-bold mb-1 stat-value-animated"
-              style={{ 
+              style={{
                 color: metric.color,
                 textShadow: `0 0 30px ${metric.color}30`
               }}
@@ -533,7 +540,7 @@ function TaskTrendChart() {
             <BarChart3 className="w-5 h-5 text-[#3b82f6]" />
           </div>
           <div>
-            <h3 className="font-semibold text-white text-sm">Task Trend (7 days)</h3>
+            <h3 className="font-semibold text-white text-sm">任务趋势 (7天)</h3>
             <p className="text-xs text-[#a1a1aa]">任务完成情况统计</p>
           </div>
         </div>
@@ -597,8 +604,8 @@ function DepartmentLoadChart() {
           <PieChart className="w-5 h-5 text-[#8b5cf6]" />
         </div>
         <div>
-          <h3 className="font-semibold text-white text-sm">Department Load</h3>
-          <p className="text-xs text-[#a1a1aa]">各部门工作负载</p>
+          <h3 className="font-semibold text-white text-sm">部门负载</h3>
+          <p className="text-xs text-[#a1a1aa]">各部门工作负载分布</p>
         </div>
       </div>
 
@@ -724,7 +731,7 @@ function RecentActivity() {
             <Activity className="w-5 h-5 text-[#06b6d4]" />
           </div>
           <div>
-            <h3 className="font-semibold text-white text-sm">Recent Activity</h3>
+            <h3 className="font-semibold text-white text-sm">最近活动</h3>
             <p className="text-xs text-[#a1a1aa]">系统操作记录</p>
           </div>
         </div>
@@ -765,10 +772,10 @@ function RecentActivity() {
 
 function SystemResources() {
   const resources = [
-    { label: 'CPU Usage', value: 42, color: '#3b82f6', icon: Cpu, max: 100 },
-    { label: 'Memory', value: 68, color: '#10b981', icon: Database, max: 128 },
-    { label: 'Disk I/O', value: 35, color: '#f59e0b', icon: HardDrive, max: 1000 },
-    { label: 'Network', value: 78, color: '#8b5cf6', icon: Network, max: 1000 },
+    { label: 'CPU 使用', value: 42, color: '#3b82f6', icon: Cpu, max: 100 },
+    { label: '内存使用', value: 68, color: '#10b981', icon: Database, max: 128 },
+    { label: '磁盘 I/O', value: 35, color: '#f59e0b', icon: HardDrive, max: 1000 },
+    { label: '网络吞吐', value: 78, color: '#8b5cf6', icon: Network, max: 1000 },
   ];
 
   return (
@@ -784,7 +791,7 @@ function SystemResources() {
             <Cpu className="w-5 h-5 text-[#ec4899]" />
           </div>
           <div>
-            <h3 className="font-semibold text-white text-sm">System Resources</h3>
+            <h3 className="font-semibold text-white text-sm">系统资源</h3>
             <p className="text-xs text-[#8a8a96]">实时性能监控</p>
           </div>
         </div>
@@ -805,7 +812,7 @@ function SystemResources() {
                 <span className="text-sm font-bold tabular-nums" style={{ color: item.color }}>
                   <CountUp value={item.value} />
                 </span>
-                <span className="text-xs text-[#52525B]">/ {item.max}{item.label === 'Memory' ? 'GB' : item.label === 'Disk I/O' || item.label === 'Network' ? 'MB/s' : '%'}</span>
+                <span className="text-xs text-[#52525B]">/ {item.max}{item.label === '内存使用' ? 'GB' : item.label === '磁盘 I/O' || item.label === '网络吞吐' ? 'MB/s' : '%'}</span>
               </div>
             </div>
             <div className="h-2 bg-[#1e1e28] rounded-full overflow-hidden">
@@ -828,7 +835,7 @@ function SystemResources() {
 }
 
 function HeatmapChart() {
-  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
   const hours = Array.from({ length: 12 }, (_, i) => i * 2);
 
   const getIntensity = (day: number, hour: number) => {
@@ -850,7 +857,7 @@ function HeatmapChart() {
             <Flame className="w-5 h-5 text-[#f59e0b]" />
           </div>
           <div>
-            <h3 className="font-semibold text-white text-sm">Activity Heatmap</h3>
+            <h3 className="font-semibold text-white text-sm">活跃度热力图</h3>
             <p className="text-xs text-[#8a8a96]">系统活跃度分布</p>
           </div>
         </div>
@@ -893,7 +900,7 @@ function HeatmapChart() {
       </div>
 
       <div className="flex items-center justify-end gap-3 mt-4 text-[11px] text-[#8a8a96]">
-        <span>Less</span>
+        <span>低</span>
         <div className="flex gap-1">
           {[0.2, 0.4, 0.6, 0.8, 1].map((op, i) => (
             <div
@@ -903,7 +910,7 @@ function HeatmapChart() {
             />
           ))}
         </div>
-        <span>More</span>
+        <span>高</span>
       </div>
     </motion.div>
   );
@@ -923,13 +930,13 @@ function AgentStatusPanel() {
             <Terminal className="w-5 h-5 text-[#3b82f6]" />
           </div>
           <div>
-            <h3 className="font-semibold text-white text-sm">Agent Status</h3>
+            <h3 className="font-semibold text-white text-sm">代理状态</h3>
             <p className="text-xs text-[#8a8a96]">代理运行状态</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <span className="status-dot online" />
-          <span className="text-xs text-[#10b981]">4 online</span>
+          <span className="text-xs text-[#10b981]">4 在线</span>
         </div>
       </div>
 
@@ -1003,8 +1010,8 @@ function AlertsPanel() {
             <Bell className="w-5 h-5 text-[#ef4444]" />
           </div>
           <div>
-            <h3 className="font-semibold text-white text-sm">Alerts</h3>
-            <p className="text-xs text-[#8a8a96]">系统警报</p>
+            <h3 className="font-semibold text-white text-sm">系统警报</h3>
+            <p className="text-xs text-[#8a8a96]">需要关注的事件</p>
           </div>
         </div>
         <span className="px-2 py-1 rounded-full bg-[#ef4444]/10 text-[#ef4444] text-xs font-medium">
@@ -1074,8 +1081,8 @@ function PipelineVisualization() {
             <Layers className="w-5 h-5 text-[#06b6d4]" />
           </div>
           <div>
-            <h3 className="font-semibold text-white text-sm">Data Pipeline</h3>
-            <p className="text-xs text-[#8a8a96]">数据处理流程</p>
+            <h3 className="font-semibold text-white text-sm">数据处理流程</h3>
+            <p className="text-xs text-[#8a8a96]">数据流水线状态</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -1145,7 +1152,7 @@ function QuickActions() {
       transition={{ delay: 0.55 }}
       className="card p-5"
     >
-      <h3 className="font-semibold text-white text-sm mb-4">Quick Actions</h3>
+      <h3 className="font-semibold text-white text-sm mb-4">快捷操作</h3>
       <div className="grid grid-cols-2 gap-3">
         {actions.map((action, i) => (
           <motion.button

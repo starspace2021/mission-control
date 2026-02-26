@@ -1,42 +1,104 @@
-[
-  {
-    "id": "ui_iteration_log",
-    "title": "ui_iteration_log",
-    "content": "# UI 迭代日志 - 2026-02-25\n\n## 本次迭代 (v12.2)\n\n### 优化内容\n\n#### 1. 样式系统统一\n- 清理 globals.css 冗余代码，从 25KB 优化至 18KB\n- 统一 CSS 变量命名规范 (--surface-*, --accent-*, --text-*)\n- 移除废弃的 v10/v11 样式类，保留 v12 核心系统\n\n#### 2. Dashboard 优化\n- 简化统计卡片组件，移除过度动画\n- 优化热力图渲染性能 (减少 40% 重绘)\n- 统一卡片悬停效果为微上浮 + 边框高亮\n\n#### 3. Tasks 看板优化\n- 看板卡片悬停效果从 8px 上浮改为 4px，更克制\n- 拖拽交互优化，减少动画卡顿\n- 筛选器视觉层次简化\n\n#### 4. Calendar 优化\n- 日历网格使用 CSS Grid 替代绝对定位\n- 事件卡片样式统一为左侧色条标识\n- 时间线视图渲染性能提升\n\n#### 5. Memory 优化\n- 搜索高亮效果简化，移除闪烁动画\n- 标签云交互改为即时反馈\n- 卡片悬停效果统一\n\n### 性能改进...",
-    "type": "project",
-    "tags": [],
-    "importance": 5,
-    "updatedAt": "2026-02-24T19:36:16.314Z",
-    "createdAt": "2026-02-24T19:36:16.314Z"
-  },
-  {
-    "id": "ui_changelog",
-    "title": "ui_changelog",
-    "content": "# Mission Control UI Changelog\n\n## [v12.2] - 2026-02-25\n\n### Changed\n- 统一样式系统为 v12 规范\n- 优化 Dashboard 统计卡片动画\n- 改进 Tasks 看板悬停效果\n- 提升 Calendar 渲染性能\n- 简化 Memory 搜索高亮\n\n### Performance\n- 构建产物减少 12%\n- CSS 体积减少 28%\n- 首屏加载提升 25%\n\n## [v12.1] - 2026-02-24\n\n### Added\n- 微光扫过效果 (shimmer)\n- 脉冲边框动画\n- 磁吸悬停效果\n- 玻璃态增强样式\n\n## [v12.0] - 2026-02-24\n\n### Added\n- 极简主义设计方向\n- 高信息密度布局\n- 专业控制台风格\n- 微交互优化\n\n### Changed\n- 全新 CSS 变量系统\n- 卡片组件重构\n- 按钮系统统一\n- 标签系统优化\n\n## [v11.0] - 2026-02-23\n\n### Added\n- 玻璃态卡片 v5\n- 统计卡片 v11\n- 数据刷新指示器\n...",
-    "type": "daily",
-    "tags": [],
-    "importance": 5,
-    "updatedAt": "2026-02-24T19:36:13.753Z",
-    "createdAt": "2026-02-24T19:36:13.753Z"
-  },
-  {
-    "id": "ui_iteration_report_20260224",
-    "title": "ui_iteration_report_20260224",
-    "content": "# Mission Control UI 自动迭代报告\n\n## 执行摘要\n\n**任务:** Mission Control UI 自动迭代 (v8.0)  \n**执行时间:** 2026-02-24 15:24-15:28 (Asia/Shanghai)  \n**执行状态:** ✅ 部分完成\n\n---\n\n## 已完成工作\n\n### 1. 样式系统增强 (globals.css)\n- ✅ 新增 `glass-card-v2` 增强版玻璃态卡片\n- ✅ 新增 `gradient-text-v2` 渐变文字效果\n- ✅ 新增 `page-transition-enter` 页面进入动画\n- ✅ 新增 `loading-state` 加载状态指示器\n- ✅ 新增 `live-indicator-v2` 实时数据指示器\n- ✅ 新增 `stat-grid-v2` 统计网格布局\n- ✅ 新增 `interactive-feedback` 交互反馈增强\n- ✅ 新增 `chart-container-v2` 图表容器优化\n- ✅ 响应式断点优化\n- ✅ 无障碍动画支持 (`prefers-reduc...",
-    "type": "project",
-    "tags": [],
-    "importance": 5,
-    "updatedAt": "2026-02-24T07:29:48.076Z",
-    "createdAt": "2026-02-24T07:29:48.076Z"
-  },
-  {
-    "id": "ui_iteration_log_20260224",
-    "title": "ui_iteration_log_20260224",
-    "content": "# Mission Control UI 迭代日志\n\n## 迭代版本: v8.0\n## 迭代日期: 2026-02-24\n## 执行时间: 15:26 (Asia/Shanghai)\n\n---\n\n## 本次优化内容\n\n### 1. globals.css 样式系统增强\n\n#### 新增工具类\n- **glass-card-v2**: 增强版玻璃态卡片\n  - 更精细的渐变背景\n  - 改进的悬停动画效果\n  - 增强的阴影和光晕效果\n  - 更好的边框透明度控制\n\n- **gradient-text-v2**: 增强版渐变文字\n  - 更大的背景尺寸 (300%)\n  - 更流畅的动画过渡\n  - 添加文字阴影效果\n\n- **page-transition-enter**: 页面进入动画\n  - 淡入 + 上滑 + 缩放组合效果\n  - 平滑的贝塞尔曲线过渡\n\n- **loading-state**: 加载状态指示器\n  - 扫描线动画效果\n  - 蓝色主题光效\n\n- **live-indicator-v2**: 实时数据指示器\n  - 脉冲扩散动画\n  - 绿色主题\n\n- **sta...",
-    "type": "project",
-    "tags": [],
-    "importance": 5,
-    "updatedAt": "2026-02-24T07:28:13.612Z",
-    "createdAt": "2026-02-24T07:28:13.612Z"
-  }
-]
+{
+  "memories": [
+    {
+      "id": "1",
+      "title": "非洲涉华情报系统架构",
+      "content": "建立了完整的非洲涉华情报收集和分析系统。包含数据抓取、内容分析、风险评估、报告生成四个核心模块。每日自动生成情报简报，支持关键词预警和事件追踪。",
+      "type": "project",
+      "tags": ["情报", "非洲", "自动化", "OSINT"],
+      "importance": 5,
+      "updatedAt": "2026-02-22T20:00:00Z",
+      "createdAt": "2026-02-21T10:00:00Z"
+    },
+    {
+      "id": "2",
+      "title": "用户画像 - Hourglass",
+      "content": "OSINT从业者，40岁男性。专业背景：开源情报(OSINT)从业者，需要实时情报监控和数据分析，关注非洲涉华情报等特定领域。工作习惯：需要定时情报摘要，重视信息准确性和时效性，多任务并行。",
+      "type": "long_term",
+      "tags": ["用户", "OSINT", "画像"],
+      "importance": 4,
+      "updatedAt": "2026-02-21T15:30:00Z",
+      "createdAt": "2026-02-21T15:30:00Z"
+    },
+    {
+      "id": "3",
+      "title": "Mission Control 系统架构",
+      "content": "Next.js + Convex 技术栈的任务控制中心。包含任务看板、日历管理、记忆系统、团队视图四大模块。支持实时数据同步、拖拽交互、全局搜索等功能。",
+      "type": "system",
+      "tags": ["系统", "架构", "Next.js", "Convex"],
+      "importance": 5,
+      "updatedAt": "2026-02-22T18:00:00Z",
+      "createdAt": "2026-02-22T08:00:00Z"
+    },
+    {
+      "id": "4",
+      "title": "美国对华政策监控数据源",
+      "content": "整理了美国对华政策监控的核心数据源：白宫官网(whitehouse.gov)、美国贸易代表办公室(USTR)、美国财政部(OFAC)、美国商务部(BIS)、美国国防部、美国国务院。以及Twitter/X监控账号清单。",
+      "type": "project",
+      "tags": ["政策", "美国", "数据源", "监控"],
+      "importance": 4,
+      "updatedAt": "2026-02-22T14:00:00Z",
+      "createdAt": "2026-02-22T14:00:00Z"
+    },
+    {
+      "id": "5",
+      "title": "卫星遥感经济评估研究报告",
+      "content": "基于世界银行NO₂排放数据的卫星遥感经济评估研究。分析了夜间灯光数据与GDP增长的相关性，以及NO₂排放作为经济活动指标的有效性。",
+      "type": "project",
+      "tags": ["卫星遥感", "经济评估", "NO2", "世界银行"],
+      "importance": 3,
+      "updatedAt": "2026-02-22T12:00:00Z",
+      "createdAt": "2026-02-22T09:00:00Z"
+    },
+    {
+      "id": "6",
+      "title": "Polymarket 预测市场监控",
+      "content": "Polymarket预测市场数据监控和简报生成系统。每小时抓取市场数据，分析价格变动和交易量，生成盘中简报和日报。",
+      "type": "project",
+      "tags": ["市场", "Polymarket", "预测", "简报"],
+      "importance": 4,
+      "updatedAt": "2026-02-22T20:30:00Z",
+      "createdAt": "2026-02-20T10:00:00Z"
+    },
+    {
+      "id": "7",
+      "title": "团队组织架构 v2.0",
+      "content": "Human Director + Chief AI Officer + 5 Departments + 12 Subagents 的完整架构。部门包括：Intel(非洲情报)、Policy(中美政策)、Market(金融情报)、Engineering(工程)、Admin(记忆与管理)。",
+      "type": "system",
+      "tags": ["团队", "架构", "组织", "子代理"],
+      "importance": 5,
+      "updatedAt": "2026-02-22T16:00:00Z",
+      "createdAt": "2026-02-21T11:00:00Z"
+    },
+    {
+      "id": "8",
+      "title": "2026-02-22 工作日志",
+      "content": "今日完成了卫星遥感报告、非洲情报系统上线、QQ邮箱配置、Task Board创建、美国对华政策监控系统搭建。多个项目并行推进，系统运行稳定。",
+      "type": "daily",
+      "tags": ["日志", "日报", "2026-02-22"],
+      "importance": 3,
+      "updatedAt": "2026-02-22T23:00:00Z",
+      "createdAt": "2026-02-22T23:00:00Z"
+    },
+    {
+      "id": "9",
+      "title": "UI设计规范 v21.0",
+      "content": "Mission Control UI设计规范：深色背景(#0a0a0f)、蓝色高亮(#3b82f6)、精致卡片、专业数据可视化。动画原则：流畅、克制、有意义。",
+      "type": "system",
+      "tags": ["UI", "设计", "规范", "样式"],
+      "importance": 4,
+      "updatedAt": "2026-02-26T13:00:00Z",
+      "createdAt": "2026-02-26T13:00:00Z"
+    },
+    {
+      "id": "10",
+      "title": "定时任务调度系统",
+      "content": "基于OpenClaw Cron的定时任务调度系统。支持精确时间触发、周期性执行、任务依赖管理。当前运行任务：非洲情报简报、Polymarket监控、美国对华政策简报、QQ邮箱清理等。",
+      "type": "system",
+      "tags": ["定时任务", "Cron", "调度", "自动化"],
+      "importance": 5,
+      "updatedAt": "2026-02-22T19:00:00Z",
+      "createdAt": "2026-02-22T08:00:00Z"
+    }
+  ]
+}
