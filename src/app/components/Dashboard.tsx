@@ -396,7 +396,7 @@ function DataStreamBar() {
   );
 }
 
-// 增强的欢迎横幅
+// 增强的欢迎横幅 - v2.0 优化版
 function WelcomeBanner() {
   const [greeting, setGreeting] = useState('早安');
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -405,7 +405,8 @@ function WelcomeBanner() {
   useEffect(() => {
     setMounted(true);
     const hour = new Date().getHours();
-    if (hour < 12) setGreeting('早安');
+    if (hour < 6) setGreeting('夜深了');
+    else if (hour < 12) setGreeting('早安');
     else if (hour < 18) setGreeting('下午好');
     else setGreeting('晚上好');
 

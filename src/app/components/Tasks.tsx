@@ -193,6 +193,7 @@ function TaskStatsChart() {
   );
 }
 
+// 增强的任务卡片 - v2.0 优化版
 function TaskCard({
   task,
   onClick,

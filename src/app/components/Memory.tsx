@@ -268,6 +268,7 @@ export default function MemoryArchive() {
   const [activeType, setActiveType] = useState<string | null>(null);
   const [activeTags, setActiveTags] = useState<string[]>([]);
   const [selected, setSelected] = useState<Memory | null>(null);
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
 
   // 使用构建时加载的记忆数据
   const allTags = useMemo(() => 
@@ -292,21 +293,44 @@ export default function MemoryArchive() {
     );
   };
 
+  const clearAllFilters = () => {
+    setSearch('');
+    setActiveType(null);
+    setActiveTags([]);
+  };
+
+  const hasActiveFilters = search || activeType || activeTags.length > 0;
+
   return (
     <div className="space-y-5">
-      {/* 搜索和筛选 */}
+      {/* 搜索和筛选 - v2.0 优化版 */}
       <div className="glass-card-v4 p-5">
-        <div className="relative mb-4">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#52525B]" />
+        {/* 搜索框 */}
+        <div className={`relative mb-4 transition-all duration-300 ${isSearchFocused ? 'transform scale-[1.02]' : ''}`}>
+          <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${isSearchFocused ? 'text-[#3b82f6]' : 'text-[#52525B]'}`} />
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
+            onFocus={() => setIsSearchFocused(true)}
+            onBlur={() => setIsSearchFocused(false)}
             placeholder="Search memories..."
-            className="input pl-10 pr-16 bg-[#0a0a0f]"
+            className="w-full pl-10 pr-16 py-3 bg-[#0a0a0f] border border-white/10 rounded-xl
+                       text-white placeholder:text-[#52525B] focus:border-[#3b82f6]/50
+                       focus:outline-none transition-all text-sm focus:ring-2 focus:ring-[#3b82f6]/20"
           />
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-[#52525B] bg-white/5 px-1.5 py-0.5 rounded">
-            ⌘K
-          </span>
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+            {search && (
+              <button
+                onClick={() => setSearch('')}
+                className="p-1 hover:bg-white/10 rounded transition-colors"
+              >
+                <X className="w-3 h-3 text-[#71717A]" />
+              </button>
+            )}
+            <span className="text-[10px] text-[#52525B] bg-white/5 px-1.5 py-0.5 rounded">
+              ⌘K
+            </span>
+          </div>
         </div>
 
         {/* 类型筛选 */}
@@ -316,19 +340,29 @@ export default function MemoryArchive() {
             const isActive = activeType === type;
             
             return (
-              <button 
+              <motion.button 
                 key={type} 
                 onClick={() => setActiveType(activeType === type ? null : type)}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
                   isActive 
-                    ? 'text-white' 
-                    : 'text-[#71717A] hover:text-white bg-white/5 hover:bg-white/8'
+                    ? '' 
+                    : 'text-[#71717A] hover:text-white bg-white/5 hover:bg-white/10'
                 }`}
-                style={isActive ? { background: cfg.bg, color: cfg.color } : {}}
+                style={isActive ? { background: cfg.bg, color: cfg.color, boxShadow: `0 0 20px ${cfg.color}30` } : {}}
+                whileHover={{ scale: 1.05, y: -1 }}
+                whileTap={{ scale: 0.95 }}
               >
                 <Icon className="w-3.5 h-3.5" />
                 {cfg.label}
-              </button>
+                {isActive && (
+                  <motion.span
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="w-1.5 h-1.5 rounded-full"
+                    style={{ background: cfg.color }}
+                  />
+                )}
+              </motion.button>
             );
           })}
         </div>
@@ -337,17 +371,38 @@ export default function MemoryArchive() {
         {allTags.length > 0 && (
           <div className="tag-cloud gap-y-2">
             {allTags.map(tag => (
-              <button 
+              <motion.button 
                 key={tag} 
                 onClick={() => toggleTag(tag)}
                 className={`tag-cloud-item ${activeTags.includes(tag) ? 'active' : ''}`}
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.95 }}
               >
                 <Tag className="w-3 h-3 mr-1" />
                 {tag}
-              </button>
+              </motion.button>
             ))}
           </div>
         )}
+
+        {/* 清除筛选按钮 */}
+        {hasActiveFilters && (
+          <motion.button
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            onClick={clearAllFilters}
+            className="mt-4 flex items-center gap-2 text-xs text-[#71717A] hover:text-white transition-colors"
+          >
+            <X className="w-3 h-3" />
+            清除所有筛选
+          </motion.button>
+        )}
+      </div>
+
+      {/* 结果计数 */}
+      <div className="flex items-center justify-between text-sm text-[#71717A]">
+        <span>找到 {filtered.length} 条记忆</span>
+        {hasActiveFilters && <span className="text-[#3b82f6]">已应用筛选</span>}
       </div>
 
       {/* 记忆卡片列表 */}
@@ -367,13 +422,20 @@ export default function MemoryArchive() {
             </motion.div>
           )}
           
-          {filtered.map(memory => (
-            <MemoryCard 
+          {filtered.map((memory, index) => (
+            <motion.div
               key={memory.id}
-              memory={memory}
-              search={search}
-              onClick={() => setSelected(memory)}
-            />
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ delay: index * 0.05 }}
+            >
+              <MemoryCard 
+                memory={memory}
+                search={search}
+                onClick={() => setSelected(memory)}
+              />
+            </motion.div>
           ))}
         </AnimatePresence>
       </div>
