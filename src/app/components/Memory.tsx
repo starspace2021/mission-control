@@ -35,7 +35,7 @@ function HighlightedText({ text, search }: { text: string; search: string }) {
     <>
       {parts.map((part, i) => 
         part.toLowerCase() === search.toLowerCase() ? (
-          <span key={i} className="search-highlight">{part}</span>
+          <span key={i} className="search-highlight-enhanced">{part}</span>
         ) : (
           part
         )
@@ -73,13 +73,12 @@ function MemoryCard({
       animate={{ 
         opacity: 1, 
         y: 0,
-        boxShadow: isHovered ? `0 8px 30px ${cfg.color}30` : '0 4px 12px rgba(0,0,0,0.2)',
       }}
       exit={{ opacity: 0, scale: 0.95 }}
       onClick={onClick}
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
-      className="memory-card group cursor-pointer relative overflow-hidden p-3"
+      className="memory-card-enhanced group"
       whileHover={{ y: -6, transition: { duration: 0.2 } }}
     >
       {/* 顶部渐变线 */}
@@ -99,18 +98,10 @@ function MemoryCard({
         animate={{ opacity: isHovered ? 1 : 0, scale: isHovered ? 1 : 0.5 }}
         transition={{ duration: 0.4 }}
       />
-
-      {/* 底部渐变 */}
-      <motion.div
-        className="absolute bottom-0 left-0 right-0 h-16 pointer-events-none"
-        style={{ background: `linear-gradient(to top, ${cfg.color}08, transparent)` }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: isHovered ? 1 : 0 }}
-      />
       
-      <div className="flex items-start gap-3 relative z-10">
+      <div className="flex items-start gap-4 relative z-10">
         <motion.div 
-          className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 relative overflow-hidden"
+          className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 relative overflow-hidden"
           style={{ background: cfg.bg }}
           whileHover={{ scale: 1.1, rotate: 5 }}
           transition={{ type: "spring", stiffness: 400 }}
@@ -138,16 +129,26 @@ function MemoryCard({
             <HighlightedText text={memory.content} search={search} />
           </p>
           
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-3">
             <motion.span 
-              className="text-[10px] px-2 py-0.5 rounded-full font-medium"
+              className="text-[10px] px-2.5 py-1 rounded-full font-medium"
               style={{ background: cfg.bg, color: cfg.color }}
               whileHover={{ scale: 1.05 }}
             >
               {cfg.label}
             </motion.span>
             
-            {memory.tags?.slice(0, 3).map((tag, index) => (
+            {/* 重要性指示器 */}
+            <div className="importance-indicator">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div
+                  key={i}
+                  className={`importance-dot ${i < memory.importance ? 'active' : ''}`}
+                />
+              ))}
+            </div>
+            
+            {memory.tags?.slice(0, 2).map((tag, index) => (
               <motion.span 
                 key={tag}
                 className="text-[10px] px-2 py-0.5 rounded-full bg-white/5 text-[#71717A] hover:bg-white/10 transition-colors"
@@ -159,8 +160,8 @@ function MemoryCard({
                 #{tag}
               </motion.span>
             ))}
-            {memory.tags && memory.tags.length > 3 && (
-              <span className="text-[10px] text-[#52525B]">+{memory.tags.length - 3}</span>
+            {memory.tags && memory.tags.length > 2 && (
+              <span className="text-[10px] text-[#52525B]">+{memory.tags.length - 2}</span>
             )}
           </div>
         </div>
@@ -350,9 +351,11 @@ export default function MemoryArchive() {
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="empty-state"
+              className="empty-state-enhanced"
             >
-              <div className="empty-state-icon">🔍</div>
+              <div className="icon-wrapper">
+                <span className="text-3xl">🔍</span>
+              </div>
               <div className="empty-state-title">No memories found</div>
               <div className="empty-state-desc">Try adjusting your search or filters</div>
             </motion.div>

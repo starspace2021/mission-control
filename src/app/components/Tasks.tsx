@@ -579,23 +579,31 @@ function TaskStats() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: i * 0.05 }}
           whileHover={{ y: -4, scale: 1.02, transition: { duration: 0.2 } }}
-          className="card p-4 flex items-center gap-3 cursor-pointer group"
+          className="stat-card-v2 cursor-pointer group"
         >
-          <div
-            className={`w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br ${stat.bg} group-hover:scale-110 transition-transform`}
-          >
-            <stat.icon className="w-5 h-5" style={{ color: stat.color }} />
-          </div>
-          <div>
-            <motion.div 
-              className="text-2xl font-bold text-white"
-              initial={{ scale: 0.5 }}
-              animate={{ scale: 1 }}
-              transition={{ type: "spring", stiffness: 300, delay: i * 0.1 }}
+          <div className="flex items-center gap-3">
+            <motion.div
+              className={`w-11 h-11 rounded-xl flex items-center justify-center bg-gradient-to-br ${stat.bg}`}
+              whileHover={{ scale: 1.1, rotate: 5 }}
+              transition={{ type: "spring", stiffness: 400 }}
             >
-              {stat.value}
+              <stat.icon className="w-5 h-5" style={{ color: stat.color }} />
             </motion.div>
-            <div className="text-xs text-[#71717A]">{stat.label}</div>
+            <div>
+              <motion.div 
+                className="text-2xl font-bold"
+                style={{ 
+                  color: stat.color,
+                  textShadow: `0 0 20px ${stat.color}30`
+                }}
+                initial={{ scale: 0.5 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 300, delay: i * 0.1 }}
+              >
+                {stat.value}
+              </motion.div>
+              <div className="text-xs text-[#71717A]">{stat.label}</div>
+            </div>
           </div>
         </motion.div>
       ))}
@@ -798,18 +806,18 @@ export default function Tasks() {
               }}
             >
               {/* 列标题 */}
-              <div className="p-4 border-b border-white/5">
+              <div className="kanban-header mb-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <motion.div
-                      className="w-11 h-11 rounded-xl flex items-center justify-center"
+                      className="w-12 h-12 rounded-xl flex items-center justify-center"
                       style={{ backgroundColor: col.bg }}
                       whileHover={{ scale: 1.05, rotate: 5 }}
                     >
-                      <Icon className="w-5 h-5" style={{ color: col.color }} />
+                      <Icon className="w-6 h-6" style={{ color: col.color }} />
                     </motion.div>
                     <div>
-                      <h3 className="font-semibold text-white">{col.label}</h3>
+                      <h3 className="font-semibold text-white text-base">{col.label}</h3>
                       <p className="text-xs text-[#71717A]">{col.description}</p>
                     </div>
                   </div>
@@ -848,18 +856,18 @@ export default function Tasks() {
 
                 {colTasks.length === 0 && (
                   <motion.div
-                    className={`empty-state py-12 transition-all duration-300 ${
+                    className={`empty-state-enhanced py-12 transition-all duration-300 ${
                       isDragOver ? 'bg-[#3b82f6]/10 rounded-lg border-2 border-dashed border-[#3b82f6]/30' : ''
                     }`}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                   >
                     <motion.div 
-                      className="w-14 h-14 rounded-2xl bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center mb-4"
+                      className="icon-wrapper"
                       animate={isDragOver ? { scale: [1, 1.1, 1], y: [0, -5, 0] } : {}}
                       transition={{ duration: 1, repeat: Infinity }}
                     >
-                      <Plus className="w-6 h-6 text-[#71717A]" />
+                      <Plus className="w-8 h-8 text-[#71717A]" />
                     </motion.div>
                     <span className="text-sm font-medium text-[#71717A]">{isDragOver ? '释放以添加任务' : '暂无任务'}</span>
                     <span className="text-xs text-[#52525B] mt-1">{isDragOver ? '' : '拖拽任务到此处'}</span>

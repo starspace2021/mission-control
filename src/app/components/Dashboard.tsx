@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect, useMemo } from 'react';
+import { motion } from 'framer-motion';
 import {
   LayoutDashboard,
   CheckCircle2,
   Activity,
-  Users,
+  Bot,
   Zap,
   ArrowUpRight,
   ArrowDownRight,
@@ -20,39 +20,38 @@ import {
   Wifi,
   Shield,
   Flame,
-  Target,
-  TrendingUp,
   Clock,
   AlertTriangle,
-  Layers,
   Terminal,
-  Server,
   HardDrive,
   Network,
   ChevronRight,
   RefreshCw,
-  MoreHorizontal,
   Bell,
-  Settings,
-  Radio,
+  Layers,
   FileText,
-  Calendar,
-  Bot,
-  BrainCircuit,
-  Eye,
-  TrendingDown,
-  ActivitySquare,
-  Gauge,
-  ZapIcon,
+  Radio,
+  CheckCircle,
   AlertOctagon,
   ArrowRight,
   Play,
   Pause,
   StopCircle,
   ScanLine,
-  Radio as RadioIcon,
   CpuIcon,
-  Workflow
+  Workflow,
+  TrendingUp,
+  TrendingDown,
+  ActivitySquare,
+  Gauge,
+  ZapIcon,
+  Eye,
+  BrainCircuit,
+  Server,
+  MoreHorizontal,
+  Settings,
+  Menu,
+  X
 } from 'lucide-react';
 
 // ========== 类型定义 ==========
@@ -280,8 +279,6 @@ function DataStreamBar() {
 function WelcomeBanner() {
   const [greeting, setGreeting] = useState('早安');
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [hoveredStat, setHoveredStat] = useState<number | null>(null);
-  const [lastUpdated, setLastUpdated] = useState(new Date());
 
   useEffect(() => {
     const hour = new Date().getHours();
@@ -293,90 +290,129 @@ function WelcomeBanner() {
     return () => clearInterval(timer);
   }, []);
 
-  const stats = [
-    { value: '98.5%', label: '系统健康度', color: '#10b981', icon: Activity },
-    { value: currentTime.toLocaleTimeString('zh-CN', { hour12: false, hour: '2-digit', minute: '2-digit' }), label: '当前时间', color: '#3b82f6', icon: Clock, isTime: true },
-    { value: '6', label: '在线代理', color: '#8b5cf6', icon: Bot },
-  ];
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="glass-card-v2 p-6 relative overflow-hidden"
+      className="welcome-banner relative overflow-hidden"
     >
+      <div className="welcome-banner-bg" />
       <DataStreamBar />
 
-      {/* 增强背景光效 */}
-      <div className="absolute inset-0 bg-gradient-to-r from-[#3b82f6]/5 via-[#8b5cf6]/3 to-transparent" />
-      <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-[#3b82f6]/15 via-[#8b5cf6]/8 to-transparent rounded-full blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
-      <div className="absolute bottom-0 left-0 w-72 h-72 bg-gradient-to-tr from-[#10b981]/10 via-[#06b6d4]/5 to-transparent rounded-full blur-3xl" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-radial from-[#3b82f6]/5 to-transparent rounded-full blur-3xl" />
-
-      {/* 顶部渐变线 */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#3b82f6]/50 to-transparent" />
+      {/* 动态背景光效 */}
+      <motion.div 
+        className="absolute top-0 right-0 w-[500px] h-[500px]"
+        style={{ 
+          background: 'radial-gradient(circle at top right, rgba(59, 130, 246, 0.12), transparent 60%)',
+        }}
+        animate={{ 
+          scale: [1, 1.1, 1],
+          opacity: [0.5, 0.8, 0.5]
+        }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.div 
+        className="absolute bottom-0 left-0 w-[400px] h-[400px]"
+        style={{ 
+          background: 'radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.1), transparent 60%)',
+        }}
+        animate={{ 
+          scale: [1, 1.15, 1],
+          opacity: [0.4, 0.7, 0.4]
+        }}
+        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+      />
 
       <div className="relative flex items-center justify-between">
         <div>
-          <div className="flex items-center gap-3 mb-3">
-            <motion.div
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-[#f59e0b]/15 to-[#f59e0b]/5 border border-[#f59e0b]/30 shadow-lg shadow-[#f59e0b]/10"
-              whileHover={{ scale: 1.03, boxShadow: '0 0 20px rgba(245, 158, 11, 0.2)' }}
+          <div className="flex items-center gap-3 mb-4">
+            <motion.div 
+              className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-[#f59e0b]/20 to-[#f59e0b]/5 border border-[#f59e0b]/40"
+              whileHover={{ scale: 1.05 }}
               transition={{ type: "spring", stiffness: 400 }}
             >
               <Sparkles className="w-4 h-4 text-[#f59e0b]" />
-              <span className="text-sm text-[#f59e0b] font-medium">{greeting}</span>
+              <span className="text-sm text-[#f59e0b] font-semibold">{greeting}</span>
             </motion.div>
-            <motion.div
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-[#10b981]/15 to-[#10b981]/5 border border-[#10b981]/30 shadow-lg shadow-[#10b981]/10"
-              whileHover={{ scale: 1.03, boxShadow: '0 0 20px rgba(16, 185, 129, 0.2)' }}
+            <motion.div 
+              className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-[#10b981]/20 to-[#10b981]/5 border border-[#10b981]/40"
+              whileHover={{ scale: 1.05 }}
               transition={{ type: "spring", stiffness: 400 }}
             >
-              <span className="w-2 h-2 bg-[#10b981] rounded-full animate-pulse" />
-              <span className="text-sm text-[#10b981] font-medium">系统运行正常</span>
+              <motion.span 
+                className="w-2.5 h-2.5 bg-[#10b981] rounded-full"
+                animate={{ scale: [1, 1.2, 1], opacity: [1, 0.7, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              />
+              <span className="text-sm text-[#10b981] font-semibold">系统运行正常</span>
             </motion.div>
           </div>
-          <h2 className="text-2xl font-bold mb-2 bg-gradient-to-r from-white to-white/80 bg-clip-text">欢迎回来，Hourglass</h2>
-          <p className="text-[#a1a1aa] flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#3b82f6] animate-pulse" />
+          <motion.h2 
+            className="text-3xl font-bold mb-3 bg-gradient-to-r from-white via-white/90 to-white/70 bg-clip-text"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            欢迎回来，Hourglass
+          </motion.h2>
+          <motion.p 
+            className="text-[#a1a1aa] flex items-center gap-2 text-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+          >
+            <motion.span 
+              className="w-2 h-2 rounded-full bg-[#3b82f6]"
+              animate={{ opacity: [1, 0.3, 1] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+            />
             今日有 5 个定时任务待执行，2 个高优先级警报需要关注
-          </p>
-          <p className="text-xs text-[#52525B] mt-2 flex items-center gap-2">
-            <Clock className="w-3 h-3" />
-            最后更新: {lastUpdated.toLocaleTimeString('zh-CN', { hour12: false })}
-          </p>
+          </motion.p>
         </div>
 
-        <div className="hidden md:flex items-center gap-6">
-          {stats.map((stat, index) => (
-            <motion.div
-              key={stat.label}
+        <div className="hidden md:flex items-center gap-8">
+          {[
+            { value: '98.5%', label: '系统健康度', color: '#10b981', icon: Activity, trend: '+0.5%' },
+            { value: currentTime.toLocaleTimeString('zh-CN', { hour12: false, hour: '2-digit', minute: '2-digit' }), label: '当前时间', color: '#3b82f6', icon: Clock },
+            { value: '6', label: '在线代理', color: '#8b5cf6', icon: Bot, trend: '+1' },
+          ].map((stat, index) => (
+            <motion.div 
+              key={stat.label} 
               className="text-center relative"
-              onHoverStart={() => setHoveredStat(index)}
-              onHoverEnd={() => setHoveredStat(null)}
-              whileHover={{ scale: 1.05 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 + index * 0.1 }}
             >
-              <motion.div
-                className="absolute inset-0 -m-4 rounded-2xl bg-white/5 opacity-0"
-                animate={{ opacity: hoveredStat === index ? 1 : 0 }}
-              />
-              <div className="relative">
-                <motion.div
-                  className="text-3xl font-bold tabular-nums"
-                  style={{ color: stat.color }}
-                  key={stat.isTime ? currentTime.getSeconds() : stat.value}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                >
-                  {stat.value}
-                </motion.div>
-                <div className="text-xs text-[#a1a1aa] mt-1 flex items-center justify-center gap-1">
-                  <stat.icon className="w-3 h-3" style={{ color: stat.color }} />
-                  {stat.label}
-                </div>
+              <motion.div 
+                className="text-4xl font-bold tabular-nums"
+                style={{ 
+                  color: stat.color,
+                  textShadow: `0 0 30px ${stat.color}40`
+                }}
+                whileHover={{ scale: 1.05 }}
+              >
+                {stat.value}
+              </motion.div>
+              <div className="text-xs text-[#71717A] mt-2 flex items-center justify-center gap-1.5">
+                <stat.icon className="w-3.5 h-3.5" style={{ color: stat.color }} />
+                {stat.label}
               </div>
-              {index < stats.length - 1 && (
-                <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-3 w-px h-12 bg-gradient-to-b from-transparent via-white/20 to-transparent" />
+              {stat.trend && (
+                <motion.div 
+                  className="absolute -top-1 -right-6 text-[10px] font-medium px-1.5 py-0.5 rounded"
+                  style={{ 
+                    background: `${stat.color}20`,
+                    color: stat.color
+                  }}
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.6 + index * 0.1 }}
+                >
+                  {stat.trend}
+                </motion.div>
+              )}
+              {index < 2 && (
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 w-px h-16 bg-gradient-to-b from-transparent via-white/20 to-transparent" />
               )}
             </motion.div>
           ))}
@@ -388,7 +424,6 @@ function WelcomeBanner() {
 
 function StatCard({ metric, index }: { metric: Metric; index: number }) {
   const Icon = metric.icon;
-  const [isHovered, setIsHovered] = useState(false);
   const chartData = useMemo(() =>
     [30, 45, 35, 50, 40, 60, 55, 70, 65, 80, 75, 85].map(v => v + Math.random() * 20),
     []
@@ -400,31 +435,21 @@ function StatCard({ metric, index }: { metric: Metric; index: number }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.08, duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
       whileHover={{ y: -6, transition: { duration: 0.2 } }}
-      onHoverStart={() => setIsHovered(true)}
-      onHoverEnd={() => setIsHovered(false)}
-      className="data-card group cursor-pointer"
+      className="stat-card-v2 group cursor-pointer"
     >
       {/* 顶部渐变线 */}
-      <motion.div
-        className="absolute top-0 left-0 right-0 h-1"
-        initial={{ opacity: 0.7 }}
-        animate={{ opacity: isHovered ? 1 : 0.7 }}
+      <div
+        className="absolute top-0 left-0 right-0 h-1 opacity-70 group-hover:opacity-100 transition-opacity"
         style={{ background: `linear-gradient(to right, ${metric.color}, ${metric.color}60, transparent)` }}
       />
 
       {/* 悬停发光背景 */}
       <motion.div 
         className="absolute -top-20 -right-20 w-40 h-40 rounded-full"
-        style={{ background: `radial-gradient(circle, ${metric.color}25, transparent)` }}
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: isHovered ? 1 : 0, scale: isHovered ? 1 : 0.8 }}
+        style={{ background: `radial-gradient(circle, ${metric.color}30, transparent)` }}
+        initial={{ opacity: 0, scale: 0.5 }}
+        whileHover={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.4 }}
-      />
-
-      {/* 底部渐变装饰 */}
-      <motion.div
-        className="absolute bottom-0 left-0 right-0 h-20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-        style={{ background: `linear-gradient(to top, ${metric.color}08, transparent)` }}
       />
 
       <div className="relative">
@@ -435,11 +460,6 @@ function StatCard({ metric, index }: { metric: Metric; index: number }) {
             whileHover={{ scale: 1.1, rotate: 5 }}
             transition={{ type: "spring", stiffness: 400 }}
           >
-            <motion.div
-              className="absolute inset-0"
-              style={{ background: `linear-gradient(135deg, ${metric.color}30, transparent)` }}
-              animate={{ opacity: isHovered ? 1 : 0 }}
-            />
             <Icon className="w-5 h-5 relative z-10" style={{ color: metric.color }} />
           </motion.div>
           <TrendIndicator trend={metric.trend} />
@@ -448,10 +468,12 @@ function StatCard({ metric, index }: { metric: Metric; index: number }) {
         <div className="flex items-end justify-between">
           <div>
             <motion.div 
-              className="text-3xl font-bold mb-1"
-              style={{ color: metric.color }}
-              animate={{ scale: isHovered ? 1.05 : 1 }}
-              transition={{ type: "spring", stiffness: 400 }}
+              className="text-3xl font-bold mb-1 stat-value-animated"
+              style={{ 
+                color: metric.color,
+                textShadow: `0 0 30px ${metric.color}30`
+              }}
+              whileHover={{ scale: 1.05 }}
             >
               {metric.value}
             </motion.div>
@@ -477,13 +499,12 @@ function SystemMetricCard({ metric, index }: { metric: SystemMetric; index: numb
       className="card p-4"
     >
       <div className="flex items-center gap-3">
-        <motion.div
+        <div
           className="p-2.5 rounded-xl"
           style={{ background: `${metric.color}12` }}
-          whileHover={{ scale: 1.1 }}
         >
           <Icon className="w-4 h-4" style={{ color: metric.color }} />
-        </motion.div>
+        </div>
         <div className="flex-1">
           <div className="text-xs text-[#8a8a96] mb-0.5">{metric.label}</div>
           <span className="text-lg font-bold text-white">
@@ -723,13 +744,12 @@ function RecentActivity() {
               transition={{ delay: 0.35 + i * 0.05, duration: 0.3 }}
               className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/[0.03] transition-all cursor-pointer group"
             >
-              <motion.div
+              <div
                 className="w-9 h-9 rounded-lg flex items-center justify-center"
                 style={{ background: `${a.color}15` }}
-                whileHover={{ scale: 1.1 }}
               >
                 <Icon className="w-4 h-4" style={{ color: a.color }} />
-              </motion.div>
+              </div>
               <div className="flex-1 min-w-0">
                 <span className="text-sm text-white block truncate group-hover:text-[#3b82f6] transition-colors">{a.text}</span>
                 <span className="text-xs text-[#52525B]">{a.meta}</span>
@@ -993,36 +1013,34 @@ function AlertsPanel() {
       </div>
 
       <div className="space-y-2">
-        <AnimatePresence>
-          {alerts.map((alert) => {
-            const severity = getSeverityColor(alert.severity);
-            const Icon = severity.icon;
-            return (
-              <motion.div
-                key={alert.id}
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className={`p-3 rounded-xl ${severity.bg} border ${severity.border} flex items-start gap-3 group hover:scale-[1.02] transition-transform cursor-pointer`}
-              >
-                <Icon className={`w-4 h-4 ${severity.text} flex-shrink-0 mt-0.5`} />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <span className={`text-sm font-medium ${severity.text}`}>{alert.title}</span>
-                    <button
-                      onClick={() => dismissAlert(alert.id)}
-                      className="p-1 hover:bg-white/10 rounded transition-colors opacity-0 group-hover:opacity-100"
-                    >
-                      <span className="text-[#6b6b78] text-lg leading-none">&times;</span>
-                    </button>
-                  </div>
-                  <p className="text-xs text-[#b4b4be] mt-1">{alert.message}</p>
-                  <span className="text-[10px] text-[#52525B] mt-2 block">{alert.timestamp}</span>
+        {alerts.map((alert) => {
+          const severity = getSeverityColor(alert.severity);
+          const Icon = severity.icon;
+          return (
+            <motion.div
+              key={alert.id}
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className={`p-3 rounded-xl ${severity.bg} border ${severity.border} flex items-start gap-3 group hover:scale-[1.02] transition-transform cursor-pointer`}
+            >
+              <Icon className={`w-4 h-4 ${severity.text} flex-shrink-0 mt-0.5`} />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between">
+                  <span className={`text-sm font-medium ${severity.text}`}>{alert.title}</span>
+                  <button
+                    onClick={() => dismissAlert(alert.id)}
+                    className="p-1 hover:bg-white/10 rounded transition-colors opacity-0 group-hover:opacity-100"
+                  >
+                    <span className="text-[#6b6b78] text-lg leading-none">&times;</span>
+                  </button>
                 </div>
-              </motion.div>
-            );
-          })}
-        </AnimatePresence>
+                <p className="text-xs text-[#b4b4be] mt-1">{alert.message}</p>
+                <span className="text-[10px] text-[#52525B] mt-2 block">{alert.timestamp}</span>
+              </div>
+            </motion.div>
+          );
+        })}
 
         {alerts.length === 0 && (
           <motion.div
@@ -1077,30 +1095,22 @@ function PipelineVisualization() {
             const isActive = step.status === 'active';
 
             return (
-              <motion.div
+              <div
                 key={step.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.55 + i * 0.05 }}
                 className="flex flex-col items-center"
               >
-                <motion.div
+                <div
                   className={`w-12 h-12 rounded-xl flex items-center justify-center relative z-10 ${
                     isCompleted ? 'bg-[#10b981]' :
                     isActive ? 'bg-[#f59e0b]' :
                     'bg-[#1e1e28]'
                   }`}
-                  whileHover={{ scale: 1.1 }}
                 >
                   <Icon className={`w-5 h-5 ${isCompleted || isActive ? 'text-white' : 'text-[#6b6b78]'}`} />
                   {isActive && (
-                    <motion.div
-                      className="absolute inset-0 rounded-xl border-2 border-[#f59e0b]"
-                      animate={{ scale: [1, 1.2, 1], opacity: [1, 0, 1] }}
-                      transition={{ duration: 1.5, repeat: Infinity }}
-                    />
+                    <div className="absolute inset-0 rounded-xl border-2 border-[#f59e0b] animate-ping" />
                   )}
-                </motion.div>
+                </div>
                 <span className={`text-xs mt-2 font-medium ${
                   isCompleted ? 'text-[#10b981]' :
                   isActive ? 'text-[#f59e0b]' :
@@ -1111,7 +1121,7 @@ function PipelineVisualization() {
                 {isActive && (
                   <span className="text-[10px] text-[#8a8a96] mt-0.5">{step.progress}%</span>
                 )}
-              </motion.div>
+              </div>
             );
           })}
         </div>
@@ -1162,21 +1172,21 @@ export default function Dashboard() {
     <div className="space-y-6 page-transition-v11">
       <WelcomeBanner />
 
-      {/* 核心指标 - 更紧凑的网格 */}
+      {/* 核心指标 */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {METRICS.map((m, i) => (
           <StatCard key={m.label} metric={m} index={i} />
         ))}
       </div>
 
-      {/* 系统指标 - 合并到更紧凑的行 */}
+      {/* 系统指标 */}
       <div className="grid grid-cols-4 gap-2">
         {SYSTEM_METRICS.map((m, i) => (
           <SystemMetricCard key={m.label} metric={m} index={i} />
         ))}
       </div>
 
-      {/* 主要图表区域 - 优化布局比例 */}
+      {/* 主要图表区域 */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           <TaskTrendChart />
