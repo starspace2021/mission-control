@@ -401,7 +401,13 @@ function WelcomeBanner() {
   const [greeting, setGreeting] = useState('早安');
   const [currentTime, setCurrentTime] = useState(new Date());
   const [mounted, setMounted] = useState(false);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [mousePosition, setMousePosition] = useState({ x: 0.5, y: 0.5 });
+  const [stats, setStats] = useState({
+    health: 98.5,
+    agents: 6,
+    tasks: 12,
+    alerts: 2
+  });
 
   useEffect(() => {
     setMounted(true);
@@ -412,10 +418,23 @@ function WelcomeBanner() {
     else setGreeting('晚上好');
 
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-    return () => clearInterval(timer);
+    
+    // 模拟实时数据更新
+    const statsTimer = setInterval(() => {
+      setStats(prev => ({
+        health: Math.min(100, Math.max(95, prev.health + (Math.random() - 0.5) * 0.5)),
+        agents: prev.agents,
+        tasks: prev.tasks + Math.floor(Math.random() * 3 - 1),
+        alerts: prev.alerts
+      }));
+    }, 5000);
+    
+    return () => {
+      clearInterval(timer);
+      clearInterval(statsTimer);
+    };
   }, []);
 
-  // 鼠标跟随效果
   const handleMouseMove = (e: React.MouseEvent) => {
     const rect = e.currentTarget.getBoundingClientRect();
     setMousePosition({
@@ -424,10 +443,9 @@ function WelcomeBanner() {
     });
   };
 
-  // 防止 hydration 不匹配
   if (!mounted) {
     return (
-      <div className="welcome-banner relative overflow-hidden min-h-[140px]">
+      <div className="welcome-banner relative overflow-hidden min-h-[160px]">
         <div className="welcome-banner-bg" />
         <div className="relative flex items-center justify-between p-6">
           <div>
@@ -451,69 +469,72 @@ function WelcomeBanner() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       onMouseMove={handleMouseMove}
-      className="welcome-banner relative overflow-hidden cursor-default"
+      className="welcome-banner relative overflow-hidden cursor-default min-h-[160px]"
     >
       {/* 动态光效背景 */}
       <div className="welcome-banner-bg" />
       <DataStreamBar />
 
-      {/* 鼠标跟随光效 */}
+      {/* 鼠标跟随光效 - 增强版 */}
       <motion.div
-        className="absolute w-[600px] h-[600px] rounded-full pointer-events-none opacity-30"
+        className="absolute w-[800px] h-[800px] rounded-full pointer-events-none"
         style={{
-          background: 'radial-gradient(circle, rgba(59, 130, 246, 0.3), transparent 60%)',
+          background: `radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, rgba(139, 92, 246, 0.08) 40%, transparent 70%)`,
           left: `${mousePosition.x * 100}%`,
           top: `${mousePosition.y * 100}%`,
           transform: 'translate(-50%, -50%)',
         }}
         animate={{
-          scale: [1, 1.2, 1],
+          scale: [1, 1.1, 1],
         }}
-        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
       />
 
       {/* 动态背景光效 */}
       <motion.div
-        className="absolute top-0 right-0 w-[500px] h-[500px]"
+        className="absolute top-0 right-0 w-[600px] h-[600px]"
         style={{
-          background: 'radial-gradient(circle at top right, rgba(59, 130, 246, 0.12), transparent 60%)',
-        }}
-        animate={{
-          scale: [1, 1.1, 1],
-          opacity: [0.5, 0.8, 0.5]
-        }}
-        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-      />
-      <motion.div
-        className="absolute bottom-0 left-0 w-[400px] h-[400px]"
-        style={{
-          background: 'radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.1), transparent 60%)',
+          background: 'radial-gradient(circle at top right, rgba(59, 130, 246, 0.15), transparent 60%)',
         }}
         animate={{
           scale: [1, 1.15, 1],
           opacity: [0.4, 0.7, 0.4]
         }}
-        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.div
+        className="absolute bottom-0 left-0 w-[500px] h-[500px]"
+        style={{
+          background: 'radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.12), transparent 60%)',
+        }}
+        animate={{
+          scale: [1, 1.2, 1],
+          opacity: [0.3, 0.6, 0.3]
+        }}
+        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 2 }}
       />
 
-      {/* 粒子效果 */}
+      {/* 粒子效果 - 增强版 */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {Array.from({ length: 20 }).map((_, i) => (
+        {Array.from({ length: 30 }).map((_, i) => (
           <motion.div
             key={i}
-            className="absolute w-1 h-1 rounded-full bg-[#3b82f6]/30"
+            className="absolute w-1 h-1 rounded-full"
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
+              background: i % 3 === 0 ? '#3b82f6' : i % 3 === 1 ? '#8b5cf6' : '#10b981',
             }}
             animate={{
-              y: [0, -30, 0],
-              opacity: [0, 1, 0],
+              y: [0, -40, 0],
+              x: [0, (Math.random() - 0.5) * 20, 0],
+              opacity: [0, 0.6, 0],
+              scale: [0.5, 1, 0.5],
             }}
             transition={{
-              duration: 3 + Math.random() * 2,
+              duration: 4 + Math.random() * 3,
               repeat: Infinity,
-              delay: Math.random() * 3,
+              delay: Math.random() * 4,
               ease: "easeInOut",
             }}
           />
@@ -543,8 +564,8 @@ function WelcomeBanner() {
             >
               <motion.span
                 className="w-2.5 h-2.5 bg-[#10b981] rounded-full"
-                animate={{ scale: [1, 1.2, 1], opacity: [1, 0.7, 1] }}
-                transition={{ duration: 2, repeat: Infinity }}
+                animate={{ scale: [1, 1.3, 1], opacity: [1, 0.6, 1] }}
+                transition={{ duration: 1.5, repeat: Infinity }}
               />
               <span className="text-sm text-[#10b981] font-semibold">系统运行正常</span>
             </motion.div>
@@ -568,15 +589,15 @@ function WelcomeBanner() {
               animate={{ opacity: [1, 0.3, 1] }}
               transition={{ duration: 1.5, repeat: Infinity }}
             />
-            今日有 5 个定时任务待执行，2 个高优先级警报需要关注
+            今日有 {stats.tasks} 个定时任务待执行，{stats.alerts} 个高优先级警报需要关注
           </motion.p>
         </div>
 
         <div className="hidden md:flex items-center gap-8">
           {[
-            { value: '98.5%', label: '系统健康度', color: '#10b981', icon: Activity, trend: '+0.5%' },
+            { value: `${stats.health.toFixed(1)}%`, label: '系统健康度', color: '#10b981', icon: Activity, trend: '+0.5%' },
             { value: currentTime.toLocaleTimeString('zh-CN', { hour12: false, hour: '2-digit', minute: '2-digit' }), label: '当前时间', color: '#3b82f6', icon: Clock },
-            { value: '6', label: '在线代理', color: '#8b5cf6', icon: Bot, trend: '+1' },
+            { value: stats.agents.toString(), label: '在线代理', color: '#8b5cf6', icon: Bot, trend: '+1' },
           ].map((stat, index) => (
             <motion.div
               key={stat.label}
@@ -637,21 +658,37 @@ function StatCard({ metric, index }: { metric: Metric; index: number }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.08, duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
       whileHover={{ y: -6, transition: { duration: 0.2 } }}
-      className="stat-card-v2 group cursor-pointer"
+      className="stat-card-v2 group cursor-pointer relative overflow-hidden"
     >
-      {/* 顶部渐变线 */}
-      <div
-        className="absolute top-0 left-0 right-0 h-1 opacity-70 group-hover:opacity-100 transition-opacity"
-        style={{ background: `linear-gradient(to right, ${metric.color}, ${metric.color}60, transparent)` }}
+      {/* 顶部渐变线 - 动态 */}
+      <motion.div
+        className="absolute top-0 left-0 right-0 h-1"
+        style={{ 
+          background: `linear-gradient(to right, ${metric.color}, ${metric.color}60, transparent)`,
+          opacity: 0.7
+        }}
+        initial={{ scaleX: 0 }}
+        animate={{ scaleX: 1 }}
+        transition={{ delay: index * 0.1 + 0.3, duration: 0.6 }}
       />
 
       {/* 悬停发光背景 */}
       <motion.div
-        className="absolute -top-20 -right-20 w-40 h-40 rounded-full"
+        className="absolute -top-20 -right-20 w-40 h-40 rounded-full pointer-events-none"
         style={{ background: `radial-gradient(circle, ${metric.color}30, transparent)` }}
         initial={{ opacity: 0, scale: 0.5 }}
         whileHover={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.4 }}
+      />
+
+      {/* 边框发光效果 */}
+      <motion.div
+        className="absolute inset-0 rounded-xl pointer-events-none"
+        style={{
+          boxShadow: `inset 0 0 0 1px ${metric.color}20`,
+        }}
+        initial={{ opacity: 0 }}
+        whileHover={{ opacity: 1 }}
       />
 
       <div className="relative">
@@ -662,6 +699,13 @@ function StatCard({ metric, index }: { metric: Metric; index: number }) {
             whileHover={{ scale: 1.1, rotate: 5 }}
             transition={{ type: "spring", stiffness: 400 }}
           >
+            {/* 图标背景动画 */}
+            <motion.div
+              className="absolute inset-0"
+              style={{ background: `linear-gradient(135deg, ${metric.color}40, transparent)` }}
+              initial={{ opacity: 0 }}
+              whileHover={{ opacity: 1 }}
+            />
             <Icon className="w-5 h-5 relative z-10" style={{ color: metric.color }} />
           </motion.div>
           <TrendIndicator trend={metric.trend} />

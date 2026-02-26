@@ -187,7 +187,7 @@ function EventCard({ event, onClick }: { event: Event; onClick: () => void }) {
       initial={{ opacity: 0, x: -10 }}
       animate={{ opacity: 1, x: 0 }}
       onClick={onClick}
-      className="event-card group"
+      className="event-card group relative overflow-hidden"
       style={{ '--event-color': config.color } as React.CSSProperties}
       whileHover={{ 
         scale: 1.02, 
@@ -196,15 +196,28 @@ function EventCard({ event, onClick }: { event: Event; onClick: () => void }) {
       }}
       transition={{ type: "spring", stiffness: 400, damping: 25 }}
     >
-      {/* 左侧颜色条 */}
-      <div 
-        className="absolute left-0 top-0 bottom-0 w-1 rounded-l-sm opacity-70 group-hover:opacity-100 transition-opacity"
+      {/* 左侧颜色条 - 动态 */}
+      <motion.div 
+        className="absolute left-0 top-0 bottom-0 w-1 rounded-l-sm"
         style={{ background: `linear-gradient(to bottom, ${config.color}, ${config.color}60)` }}
+        initial={{ scaleY: 0 }}
+        animate={{ scaleY: 1 }}
+        transition={{ duration: 0.3 }}
       />
       
-      <div className="flex items-center gap-1.5 pl-2">
+      {/* 悬停背景光效 */}
+      <motion.div
+        className="absolute inset-0 pointer-events-none"
+        style={{ background: `linear-gradient(90deg, ${config.color}10, transparent)` }}
+        initial={{ opacity: 0, x: '-100%' }}
+        whileHover={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.3 }}
+      />
+      
+      <div className="flex items-center gap-1.5 pl-2 relative z-10">
         <motion.div
           whileHover={{ rotate: 15, scale: 1.1 }}
+          transition={{ type: "spring", stiffness: 400 }}
         >
           <Icon className="w-3 h-3 flex-shrink-0" style={{ color: config.color }} />
         </motion.div>
@@ -213,7 +226,7 @@ function EventCard({ event, onClick }: { event: Event; onClick: () => void }) {
         </span>
       </div>
       
-      <div className="text-white/40 mt-0.5 font-mono text-[10px] flex items-center gap-1 pl-2">
+      <div className="text-white/40 mt-0.5 font-mono text-[10px] flex items-center gap-1 pl-2 relative z-10">
         <Clock className="w-2.5 h-2.5" />
         {format(new Date(event.startTime), "HH:mm")}
       </div>

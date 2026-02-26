@@ -193,7 +193,7 @@ function TaskStatsChart() {
   );
 }
 
-// 增强的任务卡片 - v2.0 优化版
+// 增强的任务卡片 - v3.0 优化版
 function TaskCard({
   task,
   onClick,
@@ -228,7 +228,7 @@ function TaskCard({
       exit={{ opacity: 0, scale: 0.9, y: -10 }}
       transition={{ type: "spring", stiffness: 400, damping: 25 }}
       onClick={onClick}
-      className={`kanban-card ${isDragging ? 'dragging' : ''} ${isDragOver ? 'ring-2 ring-[#3b82f6]/50' : ''} group`}
+      className={`kanban-card ${isDragging ? 'dragging' : ''} ${isDragOver ? 'ring-2 ring-[#3b82f6]/50' : ''} group relative overflow-hidden`}
       style={{
         borderLeftWidth: '4px',
         borderLeftColor: priority.color,
@@ -239,11 +239,14 @@ function TaskCard({
       }}
       draggable
     >
-      {/* 顶部渐变条 */}
+      {/* 顶部渐变条 - 动态 */}
       <motion.div
-        className="absolute top-0 left-0 right-0 h-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+        className="absolute top-0 left-0 right-0 h-0.5"
         style={{ background: `linear-gradient(to right, ${priority.color}, ${dept.color})` }}
-        animate={{ opacity: isDragging ? 1 : undefined }}
+        initial={{ scaleX: 0, opacity: 0 }}
+        animate={{ scaleX: isDragging ? 1 : undefined, opacity: isDragging ? 1 : undefined }}
+        whileHover={{ scaleX: 1, opacity: 1 }}
+        transition={{ duration: 0.3 }}
       />
 
       {/* 拖拽时的发光效果 */}
@@ -258,18 +261,23 @@ function TaskCard({
         />
       )}
 
-      {/* 优先级指示条 */}
-      <div 
-        className="absolute left-0 top-0 bottom-0 w-1 rounded-l-lg"
-        style={{ background: `linear-gradient(to bottom, ${priority.color}, ${priority.color}60)` }}
+      {/* 悬停时的背景光效 */}
+      <motion.div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: `linear-gradient(135deg, ${priority.color}05, transparent)`,
+        }}
+        initial={{ opacity: 0 }}
+        whileHover={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
       />
 
-      <div className="flex items-start justify-between mb-3 pl-2">
-        <h4 className="font-medium text-sm text-white line-clamp-2 pr-8 leading-relaxed">
+      <div className="flex items-start justify-between mb-3 pl-2 relative z-10">
+        <h4 className="font-medium text-sm text-white line-clamp-2 pr-8 leading-relaxed group-hover:text-white/90 transition-colors">
           {task.title}
         </h4>
         <motion.div
-          className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all p-1.5 rounded-lg hover:bg-white/10 cursor-grab active:cursor-grabbing"
+          className="absolute top-0 right-0 opacity-0 group-hover:opacity-100 transition-all p-1.5 rounded-lg hover:bg-white/10 cursor-grab active:cursor-grabbing"
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.95 }}
         >
@@ -277,7 +285,7 @@ function TaskCard({
         </motion.div>
       </div>
 
-      <div className="flex flex-wrap gap-2 mb-3 pl-2">
+      <div className="flex flex-wrap gap-2 mb-3 pl-2 relative z-10">
         <motion.span
           className="text-[10px] px-2.5 py-1 rounded-lg border font-medium flex items-center gap-1.5 cursor-pointer"
           style={{
@@ -309,7 +317,7 @@ function TaskCard({
         </motion.span>
       </div>
 
-      <div className="flex items-center justify-between pt-3 border-t border-white/5 pl-2">
+      <div className="flex items-center justify-between pt-3 border-t border-white/5 pl-2 relative z-10">
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1.5 text-[#71717A]">
             <Clock className="w-3.5 h-3.5" />

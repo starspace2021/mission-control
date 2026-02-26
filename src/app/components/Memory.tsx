@@ -84,10 +84,10 @@ function MemoryCard({
       onClick={onClick}
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
-      className="memory-card-enhanced group"
+      className="memory-card-enhanced group relative overflow-hidden"
       whileHover={{ y: -6, transition: { duration: 0.2 } }}
     >
-      {/* 顶部渐变线 */}
+      {/* 顶部渐变线 - 动态 */}
       <motion.div
         className="absolute top-0 left-0 right-0 h-0.5"
         style={{ background: `linear-gradient(90deg, ${cfg.color}, ${cfg.color}60)` }}
@@ -103,6 +103,17 @@ function MemoryCard({
         initial={{ opacity: 0, scale: 0.5 }}
         animate={{ opacity: isHovered ? 1 : 0, scale: isHovered ? 1 : 0.5 }}
         transition={{ duration: 0.4 }}
+      />
+      
+      {/* 边框发光效果 */}
+      <motion.div
+        className="absolute inset-0 rounded-xl pointer-events-none"
+        style={{
+          boxShadow: `inset 0 0 0 1px ${cfg.color}15`,
+        }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: isHovered ? 1 : 0 }}
+        transition={{ duration: 0.3 }}
       />
       
       <div className="flex items-start gap-4 relative z-10">
@@ -147,9 +158,12 @@ function MemoryCard({
             {/* 重要性指示器 */}
             <div className="importance-indicator">
               {Array.from({ length: 5 }).map((_, i) => (
-                <div
+                <motion.div
                   key={i}
                   className={`importance-dot ${i < memory.importance ? 'active' : ''}`}
+                  initial={{ scaleY: 0 }}
+                  animate={{ scaleY: 1 }}
+                  transition={{ delay: i * 0.05 }}
                 />
               ))}
             </div>
