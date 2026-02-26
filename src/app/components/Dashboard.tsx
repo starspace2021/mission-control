@@ -266,6 +266,14 @@ const DEPARTMENT_LOAD = [
   { name: 'Admin', value: 32, color: '#06b6d4' },
 ];
 
+// 实时数据生成器
+const generateRealtimeData = (points: number) => {
+  return Array.from({ length: points }, (_, i) => ({
+    time: i,
+    value: 30 + Math.random() * 40 + Math.sin(i * 0.5) * 10,
+  }));
+};
+
 // ========== 子组件 ==========
 
 function CountUp({ value, duration = 1.5, suffix = '' }: { value: number; duration?: number; suffix?: string }) {
@@ -388,6 +396,7 @@ function DataStreamBar() {
   );
 }
 
+// 增强的欢迎横幅
 function WelcomeBanner() {
   const [greeting, setGreeting] = useState('早安');
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -459,6 +468,30 @@ function WelcomeBanner() {
         transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
       />
 
+      {/* 粒子效果 */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {Array.from({ length: 20 }).map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-1 h-1 rounded-full bg-[#3b82f6]/30"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              y: [0, -30, 0],
+              opacity: [0, 1, 0],
+            }}
+            transition={{
+              duration: 3 + Math.random() * 2,
+              repeat: Infinity,
+              delay: Math.random() * 3,
+              ease: "easeInOut",
+            }}
+          />
+        ))}
+      </div>
+
       <div className="relative flex items-center justify-between">
         <div>
           <div className="flex items-center gap-3 mb-4">
@@ -467,7 +500,12 @@ function WelcomeBanner() {
               whileHover={{ scale: 1.05 }}
               transition={{ type: "spring", stiffness: 400 }}
             >
-              <Sparkles className="w-4 h-4 text-[#f59e0b]" />
+              <motion.div
+                animate={{ rotate: [0, 15, -15, 0] }}
+                transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+              >
+                <Sparkles className="w-4 h-4 text-[#f59e0b]" />
+              </motion.div>
               <span className="text-sm text-[#f59e0b] font-semibold">{greeting}</span>
             </motion.div>
             <motion.div
@@ -653,7 +691,10 @@ function SystemMetricCard({ metric, index }: { metric: SystemMetric; index: numb
   );
 }
 
+// 增强的任务趋势图 - 带面积图效果
 function TaskTrendChart() {
+  const [hoveredBar, setHoveredBar] = useState<number | null>(null);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -685,42 +726,107 @@ function TaskTrendChart() {
         </div>
       </div>
 
-      <div className="flex items-end gap-2 h-28">
-        {TASK_TREND.map((day, i) => (
-          <div key={day.day} className="flex-1 flex flex-col items-center gap-2">
-            <div className="w-full flex gap-1 items-end justify-center h-20">
-              <motion.div
-                className="flex-1 rounded-t-lg min-w-[6px] relative overflow-hidden"
-                style={{
-                  background: 'linear-gradient(to top, #3b82f6, #3b82f680)'
-                }}
-                initial={{ height: 0 }}
-                animate={{ height: `${(day.completed / 30) * 100}%` }}
-                transition={{ delay: i * 0.05, duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
-              >
-                <div className="absolute inset-0 bg-gradient-to-t from-transparent to-white/10" />
-              </motion.div>
-              <motion.div
-                className="flex-1 rounded-t-lg min-w-[6px] relative overflow-hidden"
-                style={{
-                  background: 'linear-gradient(to top, #10b981, #10b98180)'
-                }}
-                initial={{ height: 0 }}
-                animate={{ height: `${(day.created / 30) * 100}%` }}
-                transition={{ delay: i * 0.05 + 0.08, duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
-              >
-                <div className="absolute inset-0 bg-gradient-to-t from-transparent to-white/10" />
-              </motion.div>
+      {/* 面积图背景 */}
+      <div className="relative h-32 mb-2">
+        <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="completedGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.3" />
+              <stop offset="100%" stopColor="#3b82f6" stopOpacity="0" />
+            </linearGradient>
+            <linearGradient id="createdGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#10b981" stopOpacity="0.3" />
+              <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+          {/* 面积路径 */}
+          <motion.path
+            d={`M 0,${128 - (TASK_TREND[0].completed / 30) * 128} ${TASK_TREND.map((d, i) => `L ${(i / (TASK_TREND.length - 1)) * 100}%,${128 - (d.completed / 30) * 128}`).join(' ')} L 100%,128 L 0,128 Z`}
+            fill="url(#completedGradient)"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5, duration: 0.8 }}
+          />
+        </svg>
+
+        {/* 柱状图 */}
+        <div className="flex items-end gap-2 h-28 relative z-10">
+          {TASK_TREND.map((day, i) => (
+            <div key={day.day} className="flex-1 flex flex-col items-center gap-2">
+              <div className="w-full flex gap-1 items-end justify-center h-20">
+                <motion.div
+                  className="flex-1 rounded-t-lg min-w-[6px] relative overflow-hidden cursor-pointer"
+                  style={{
+                    background: hoveredBar === i ? '#3b82f6' : 'linear-gradient(to top, #3b82f6, #3b82f680)'
+                  }}
+                  initial={{ height: 0 }}
+                  animate={{ height: `${(day.completed / 30) * 100}%` }}
+                  transition={{ delay: i * 0.05, duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+                  onMouseEnter={() => setHoveredBar(i)}
+                  onMouseLeave={() => setHoveredBar(null)}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-t from-transparent to-white/10" />
+                  {/* 悬停提示 */}
+                  <AnimatePresence>
+                    {hoveredBar === i && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 5 }}
+                        className="absolute -top-8 left-1/2 -translate-x-1/2 bg-[#1a1a24] border border-white/10 px-2 py-1 rounded text-[10px] whitespace-nowrap"
+                      >
+                        {day.completed} 完成
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
+                <motion.div
+                  className="flex-1 rounded-t-lg min-w-[6px] relative overflow-hidden cursor-pointer"
+                  style={{
+                    background: 'linear-gradient(to top, #10b981, #10b98180)'
+                  }}
+                  initial={{ height: 0 }}
+                  animate={{ height: `${(day.created / 30) * 100}%` }}
+                  transition={{ delay: i * 0.05 + 0.08, duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-t from-transparent to-white/10" />
+                </motion.div>
+              </div>
+              <span className="text-[11px] text-[#8a8a96] font-medium">{day.day}</span>
             </div>
-            <span className="text-[11px] text-[#8a8a96] font-medium">{day.day}</span>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </motion.div>
   );
 }
 
+// 部门负载饼图/环形图
 function DepartmentLoadChart() {
+  const [hoveredSlice, setHoveredSlice] = useState<number | null>(null);
+  const total = DEPARTMENT_LOAD.reduce((acc, d) => acc + d.value, 0);
+
+  // 计算环形图路径
+  const createDonutSlice = (startAngle: number, endAngle: number, innerRadius: number, outerRadius: number) => {
+    const startAngleRad = (startAngle - 90) * (Math.PI / 180);
+    const endAngleRad = (endAngle - 90) * (Math.PI / 180);
+
+    const x1 = 50 + outerRadius * Math.cos(startAngleRad);
+    const y1 = 50 + outerRadius * Math.sin(startAngleRad);
+    const x2 = 50 + outerRadius * Math.cos(endAngleRad);
+    const y2 = 50 + outerRadius * Math.sin(endAngleRad);
+    const x3 = 50 + innerRadius * Math.cos(endAngleRad);
+    const y3 = 50 + innerRadius * Math.sin(endAngleRad);
+    const x4 = 50 + innerRadius * Math.cos(startAngleRad);
+    const y4 = 50 + innerRadius * Math.sin(startAngleRad);
+
+    const largeArcFlag = endAngle - startAngle > 180 ? 1 : 0;
+
+    return `M ${x1} ${y1} A ${outerRadius} ${outerRadius} 0 ${largeArcFlag} 1 ${x2} ${y2} L ${x3} ${y3} A ${innerRadius} ${innerRadius} 0 ${largeArcFlag} 0 ${x4} ${y4} Z`;
+  };
+
+  let currentAngle = 0;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -738,44 +844,81 @@ function DepartmentLoadChart() {
         </div>
       </div>
 
-      <div className="space-y-3">
-        {DEPARTMENT_LOAD.map((dept, i) => (
-          <div key={dept.name} className="group">
-            <div className="flex items-center gap-3 mb-2">
-              <div
+      <div className="flex items-center gap-6">
+        {/* 环形图 */}
+        <div className="relative w-32 h-32 flex-shrink-0">
+          <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
+            {DEPARTMENT_LOAD.map((dept, i) => {
+              const angle = (dept.value / total) * 360;
+              const startAngle = currentAngle;
+              const endAngle = currentAngle + angle;
+              currentAngle += angle;
+
+              return (
+                <motion.path
+                  key={dept.name}
+                  d={createDonutSlice(startAngle, endAngle, 30, 45)}
+                  fill={dept.color}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{
+                    opacity: hoveredSlice === i ? 1 : 0.85,
+                    scale: hoveredSlice === i ? 1.05 : 1
+                  }}
+                  transition={{ duration: 0.3 }}
+                  onMouseEnter={() => setHoveredSlice(i)}
+                  onMouseLeave={() => setHoveredSlice(null)}
+                  style={{
+                    transformOrigin: '50px 50px',
+                    filter: hoveredSlice === i ? `drop-shadow(0 0 8px ${dept.color})` : 'none'
+                  }}
+                />
+              );
+            })}
+            {/* 中心文字 */}
+            <text x="50" y="48" textAnchor="middle" className="fill-white text-[8px] font-medium">
+              总负载
+            </text>
+            <text x="50" y="58" textAnchor="middle" className="fill-[#a1a1aa] text-[6px]">
+              {total}%
+            </text>
+          </svg>
+        </div>
+
+        {/* 图例 */}
+        <div className="flex-1 space-y-2">
+          {DEPARTMENT_LOAD.map((dept, i) => (
+            <motion.div
+              key={dept.name}
+              className="flex items-center gap-2 cursor-pointer"
+              onMouseEnter={() => setHoveredSlice(i)}
+              onMouseLeave={() => setHoveredSlice(null)}
+              whileHover={{ x: 4 }}
+            >
+              <motion.div
                 className="w-3 h-3 rounded-full"
-                style={{ backgroundColor: dept.color, boxShadow: `0 0 10px ${dept.color}` }}
+                style={{ backgroundColor: dept.color }}
+                animate={{ scale: hoveredSlice === i ? 1.2 : 1 }}
               />
-              <span className="text-sm text-[#e4e4e7] flex-1">{dept.name}</span>
-              <span className="text-sm font-bold text-white tabular-nums">
+              <span className="text-xs text-[#e4e4e7] flex-1">{dept.name}</span>
+              <span className="text-xs font-bold text-white tabular-nums">
                 <CountUp value={dept.value} suffix="%" />
               </span>
-            </div>
-            <div className="h-2 bg-[#1e1e28] rounded-full overflow-hidden">
-              <motion.div
-                className="h-full rounded-full"
-                style={{
-                  background: `linear-gradient(to right, ${dept.color}, ${dept.color}80)`,
-                  boxShadow: `0 0 12px ${dept.color}50`
-                }}
-                initial={{ width: 0 }}
-                animate={{ width: `${dept.value}%` }}
-                transition={{ delay: i * 0.08, duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
-              />
-            </div>
-          </div>
-        ))}
+            </motion.div>
+          ))}
+        </div>
       </div>
     </motion.div>
   );
 }
 
+// 实时流量监控 - 带折线图
 function TrafficMonitor() {
   const [metrics, setMetrics] = useState({
     requests: 1247,
     latency: 98,
     uptime: 99.9
   });
+  const [chartData, setChartData] = useState(generateRealtimeData(20));
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -784,9 +927,23 @@ function TrafficMonitor() {
         latency: Math.max(50, Math.min(150, prev.latency + Math.floor(Math.random() * 10 - 5))),
         uptime: 99.9
       }));
-    }, 3000);
+      // 更新图表数据
+      setChartData(prev => {
+        const newData = [...prev.slice(1), { time: Date.now(), value: 30 + Math.random() * 40 }];
+        return newData;
+      });
+    }, 2000);
     return () => clearInterval(interval);
   }, []);
+
+  // 生成折线路径
+  const linePath = chartData.map((d, i) => {
+    const x = (i / (chartData.length - 1)) * 100;
+    const y = 100 - ((d.value - 20) / 50) * 100;
+    return `${i === 0 ? 'M' : 'L'} ${x} ${y}`;
+  }).join(' ');
+
+  const areaPath = `${linePath} L 100 100 L 0 100 Z`;
 
   return (
     <motion.div
@@ -808,39 +965,79 @@ function TrafficMonitor() {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-white/5">
+      {/* 实时折线图 */}
+      <div className="relative h-20 mb-4">
+        <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="trafficGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#10b981" stopOpacity="0.3" />
+              <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+          <motion.path
+            d={areaPath}
+            fill="url(#trafficGradient)"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          />
+          <motion.path
+            d={linePath}
+            fill="none"
+            stroke="#10b981"
+            strokeWidth="2"
+            strokeLinecap="round"
+            initial={{ pathLength: 0 }}
+            animate={{ pathLength: 1 }}
+            transition={{ duration: 0.5 }}
+          />
+        </svg>
+        {/* 数据点 */}
+        <div className="absolute inset-0 flex items-end justify-between px-0">
+          {chartData.map((d, i) => (
+            <motion.div
+              key={i}
+              className="w-1.5 h-1.5 rounded-full bg-[#10b981]"
+              style={{
+                bottom: `${((d.value - 20) / 50) * 100}%`,
+                opacity: i === chartData.length - 1 ? 1 : 0.3
+              }}
+              animate={i === chartData.length - 1 ? {
+                scale: [1, 1.5, 1],
+                boxShadow: ['0 0 0px #10b981', '0 0 10px #10b981', '0 0 0px #10b981']
+              } : {}}
+              transition={{ duration: 1, repeat: Infinity }}
+            />
+          ))}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-4 pt-4 border-t border-white/5">
         <div className="text-center">
-          <div className="text-xl font-bold text-white tabular-nums">{(metrics.requests / 1000).toFixed(1)}K</div>
+          <motion.div
+            className="text-xl font-bold text-white tabular-nums"
+            key={metrics.requests}
+            initial={{ scale: 1.2, color: '#10b981' }}
+            animate={{ scale: 1, color: '#ffffff' }}
+          >
+            {(metrics.requests / 1000).toFixed(1)}K
+          </motion.div>
           <div className="text-xs text-[#a1a1aa] mt-1">请求/分</div>
         </div>
         <div className="text-center">
-          <div className="text-xl font-bold text-[#10b981] tabular-nums">{metrics.latency}ms</div>
+          <motion.div
+            className="text-xl font-bold text-[#10b981] tabular-nums"
+            key={metrics.latency}
+            initial={{ scale: 1.2 }}
+            animate={{ scale: 1 }}
+          >
+            {metrics.latency}ms
+          </motion.div>
           <div className="text-xs text-[#a1a1aa] mt-1">平均延迟</div>
         </div>
         <div className="text-center">
           <div className="text-xl font-bold text-[#3b82f6] tabular-nums">{metrics.uptime}%</div>
           <div className="text-xs text-[#a1a1aa] mt-1">可用性</div>
         </div>
-      </div>
-
-      {/* 实时流量图表 */}
-      <div className="mt-4 h-16 flex items-end gap-1">
-        {Array.from({ length: 20 }).map((_, i) => (
-          <motion.div
-            key={i}
-            className="flex-1 bg-gradient-to-t from-[#10b981] to-[#10b981]/50 rounded-t"
-            initial={{ height: '20%' }}
-            animate={{
-              height: `${20 + Math.random() * 60}%`,
-            }}
-            transition={{
-              duration: 0.5,
-              repeat: Infinity,
-              repeatType: "reverse",
-              delay: i * 0.05
-            }}
-          />
-        ))}
       </div>
     </motion.div>
   );

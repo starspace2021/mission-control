@@ -38,7 +38,11 @@ import {
   Pause,
   Target,
   Flag,
-  Layers
+  Layers,
+  TrendingUp,
+  BarChart3,
+  PieChart,
+  RotateCcw
 } from 'lucide-react';
 
 // ========== 配置 ==========
@@ -88,7 +92,106 @@ const COLUMNS = [
   { key: 'completed', label: 'Completed', color: '#10b981', bg: 'rgba(16, 185, 129, 0.1)', icon: CheckCircle2, description: '已完成任务', gradient: 'from-[#10b981] to-[#34d399]' },
 ];
 
+// 任务趋势数据
+const TASK_TREND_DATA = [
+  { day: '周一', completed: 8, total: 12 },
+  { day: '周二', completed: 12, total: 15 },
+  { day: '周三', completed: 10, total: 14 },
+  { day: '周四', completed: 15, total: 18 },
+  { day: '周五', completed: 18, total: 20 },
+  { day: '周六', completed: 5, total: 8 },
+  { day: '周日', completed: 7, total: 10 },
+];
+
 // ========== 子组件 ==========
+
+// 任务完成率环形图
+function TaskCompletionRing({ completed, total }: { completed: number; total: number }) {
+  const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+  const radius = 36;
+  const circumference = radius * 2 * Math.PI;
+  const offset = circumference - (percentage / 100) * circumference;
+
+  return (
+    <div className="relative w-20 h-20 flex items-center justify-center">
+      <svg className="transform -rotate-90 w-full h-full">
+        {/* 背景圆环 */}
+        <circle
+          cx="40"
+          cy="40"
+          r={radius}
+          stroke="rgba(255,255,255,0.06)"
+          strokeWidth="8"
+          fill="none"
+        />
+        {/* 进度圆环 */}
+        <motion.circle
+          cx="40"
+          cy="40"
+          r={radius}
+          stroke="url(#completionGradient)"
+          strokeWidth="8"
+          fill="none"
+          strokeLinecap="round"
+          initial={{ strokeDashoffset: circumference }}
+          animate={{ strokeDashoffset: offset }}
+          transition={{ duration: 1.2, ease: [0.4, 0, 0.2, 1] }}
+          style={{ strokeDasharray: circumference }}
+        />
+        <defs>
+          <linearGradient id="completionGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#10b981" />
+            <stop offset="100%" stopColor="#3b82f6" />
+          </linearGradient>
+        </defs>
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className="text-lg font-bold text-white">{percentage}%</span>
+        <span className="text-[10px] text-[#71717A]">完成率</span>
+      </div>
+    </div>
+  );
+}
+
+// 任务统计趋势图
+function TaskStatsChart() {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
+  return (
+    <div className="h-16 flex items-end gap-1">
+      {TASK_TREND_DATA.map((data, i) => {
+        const completionRate = data.total > 0 ? (data.completed / data.total) * 100 : 0;
+        return (
+          <div key={data.day} className="flex-1 flex flex-col items-center gap-1">
+            <motion.div
+              className="w-full bg-gradient-to-t from-[#3b82f6] to-[#10b981] rounded-t cursor-pointer relative"
+              style={{ height: `${completionRate}%`, minHeight: '4px' }}
+              initial={{ height: 0 }}
+              animate={{ height: `${completionRate}%` }}
+              transition={{ delay: i * 0.05, duration: 0.5 }}
+              onMouseEnter={() => setHoveredIndex(i)}
+              onMouseLeave={() => setHoveredIndex(null)}
+            >
+              <AnimatePresence>
+                {hoveredIndex === i && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 5 }}
+                    className="absolute -top-8 left-1/2 -translate-x-1/2 bg-[#1a1a24] border border-white/10 px-2 py-1 rounded text-[10px] whitespace-nowrap z-10"
+                  >
+                    {data.completed}/{data.total}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+            <span className="text-[9px] text-[#71717A]">{data.day}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 function TaskCard({
   task,
@@ -562,17 +665,19 @@ function TaskModal({ task, onClose }: { task: Task; onClose: () => void }) {
   );
 }
 
-function TaskStats() {
-  const stats = [
-    { label: '总任务', value: 24, color: '#3b82f6', icon: Calendar, bg: 'from-[#3b82f6]/20 to-[#3b82f6]/5' },
-    { label: '进行中', value: 8, color: '#F59E0B', icon: Clock4, bg: 'from-[#F59E0B]/20 to-[#F59E0B]/5' },
-    { label: '已完成', value: 12, color: '#22C55E', icon: CheckCircle2, bg: 'from-[#22C55E]/20 to-[#22C55E]/5' },
-    { label: '高优先级', value: 4, color: '#EF4444', icon: AlertTriangle, bg: 'from-[#EF4444]/20 to-[#EF4444]/5' },
+// 增强的统计面板
+function TaskStats({ stats }: { stats: { total: number; todo: number; inProgress: number; completed: number; highPriority: number } }) {
+  const statItems = [
+    { label: '总任务', value: stats.total, color: '#3b82f6', icon: Calendar, bg: 'from-[#3b82f6]/20 to-[#3b82f6]/5' },
+    { label: '待处理', value: stats.todo, color: '#64748b', icon: AlertCircle, bg: 'from-[#64748b]/20 to-[#64748b]/5' },
+    { label: '进行中', value: stats.inProgress, color: '#F59E0B', icon: Clock4, bg: 'from-[#F59E0B]/20 to-[#F59E0B]/5' },
+    { label: '已完成', value: stats.completed, color: '#22C55E', icon: CheckCircle2, bg: 'from-[#22C55E]/20 to-[#22C55E]/5' },
+    { label: '高优先级', value: stats.highPriority, color: '#EF4444', icon: AlertTriangle, bg: 'from-[#EF4444]/20 to-[#EF4444]/5' },
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-      {stats.map((stat, i) => (
+    <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+      {statItems.map((stat, i) => (
         <motion.div
           key={stat.label}
           initial={{ opacity: 0, y: 15 }}
@@ -583,7 +688,7 @@ function TaskStats() {
         >
           <div className="flex items-center gap-3">
             <motion.div
-              className={`w-11 h-11 rounded-xl flex items-center justify-center bg-gradient-to-br ${stat.bg}`}
+              className={`w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br ${stat.bg}`}
               whileHover={{ scale: 1.1, rotate: 5 }}
               transition={{ type: "spring", stiffness: 400 }}
             >
@@ -591,7 +696,7 @@ function TaskStats() {
             </motion.div>
             <div>
               <motion.div 
-                className="text-2xl font-bold"
+                className="text-xl font-bold"
                 style={{ 
                   color: stat.color,
                   textShadow: `0 0 20px ${stat.color}30`
@@ -611,6 +716,7 @@ function TaskStats() {
   );
 }
 
+// 增强的筛选栏
 function FilterBar({ 
   searchQuery, 
   setSearchQuery, 
@@ -621,7 +727,9 @@ function FilterBar({
   viewMode,
   setViewMode,
   hasActiveFilters,
-  onClearFilters
+  onClearFilters,
+  sortBy,
+  setSortBy
 }: { 
   searchQuery: string;
   setSearchQuery: (q: string) => void;
@@ -633,9 +741,16 @@ function FilterBar({
   setViewMode: (m: 'board' | 'list') => void;
   hasActiveFilters: boolean;
   onClearFilters: () => void;
+  sortBy: string;
+  setSortBy: (s: string) => void;
 }) {
   const departments = ['all', 'Intel', 'Policy', 'Market', 'Engineering'];
   const priorities = ['all', 'high', 'medium', 'low'];
+  const sortOptions = [
+    { value: 'newest', label: '最新' },
+    { value: 'priority', label: '优先级' },
+    { value: 'dueDate', label: '截止日期' },
+  ];
 
   return (
     <motion.div
@@ -700,6 +815,20 @@ function FilterBar({
             </motion.button>
           </div>
 
+          {/* 排序 */}
+          <div className="relative">
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="appearance-none bg-[#0a0a0f] border border-white/10 rounded-xl px-3 py-2 pr-8 text-xs text-white focus:border-[#3b82f6]/50 focus:outline-none cursor-pointer"
+            >
+              {sortOptions.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-[#71717A] pointer-events-none" />
+          </div>
+
           {/* 部门筛选 */}
           <div className="flex gap-1 bg-[#0a0a0f] rounded-xl p-1 border border-white/10 flex-wrap">
             {departments.map((dept) => (
@@ -757,11 +886,12 @@ function FilterBar({
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.8 }}
                 onClick={onClearFilters}
-                className="px-3 py-1.5 text-xs text-[#71717A] hover:text-white bg-white/5 hover:bg-white/10 rounded-lg transition-all"
+                className="flex items-center gap-1 px-3 py-1.5 text-xs text-[#71717A] hover:text-white bg-white/5 hover:bg-white/10 rounded-lg transition-all"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                清除筛选
+                <RotateCcw className="w-3 h-3" />
+                清除
               </motion.button>
             )}
           </AnimatePresence>
@@ -790,16 +920,32 @@ export default function Tasks() {
   const [selectedDept, setSelectedDept] = useState('all');
   const [selectedPriority, setSelectedPriority] = useState('all');
   const [viewMode, setViewMode] = useState<'board' | 'list'>('board');
+  const [sortBy, setSortBy] = useState('newest');
 
   // 过滤任务
   const filteredTasks = useMemo(() => {
-    return allTasks.filter(task => {
+    let tasks = allTasks.filter(task => {
       if (searchQuery && !task.title.toLowerCase().includes(searchQuery.toLowerCase())) return false;
       if (selectedDept !== 'all' && task.department !== selectedDept) return false;
       if (selectedPriority !== 'all' && task.priority !== selectedPriority) return false;
       return true;
     });
-  }, [allTasks, searchQuery, selectedDept, selectedPriority]);
+
+    // 排序
+    switch (sortBy) {
+      case 'priority':
+        const priorityOrder = { high: 0, medium: 1, low: 2 };
+        tasks = [...tasks].sort((a, b) => priorityOrder[a.priority || 'low'] - priorityOrder[b.priority || 'low']);
+        break;
+      case 'dueDate':
+        tasks = [...tasks].sort((a, b) => new Date(a.scheduledTime).getTime() - new Date(b.scheduledTime).getTime());
+        break;
+      default:
+        break;
+    }
+
+    return tasks;
+  }, [allTasks, searchQuery, selectedDept, selectedPriority, sortBy]);
 
   // 统计
   const stats = useMemo(() => ({
@@ -835,55 +981,32 @@ export default function Tasks() {
     setSearchQuery('');
     setSelectedDept('all');
     setSelectedPriority('all');
+    setSortBy('newest');
   };
 
-  const hasActiveFilters = searchQuery || selectedDept !== 'all' || selectedPriority !== 'all';
+  const hasActiveFilters = searchQuery || selectedDept !== 'all' || selectedPriority !== 'all' || sortBy !== 'newest';
 
   return (
     <div className="space-y-6">
       {/* 增强统计面板 */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-        {[
-          { label: '总任务', value: stats.total, color: '#3b82f6', icon: Calendar, bg: 'from-[#3b82f6]/20 to-[#3b82f6]/5' },
-          { label: '待处理', value: stats.todo, color: '#64748b', icon: AlertCircle, bg: 'from-[#64748b]/20 to-[#64748b]/5' },
-          { label: '进行中', value: stats.inProgress, color: '#F59E0B', icon: Clock4, bg: 'from-[#F59E0B]/20 to-[#F59E0B]/5' },
-          { label: '已完成', value: stats.completed, color: '#22C55E', icon: CheckCircle2, bg: 'from-[#22C55E]/20 to-[#22C55E]/5' },
-          { label: '高优先级', value: stats.highPriority, color: '#EF4444', icon: AlertTriangle, bg: 'from-[#EF4444]/20 to-[#EF4444]/5' },
-        ].map((stat, i) => (
-          <motion.div
-            key={stat.label}
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.05 }}
-            whileHover={{ y: -4, scale: 1.02, transition: { duration: 0.2 } }}
-            className="stat-card-v2 cursor-pointer group"
-          >
-            <div className="flex items-center gap-3">
-              <motion.div
-                className={`w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br ${stat.bg}`}
-                whileHover={{ scale: 1.1, rotate: 5 }}
-                transition={{ type: "spring", stiffness: 400 }}
-              >
-                <stat.icon className="w-5 h-5" style={{ color: stat.color }} />
-              </motion.div>
-              <div>
-                <motion.div 
-                  className="text-xl font-bold"
-                  style={{ 
-                    color: stat.color,
-                    textShadow: `0 0 20px ${stat.color}30`
-                  }}
-                  initial={{ scale: 0.5 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: "spring", stiffness: 300, delay: i * 0.1 }}
-                >
-                  {stat.value}
-                </motion.div>
-                <div className="text-xs text-[#71717A]">{stat.label}</div>
-              </div>
-            </div>
-          </motion.div>
-        ))}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* 左侧统计卡片 */}
+        <div className="lg:col-span-2">
+          <TaskStats stats={stats} />
+        </div>
+        
+        {/* 右侧完成率环形图和趋势 */}
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="card p-4 flex items-center gap-4"
+        >
+          <TaskCompletionRing completed={stats.completed} total={stats.total} />
+          <div className="flex-1">
+            <h4 className="text-sm font-medium text-white mb-2">任务完成率</h4>
+            <TaskStatsChart />
+          </div>
+        </motion.div>
       </div>
       
       <FilterBar 
@@ -897,6 +1020,8 @@ export default function Tasks() {
         setViewMode={setViewMode}
         hasActiveFilters={hasActiveFilters}
         onClearFilters={clearFilters}
+        sortBy={sortBy}
+        setSortBy={setSortBy}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
