@@ -617,7 +617,11 @@ function FilterBar({
   selectedDept, 
   setSelectedDept, 
   selectedPriority, 
-  setSelectedPriority 
+  setSelectedPriority,
+  viewMode,
+  setViewMode,
+  hasActiveFilters,
+  onClearFilters
 }: { 
   searchQuery: string;
   setSearchQuery: (q: string) => void;
@@ -625,9 +629,11 @@ function FilterBar({
   setSelectedDept: (d: string) => void;
   selectedPriority: string;
   setSelectedPriority: (p: string) => void;
+  viewMode: 'board' | 'list';
+  setViewMode: (m: 'board' | 'list') => void;
+  hasActiveFilters: boolean;
+  onClearFilters: () => void;
 }) {
-  const [isExpanded, setIsExpanded] = useState(false);
-
   const departments = ['all', 'Intel', 'Policy', 'Market', 'Engineering'];
   const priorities = ['all', 'high', 'medium', 'low'];
 
@@ -638,6 +644,7 @@ function FilterBar({
       className="glass-card-v4 p-4"
     >
       <div className="flex flex-col lg:flex-row gap-4">
+        {/* 搜索框 */}
         <div className="flex-1 relative group">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#71717A] group-focus-within:text-[#3b82f6] transition-colors" />
           <input
@@ -645,7 +652,7 @@ function FilterBar({
             placeholder="搜索任务..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-[#0a0a0f] border border-white/10 rounded-xl
+            className="w-full pl-10 pr-10 py-2.5 bg-[#0a0a0f] border border-white/10 rounded-xl
                        text-white placeholder:text-[#52525B] focus:border-[#3b82f6]/50
                        focus:outline-none transition-all text-sm focus:ring-2 focus:ring-[#3b82f6]/20"
           />
@@ -662,8 +669,38 @@ function FilterBar({
           )}
         </div>
 
-        <div className="flex gap-3 flex-wrap">
-          {/* 部门筛选 - 按钮组 */}
+        <div className="flex gap-3 flex-wrap items-center">
+          {/* 视图切换 */}
+          <div className="flex gap-1 bg-[#0a0a0f] rounded-xl p-1 border border-white/10">
+            <motion.button
+              onClick={() => setViewMode('board')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${
+                viewMode === 'board'
+                  ? 'bg-[#3b82f6] text-white'
+                  : 'text-[#71717A] hover:text-white hover:bg-white/5'
+              }`}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <LayoutGrid className="w-3.5 h-3.5" />
+              看板
+            </motion.button>
+            <motion.button
+              onClick={() => setViewMode('list')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${
+                viewMode === 'list'
+                  ? 'bg-[#3b82f6] text-white'
+                  : 'text-[#71717A] hover:text-white hover:bg-white/5'
+              }`}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <List className="w-3.5 h-3.5" />
+              列表
+            </motion.button>
+          </div>
+
+          {/* 部门筛选 */}
           <div className="flex gap-1 bg-[#0a0a0f] rounded-xl p-1 border border-white/10 flex-wrap">
             {departments.map((dept) => (
               <motion.button
@@ -682,7 +719,7 @@ function FilterBar({
             ))}
           </div>
 
-          {/* 优先级筛选 - 颜色编码 */}
+          {/* 优先级筛选 */}
           <div className="flex gap-1 bg-[#0a0a0f] rounded-xl p-1 border border-white/10 flex-wrap">
             {priorities.map((p) => {
               const config = p === 'all' ? null : PRIORITY_CONFIG[p];
@@ -712,6 +749,23 @@ function FilterBar({
             })}
           </div>
 
+          {/* 清除筛选 */}
+          <AnimatePresence>
+            {hasActiveFilters && (
+              <motion.button
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                onClick={onClearFilters}
+                className="px-3 py-1.5 text-xs text-[#71717A] hover:text-white bg-white/5 hover:bg-white/10 rounded-lg transition-all"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                清除筛选
+              </motion.button>
+            )}
+          </AnimatePresence>
+
           <motion.button
             className="btn btn-primary"
             whileHover={{ scale: 1.02 }}
@@ -735,6 +789,7 @@ export default function Tasks() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDept, setSelectedDept] = useState('all');
   const [selectedPriority, setSelectedPriority] = useState('all');
+  const [viewMode, setViewMode] = useState<'board' | 'list'>('board');
 
   // 过滤任务
   const filteredTasks = useMemo(() => {
@@ -745,6 +800,15 @@ export default function Tasks() {
       return true;
     });
   }, [allTasks, searchQuery, selectedDept, selectedPriority]);
+
+  // 统计
+  const stats = useMemo(() => ({
+    total: filteredTasks.length,
+    todo: filteredTasks.filter(t => t.status === 'todo').length,
+    inProgress: filteredTasks.filter(t => t.status === 'in_progress').length,
+    completed: filteredTasks.filter(t => t.status === 'completed').length,
+    highPriority: filteredTasks.filter(t => t.priority === 'high').length,
+  }), [filteredTasks]);
 
   const handleDragStart = (task: Task) => {
     setDraggedTask(task);
@@ -767,9 +831,60 @@ export default function Tasks() {
     setDragOverColumn(null);
   };
 
+  const clearFilters = () => {
+    setSearchQuery('');
+    setSelectedDept('all');
+    setSelectedPriority('all');
+  };
+
+  const hasActiveFilters = searchQuery || selectedDept !== 'all' || selectedPriority !== 'all';
+
   return (
     <div className="space-y-6">
-      <TaskStats />
+      {/* 增强统计面板 */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        {[
+          { label: '总任务', value: stats.total, color: '#3b82f6', icon: Calendar, bg: 'from-[#3b82f6]/20 to-[#3b82f6]/5' },
+          { label: '待处理', value: stats.todo, color: '#64748b', icon: AlertCircle, bg: 'from-[#64748b]/20 to-[#64748b]/5' },
+          { label: '进行中', value: stats.inProgress, color: '#F59E0B', icon: Clock4, bg: 'from-[#F59E0B]/20 to-[#F59E0B]/5' },
+          { label: '已完成', value: stats.completed, color: '#22C55E', icon: CheckCircle2, bg: 'from-[#22C55E]/20 to-[#22C55E]/5' },
+          { label: '高优先级', value: stats.highPriority, color: '#EF4444', icon: AlertTriangle, bg: 'from-[#EF4444]/20 to-[#EF4444]/5' },
+        ].map((stat, i) => (
+          <motion.div
+            key={stat.label}
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.05 }}
+            whileHover={{ y: -4, scale: 1.02, transition: { duration: 0.2 } }}
+            className="stat-card-v2 cursor-pointer group"
+          >
+            <div className="flex items-center gap-3">
+              <motion.div
+                className={`w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br ${stat.bg}`}
+                whileHover={{ scale: 1.1, rotate: 5 }}
+                transition={{ type: "spring", stiffness: 400 }}
+              >
+                <stat.icon className="w-5 h-5" style={{ color: stat.color }} />
+              </motion.div>
+              <div>
+                <motion.div 
+                  className="text-xl font-bold"
+                  style={{ 
+                    color: stat.color,
+                    textShadow: `0 0 20px ${stat.color}30`
+                  }}
+                  initial={{ scale: 0.5 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 300, delay: i * 0.1 }}
+                >
+                  {stat.value}
+                </motion.div>
+                <div className="text-xs text-[#71717A]">{stat.label}</div>
+              </div>
+            </div>
+          </motion.div>
+        ))}
+      </div>
       
       <FilterBar 
         searchQuery={searchQuery}
@@ -778,6 +893,10 @@ export default function Tasks() {
         setSelectedDept={setSelectedDept}
         selectedPriority={selectedPriority}
         setSelectedPriority={setSelectedPriority}
+        viewMode={viewMode}
+        setViewMode={setViewMode}
+        hasActiveFilters={hasActiveFilters}
+        onClearFilters={clearFilters}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

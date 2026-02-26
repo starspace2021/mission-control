@@ -58,7 +58,112 @@ import {
   Users,
   Command,
   MousePointer,
-  Maximize2
+  Maximize2,
+  Award,
+  Bookmark,
+  Hash,
+  Share2,
+  Download,
+  Copy,
+  ExternalLink,
+  Info,
+  HelpCircle,
+  Lightbulb,
+  Star,
+  Heart,
+  ThumbsUp,
+  MessageCircle,
+  Mail,
+  Phone,
+  Video,
+  Mic,
+  Camera,
+  Image,
+  File,
+  Folder,
+  Home,
+  MapPin,
+  Navigation,
+  Compass,
+  Map,
+  Flag,
+  BookmarkPlus,
+  BookOpen,
+  GraduationCap,
+  School,
+  Library,
+  Newspaper,
+  Rss,
+  Podcast,
+  Music,
+  Film,
+  Tv,
+  Gamepad2,
+  Puzzle,
+  Gift,
+  ShoppingCart,
+  CreditCard,
+  Wallet,
+  DollarSign,
+  Euro,
+  PoundSterling,
+  JapaneseYen,
+  Bitcoin,
+  Coins,
+  Banknote,
+  Receipt,
+  Invoice,
+  FileSpreadsheet,
+  FileBarChart,
+  FilePieChart,
+  FileLineChart,
+  FileCode,
+  FileJson,
+  FileType,
+  FileText as FileTextIcon,
+  FileImage,
+  FileVideo,
+  FileAudio,
+  FileArchive,
+  FileCheck,
+  FileClock,
+  FileCog,
+  FileEdit,
+  FileHeart,
+  FileLock,
+  FileMinus,
+  FilePlus,
+  FileQuestion,
+  FileSearch,
+  FileSignature,
+  FileWarning,
+  FileX,
+  Files,
+  Folders,
+  FolderOpen as FolderOpenIcon,
+  FolderPlus,
+  FolderMinus,
+  FolderHeart,
+  FolderCog,
+  FolderLock,
+  FolderSearch,
+  FolderX,
+  FolderCheck,
+  FolderClock,
+  FolderEdit,
+  FolderGit,
+  FolderGit2,
+  FolderKanban,
+  FolderKey,
+  FolderOpenDot,
+  FolderOutput,
+  FolderPen,
+  FolderRoot,
+  FolderSymlink,
+  FolderSync,
+  FolderTree,
+  FolderUp,
+  FolderX as FolderXIcon,
 } from 'lucide-react';
 
 // ========== 类型定义 ==========
@@ -1199,8 +1304,41 @@ function QuickActions() {
 
 // ========== 主组件 ==========
 export default function Dashboard() {
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState(new Date());
+
+  const handleRefresh = useCallback(() => {
+    setRefreshing(true);
+    setTimeout(() => {
+      setRefreshing(false);
+      setLastUpdated(new Date());
+    }, 1500);
+  }, []);
+
   return (
     <div className="space-y-6 page-transition-v11">
+      {/* 刷新按钮和更新时间 */}
+      <div className="flex items-center justify-end gap-3">
+        <span className="text-xs text-[#71717A]">
+          最后更新: {lastUpdated.toLocaleTimeString('zh-CN')}
+        </span>
+        <motion.button
+          onClick={handleRefresh}
+          className="flex items-center gap-2 px-3 py-1.5 text-xs text-[#71717A] hover:text-white bg-white/5 hover:bg-white/10 rounded-lg transition-all"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          disabled={refreshing}
+        >
+          <motion.div
+            animate={refreshing ? { rotate: 360 } : { rotate: 0 }}
+            transition={{ duration: 1, repeat: refreshing ? Infinity : 0, ease: "linear" }}
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+          </motion.div>
+          {refreshing ? '刷新中...' : '刷新'}
+        </motion.button>
+      </div>
+
       <WelcomeBanner />
 
       {/* 核心指标 */}
