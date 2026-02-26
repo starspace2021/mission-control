@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { memories } from '@/data/memories';
 import { Search, X, Brain, Calendar, Folder, Settings, Tag } from 'lucide-react';
@@ -56,8 +56,14 @@ function MemoryCard({
   const cfg = TYPE_CONFIG[memory.type] || TYPE_CONFIG.daily;
   const Icon = cfg.icon;
   const [isHovered, setIsHovered] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   
   const formatDate = (dateStr: string) => {
+    if (!mounted) return '';
     try {
       const date = new Date(dateStr);
       return date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' });

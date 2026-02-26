@@ -286,8 +286,10 @@ function DataStreamBar() {
 function WelcomeBanner() {
   const [greeting, setGreeting] = useState('早安');
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const hour = new Date().getHours();
     if (hour < 12) setGreeting('早安');
     else if (hour < 18) setGreeting('下午好');
@@ -296,6 +298,28 @@ function WelcomeBanner() {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
+
+  // 防止 hydration 不匹配
+  if (!mounted) {
+    return (
+      <div className="welcome-banner relative overflow-hidden min-h-[140px]">
+        <div className="welcome-banner-bg" />
+        <div className="relative flex items-center justify-between p-6">
+          <div>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-[#f59e0b]/20 to-[#f59e0b]/5 border border-[#f59e0b]/40">
+                <Sparkles className="w-4 h-4 text-[#f59e0b]" />
+                <span className="text-sm text-[#f59e0b] font-semibold">{greeting}</span>
+              </div>
+            </div>
+            <h2 className="text-3xl font-bold mb-3 bg-gradient-to-r from-white via-white/90 to-white/70 bg-clip-text">
+              欢迎回来，Hourglass
+            </h2>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <motion.div

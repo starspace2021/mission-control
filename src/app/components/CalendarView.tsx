@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { format, startOfWeek, addDays, isSameDay, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday as isDateToday } from "date-fns";
 import { zhCN } from "date-fns/locale";
@@ -529,6 +529,12 @@ function TimelineView({
   onSelectEvent: (event: Event) => void;
 }) {
   const weekStart = startOfWeek(currentDate, { weekStartsOn: 0 });
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  
   const weekEvents = useMemo(() => 
     events
       .filter(e => {
@@ -541,8 +547,8 @@ function TimelineView({
   );
 
   const hours = Array.from({ length: 24 }, (_, i) => i);
-  const currentHour = new Date().getHours();
-  const currentMinute = new Date().getMinutes();
+  const currentHour = mounted ? new Date().getHours() : 12;
+  const currentMinute = mounted ? new Date().getMinutes() : 0;
 
   return (
     <motion.div
@@ -569,7 +575,7 @@ function TimelineView({
           <div className="flex min-w-max">
             {Array.from({ length: 7 }, (_, dayIndex) => {
               const date = addDays(weekStart, dayIndex);
-              const isToday = isDateToday(date);
+              const isToday = mounted && isDateToday(date);
               const dayEvents = weekEvents.filter(e => 
                 isSameDay(new Date(e.startTime), date)
               );
@@ -601,7 +607,7 @@ function TimelineView({
                     ))}
 
                     {/* 当前时间指示器 */}
-                    {isToday && (
+                    {isToday && mounted && (
                       <motion.div
                         className="absolute left-0 right-0 z-20 flex items-center"
                         style={{ 
@@ -623,7 +629,7 @@ function TimelineView({
                         />
                         <div className="flex-1 h-0.5 bg-gradient-to-r from-[#EF4444] via-[#EF4444]/50 to-transparent" />
                         <div className="absolute right-2 text-[10px] text-[#EF4444] font-medium bg-[#0a0a0f] px-1">
-                          {format(new Date(), "HH:mm")}
+                          {mounted ? format(new Date(), "HH:mm") : "--:--"}
                         </div>
                       </motion.div>
                     )}
