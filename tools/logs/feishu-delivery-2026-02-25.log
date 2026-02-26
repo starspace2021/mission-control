@@ -1,0 +1,7 @@
+{"timestamp":"2026-02-25T00:13:54.268Z","level":"INFO","message":"准备发送文本消息","data":{"userId":"default_user","textLength":4}}
+{"timestamp":"2026-02-25T00:13:54.313Z","level":"WARN","message":"发送失败 (attempt 1): fetch failed","data":null}
+{"timestamp":"2026-02-25T00:13:54.313Z","level":"INFO","message":"将在 1000ms 后进行第 2 次重试...","data":null}
+{"timestamp":"2026-02-25T00:13:55.319Z","level":"WARN","message":"发送失败 (attempt 2): fetch failed","data":null}
+{"timestamp":"2026-02-25T00:13:55.319Z","level":"INFO","message":"将在 1000ms 后进行第 3 次重试...","data":null}
+{"timestamp":"2026-02-25T00:13:57.324Z","level":"WARN","message":"发送失败 (attempt 3): fetch failed","data":null}
+{"timestamp":"2026-02-25T00:13:57.327Z","level":"INFO","message":"消息已记录到降级日志","data":null}

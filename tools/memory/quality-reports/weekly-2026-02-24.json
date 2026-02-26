@@ -1,0 +1,64 @@
+{
+  "weekStart": "2026-02-24",
+  "weekEnd": "2026-03-02",
+  "generatedAt": "2026-02-25T00:16:26.651Z",
+  "overall": {
+    "totalReports": 3,
+    "averageScore": 8.7,
+    "scoreDistribution": {
+      "A+ (9-10)": 2,
+      "A (8-8.9)": 1,
+      "B+ (7-7.9)": 0,
+      "B (6-6.9)": 0,
+      "C (5-5.9)": 0,
+      "D (<5)": 0
+    }
+  },
+  "tasks": [
+    {
+      "taskName": "非洲涉华情报",
+      "reportCount": 1,
+      "averageScore": 9,
+      "trend": "stable",
+      "trendSymbol": "➡️",
+      "degradation": false,
+      "scores": [
+        {
+          "date": "2026-02-25",
+          "score": 9,
+          "grade": "A+"
+        }
+      ]
+    },
+    {
+      "taskName": "量子技术情报",
+      "reportCount": 1,
+      "averageScore": 9,
+      "trend": "stable",
+      "trendSymbol": "➡️",
+      "degradation": false,
+      "scores": [
+        {
+          "date": "2026-02-25",
+          "score": 9,
+          "grade": "A+"
+        }
+      ]
+    },
+    {
+      "taskName": "美国对华政策监控",
+      "reportCount": 1,
+      "averageScore": 8,
+      "trend": "stable",
+      "trendSymbol": "➡️",
+      "degradation": false,
+      "scores": [
+        {
+          "date": "2026-02-25",
+          "score": 8,
+          "grade": "A"
+        }
+      ]
+    }
+  ]
+}

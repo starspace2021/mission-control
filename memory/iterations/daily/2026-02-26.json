@@ -1,0 +1,229 @@
+{
+  "date": "2026-02-26",
+  "evaluation_time": "2026-02-26T06:30:00+08:00",
+  "evaluator": "daily-quality-assessment",
+  "tasks_evaluated": 6,
+  "tasks": [
+    {
+      "task_id": "africa-osint-daily-summary",
+      "execution_time": "2026-02-25T07:00:00+08:00",
+      "status": "failed",
+      "output_quality": 0,
+      "quality_breakdown": {
+        "intelligence_coverage": 0,
+        "china_relevance": 0,
+        "source_diversity": 0,
+        "timeliness": 0,
+        "analysis_quality": 0
+      },
+      "issues": [
+        {
+          "severity": "P0",
+          "description": "2026-02-25 07:00简报未生成，文件africa_report_20260225.md缺失",
+          "category": "generation_failure"
+        },
+        {
+          "severity": "P0",
+          "description": "自2月22日上线以来首次执行失败，影响情报连续性",
+          "category": "continuity_break"
+        },
+        {
+          "severity": "P1",
+          "description": "Cron任务状态待确认，需排查调度配置",
+          "category": "scheduling_issue"
+        }
+      ],
+      "improvements": [
+        "立即排查africa-osint-daily-summary任务失败原因",
+        "手动触发补发今日简报",
+        "验证Cron任务配置和调度状态",
+        "增加任务执行监控和失败告警"
+      ],
+      "root_cause": "定时任务执行失败，具体原因待排查",
+      "recommendation": "这是系统上线以来首次执行失败，需立即修复并建立预防机制"
+    },
+    {
+      "task_id": "us-china-monitoring-daily-report",
+      "execution_time": "2026-02-25T07:00:00+08:00",
+      "status": "success",
+      "output_quality": 8.25,
+      "quality_breakdown": {
+        "policy_coverage": 9,
+        "source_quality": 7,
+        "classification_completeness": 9,
+        "accuracy": 8
+      },
+      "issues": [
+        {
+          "severity": "P2",
+          "description": "国会动态监控可进一步加强(Select Committee on CCP、USCC)",
+          "category": "coverage_gap"
+        },
+        {
+          "severity": "P2",
+          "description": "盟友协调覆盖可更系统(Quad、NATO涉华立场)",
+          "category": "coverage_gap"
+        },
+        {
+          "severity": "P3",
+          "description": "可增加概率评估和历史对比章节",
+          "category": "enhancement"
+        }
+      ],
+      "improvements": [
+        "增加Select Committee on CCP网站每日检查",
+        "补充Quad四方安全对话动态",
+        "走势研判增加概率百分比评估"
+      ],
+      "root_cause": null,
+      "recommendation": "质量较昨日显著提升(+4.25分)，生成中断问题已完全修复，继续保持"
+    },
+    {
+      "task_id": "polymarket-daily-summary",
+      "execution_time": "2026-02-25T07:00:00+08:00",
+      "status": "success",
+      "output_quality": 7,
+      "quality_breakdown": {
+        "data_accuracy": 8,
+        "market_coverage": 7,
+        "analysis_depth": 6,
+        "timeliness": 8
+      },
+      "issues": [
+        {
+          "severity": "P2",
+          "description": "缺少Polymarket专用技能文件，依赖通用工具",
+          "category": "skill_missing"
+        },
+        {
+          "severity": "P3",
+          "description": "市场分析深度有待提升",
+          "category": "analysis_depth"
+        }
+      ],
+      "improvements": [
+        "创建专门的polymarket-monitoring技能",
+        "增加TOP 10盘口自动追踪",
+        "集成更多链上数据源"
+      ],
+      "root_cause": null,
+      "recommendation": "建议创建专用技能文件提升分析深度"
+    },
+    {
+      "task_id": "qq-mail-cleanup",
+      "execution_time": "2026-02-25T06:16:00+08:00",
+      "status": "success",
+      "output_quality": 8,
+      "quality_breakdown": {
+        "execution_success": 9,
+        "error_handling": 8,
+        "config_management": 7
+      },
+      "issues": [
+        {
+          "severity": "P2",
+          "description": "delivery channel配置仍显示whatsapp不支持",
+          "category": "config_issue"
+        }
+      ],
+      "improvements": [
+        "修复cron job的delivery配置",
+        "移除或修正错误的channel设置"
+      ],
+      "root_cause": null,
+      "recommendation": "优化后表现良好，需修复delivery配置小问题"
+    },
+    {
+      "task_id": "memory-export-daily",
+      "execution_time": "2026-02-25T23:00:00+08:00",
+      "status": "success",
+      "output_quality": 8,
+      "quality_breakdown": {
+        "execution_success": 9,
+        "performance": 8,
+        "completeness": 8
+      },
+      "issues": [
+        {
+          "severity": "P3",
+          "description": "导出文件较大(15.5MB)，可考虑压缩",
+          "category": "optimization"
+        }
+      ],
+      "improvements": [
+        "考虑增加导出文件压缩",
+        "优化大文件处理逻辑"
+      ],
+      "root_cause": null,
+      "recommendation": "优化后表现优秀，执行时间从180秒降至0.18秒"
+    },
+    {
+      "task_id": "africa-intel-dashboard-auto-iteration",
+      "execution_time": "2026-02-25",
+      "status": "success",
+      "output_quality": 8,
+      "quality_breakdown": {
+        "functionality": 8,
+        "code_quality": 8,
+        "ui_design": 8,
+        "documentation": 8
+      },
+      "issues": [
+        {
+          "severity": "P3",
+          "description": "每2小时迭代频率较高，需监控资源消耗",
+          "category": "resource_optimization"
+        }
+      ],
+      "improvements": [
+        "监控Vercel部署频率和资源使用",
+        "考虑根据内容变化量动态调整迭代频率"
+      ],
+      "root_cause": null,
+      "recommendation": "非洲情报看板运行稳定，部署正常"
+    }
+  ],
+  "summary": {
+    "total_tasks": 6,
+    "successful": 5,
+    "failed": 1,
+    "success_rate": 83.3,
+    "average_quality": 6.54,
+    "critical_issues": 2,
+    "high_priority_improvements": 3
+  },
+  "overall_assessment": "昨日任务执行质量整体良好，成功率83.3%较2月24日的62.5%显著提升。us-china-monitoring日报从4.0分修复至8.25分，qq-mail-cleanup和memory-export-daily优化后运行稳定。主要问题是africa-osint-daily-summary首次执行失败，需立即排查修复。",
+  "key_findings": [
+    "africa-osint-daily-summary首次执行失败，简报未生成，影响情报连续性",
+    "us-china-monitoring日报质量完全恢复，从4.0分提升至8.25分",
+    "qq-mail-cleanup优化后成功率100%，执行时间控制在120秒内",
+    "memory-export-daily优化效果显著，执行时间从180秒降至0.18秒",
+    "非洲情报看板自动迭代运行正常，每2小时部署稳定"
+  ],
+  "priority_actions": [
+    "P0: 立即排查africa-osint-daily-summary任务失败原因，手动补发今日简报",
+    "P0: 修复qq-mail-cleanup delivery channel配置错误",
+    "P1: 增加africa-osint任务执行监控和失败告警",
+    "P1: 创建polymarket-monitoring专用技能文件",
+    "P2: 优化africa-osint数据源结构，降低中国官方来源占比"
+  ],
+  "optimization_status": {
+    "completed": [
+      "qq-mail-cleanup超时优化(2月24日)",
+      "memory-export-daily增量导出优化(2月24日)",
+      "us-china-monitoring生成中断修复(2月25日)",
+      "africa-intel双渠道输出优化(2月24日)"
+    ],
+    "pending": [
+      "africa-osint-daily-summary执行失败修复",
+      "polymarket专用技能创建",
+      "mission-control-ui构建失败修复"
+    ]
+  },
+  "quality_trends": {
+    "dates": ["2026-02-23", "2026-02-24", "2026-02-25"],
+    "success_rates": [42.9, 62.5, 83.3],
+    "average_qualities": [6.25, 5.5, 6.54]
+  },
+  "next_evaluation": "2026-02-27T06:30:00+08:00"
+}

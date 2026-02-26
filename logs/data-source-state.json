@@ -1,0 +1,55 @@
+{
+  "lastCheck": "2026-02-25 00:14:16",
+  "news.Google News": {
+    "consecutiveFailures": 1,
+    "lastStatus": "error"
+  },
+  "news.Bing News": {
+    "consecutiveFailures": 1,
+    "lastStatus": "redirect"
+  },
+  "news.Reuters RSS": {
+    "consecutiveFailures": 1,
+    "lastStatus": "redirect"
+  },
+  "news.BBC News RSS": {
+    "consecutiveFailures": 1,
+    "lastStatus": "error"
+  },
+  "news.CNBC RSS": {
+    "consecutiveFailures": 1,
+    "lastStatus": "server_error"
+  },
+  "thinkTanks.CSIS": {
+    "consecutiveFailures": 1,
+    "lastStatus": "error"
+  },
+  "thinkTanks.RAND Corporation": {
+    "consecutiveFailures": 0,
+    "lastStatus": "ok"
+  },
+  "thinkTanks.Brookings Institution": {
+    "consecutiveFailures": 1,
+    "lastStatus": "error"
+  },
+  "thinkTanks.Carnegie Endowment": {
+    "consecutiveFailures": 0,
+    "lastStatus": "ok"
+  },
+  "thinkTanks.Chatham House": {
+    "consecutiveFailures": 1,
+    "lastStatus": "error"
+  },
+  "apis.arXiv API": {
+    "consecutiveFailures": 1,
+    "lastStatus": "redirect"
+  },
+  "apis.Polymarket API": {
+    "consecutiveFailures": 1,
+    "lastStatus": "error"
+  },
+  "apis.NewsAPI": {
+    "consecutiveFailures": 1,
+    "lastStatus": "error"
+  }
+}

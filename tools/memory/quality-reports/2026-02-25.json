@@ -1,0 +1,259 @@
+[
+  {
+    "taskName": "非洲涉华情报",
+    "reportDate": "2026-02-25",
+    "assessedAt": "2026-02-25T00:16:19.882Z",
+    "scores": {
+      "coverage": 7,
+      "accuracy": 10,
+      "timeliness": 7,
+      "readability": 10,
+      "completeness": 10,
+      "total": 9,
+      "grade": "A+"
+    },
+    "details": {
+      "coverage": [
+        "信息来源: 2个 (路透社, 新华社)",
+        "主题覆盖: 5/5 类别",
+        "内容长度: 3114字符"
+      ],
+      "accuracy": [
+        "引用来源: 10处",
+        "数据点: 34个",
+        "日期引用: 6个"
+      ],
+      "timeliness": [
+        "时效标识: 2个",
+        "平均时效: 6天前"
+      ],
+      "readability": [
+        "标题结构: 25个层级",
+        "列表项: 50个",
+        "段落数: 36",
+        "包含数据表格",
+        "使用视觉标记"
+      ],
+      "completeness": [
+        "必填字段: 4/4",
+        "关键章节: 5/5",
+        "元数据项: 3/3",
+        "包含结论/建议"
+      ]
+    },
+    "flags": {
+      "accuracy": [],
+      "completeness": []
+    },
+    "metadata": {
+      "coverage": {
+        "sourceCount": 2,
+        "categoryCount": 5,
+        "charCount": 3114,
+        "sources": [
+          "路透社",
+          "新华社"
+        ]
+      },
+      "accuracy": {
+        "sourceCount": 10,
+        "dataPoints": 34,
+        "uniqueDates": 6
+      },
+      "timeliness": {
+        "markerCount": 2,
+        "contentDates": 12,
+        "avgDaysOffset": 6
+      },
+      "readability": {
+        "headingCount": 25,
+        "listItemCount": 50,
+        "paragraphCount": 36,
+        "hasTable": true,
+        "hasEmoji": true
+      },
+      "completeness": {
+        "sectionCount": 5,
+        "metadataCount": 3,
+        "hasConclusion": true
+      }
+    },
+    "suggestions": [
+      "可适当增加更多权威来源引用"
+    ]
+  },
+  {
+    "taskName": "美国对华政策监控",
+    "reportDate": "2026-02-25",
+    "assessedAt": "2026-02-25T00:16:24.519Z",
+    "scores": {
+      "coverage": 8,
+      "accuracy": 6,
+      "timeliness": 6,
+      "readability": 10,
+      "completeness": 9.5,
+      "total": 8,
+      "grade": "A"
+    },
+    "details": {
+      "coverage": [
+        "信息来源: 1个 (智库报告)",
+        "主题覆盖: 5/5 类别",
+        "内容长度: 6263字符"
+      ],
+      "accuracy": [
+        "引用来源: 0处",
+        "数据点: 78个",
+        "日期引用: 26个"
+      ],
+      "timeliness": [
+        "时效标识: 4个",
+        "平均时效: 49天前"
+      ],
+      "readability": [
+        "标题结构: 34个层级",
+        "列表项: 59个",
+        "段落数: 94",
+        "包含数据表格",
+        "使用视觉标记"
+      ],
+      "completeness": [
+        "必填字段: 3/4",
+        "关键章节: 4/5",
+        "元数据项: 0/3",
+        "包含结论/建议"
+      ]
+    },
+    "flags": {
+      "accuracy": [
+        "缺少来源引用",
+        "发现模糊表述: 可能"
+      ],
+      "completeness": [
+        "执行摘要"
+      ]
+    },
+    "metadata": {
+      "coverage": {
+        "sourceCount": 1,
+        "categoryCount": 5,
+        "charCount": 6263,
+        "sources": [
+          "智库报告"
+        ]
+      },
+      "accuracy": {
+        "sourceCount": 0,
+        "dataPoints": 78,
+        "uniqueDates": 26
+      },
+      "timeliness": {
+        "markerCount": 4,
+        "contentDates": 7,
+        "avgDaysOffset": 49
+      },
+      "readability": {
+        "headingCount": 34,
+        "listItemCount": 59,
+        "paragraphCount": 94,
+        "hasTable": true,
+        "hasEmoji": true
+      },
+      "completeness": {
+        "sectionCount": 4,
+        "metadataCount": 0,
+        "hasConclusion": true
+      }
+    },
+    "suggestions": [
+      "复核以下问题: 缺少来源引用; 发现模糊表述: 可能"
+    ]
+  },
+  {
+    "taskName": "量子技术情报",
+    "reportDate": "2026-02-25",
+    "assessedAt": "2026-02-25T00:16:24.578Z",
+    "scores": {
+      "coverage": 8,
+      "accuracy": 10,
+      "timeliness": 5,
+      "readability": 10,
+      "completeness": 10,
+      "total": 9,
+      "grade": "A+"
+    },
+    "details": {
+      "coverage": [
+        "信息来源: 0个 (无明确来源)",
+        "主题覆盖: 5/5 类别",
+        "内容长度: 9599字符"
+      ],
+      "accuracy": [
+        "引用来源: 5处",
+        "数据点: 63个",
+        "日期引用: 17个"
+      ],
+      "timeliness": [
+        "时效标识: 4个",
+        "平均时效: 11天前",
+        "警告: 超过50%内容为一周前信息"
+      ],
+      "readability": [
+        "标题结构: 51个层级",
+        "列表项: 178个",
+        "段落数: 95",
+        "包含数据表格",
+        "使用视觉标记"
+      ],
+      "completeness": [
+        "必填字段: 3/4",
+        "关键章节: 4/5",
+        "元数据项: 3/3",
+        "包含结论/建议"
+      ]
+    },
+    "flags": {
+      "accuracy": [
+        "发现模糊表述: 可能"
+      ],
+      "completeness": [
+        "执行摘要"
+      ]
+    },
+    "metadata": {
+      "coverage": {
+        "sourceCount": 0,
+        "categoryCount": 5,
+        "charCount": 9599,
+        "sources": []
+      },
+      "accuracy": {
+        "sourceCount": 5,
+        "dataPoints": 63,
+        "uniqueDates": 17
+      },
+      "timeliness": {
+        "markerCount": 4,
+        "contentDates": 26,
+        "avgDaysOffset": 11
+      },
+      "readability": {
+        "headingCount": 51,
+        "listItemCount": 178,
+        "paragraphCount": 95,
+        "hasTable": true,
+        "hasEmoji": true
+      },
+      "completeness": {
+        "sectionCount": 4,
+        "metadataCount": 3,
+        "hasConclusion": true
+      }
+    },
+    "suggestions": [
+      "复核以下问题: 发现模糊表述: 可能",
+      "增加最新动态内容，减少过时信息",
+      "明确标注\"过去24小时\"等时效标识"
+    ]
+  }
+]

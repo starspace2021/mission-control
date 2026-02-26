@@ -1,0 +1,160 @@
+{
+  "timestamp": "2026-02-25 00:13:54",
+  "summary": {
+    "total": 13,
+    "ok": 2,
+    "warning": 3,
+    "error": 8
+  },
+  "categories": {
+    "news": [
+      {
+        "name": "Google News",
+        "url": "https://news.google.com",
+        "type": "http",
+        "status": "error",
+        "statusCode": null,
+        "responseTime": 10000,
+        "contentValid": false,
+        "error": "Request timeout",
+        "checkedAt": "2026-02-25 00:13:54"
+      },
+      {
+        "name": "Bing News",
+        "url": "https://www.bing.com/news",
+        "type": "http",
+        "status": "redirect",
+        "statusCode": 302,
+        "responseTime": 107,
+        "contentValid": false,
+        "error": null,
+        "checkedAt": "2026-02-25 00:14:04"
+      },
+      {
+        "name": "Reuters RSS",
+        "url": "https://www.reutersagency.com/feed/?taxonomy=markets&post_type=reuters-best",
+        "type": "rss",
+        "status": "redirect",
+        "statusCode": 301,
+        "responseTime": 566,
+        "contentValid": false,
+        "error": null,
+        "checkedAt": "2026-02-25 00:14:04"
+      },
+      {
+        "name": "BBC News RSS",
+        "url": "http://feeds.bbci.co.uk/news/world/rss.xml",
+        "type": "rss",
+        "status": "error",
+        "statusCode": null,
+        "responseTime": 385,
+        "contentValid": false,
+        "error": "read ECONNRESET",
+        "checkedAt": "2026-02-25 00:14:05"
+      },
+      {
+        "name": "CNBC RSS",
+        "url": "https://www.cnbc.com/id/100003114/device/rss/rss.html",
+        "type": "rss",
+        "status": "server_error",
+        "statusCode": 503,
+        "responseTime": 5669,
+        "contentValid": false,
+        "error": "HTTP 503",
+        "checkedAt": "2026-02-25 00:14:06"
+      }
+    ],
+    "thinkTanks": [
+      {
+        "name": "CSIS",
+        "url": "https://www.csis.org",
+        "type": "http",
+        "status": "error",
+        "statusCode": null,
+        "responseTime": 269,
+        "contentValid": false,
+        "error": "Unknown error",
+        "checkedAt": "2026-02-25 00:14:12"
+      },
+      {
+        "name": "RAND Corporation",
+        "url": "https://www.rand.org",
+        "type": "http",
+        "status": "ok",
+        "statusCode": 200,
+        "responseTime": 1014,
+        "contentValid": true,
+        "error": null,
+        "checkedAt": "2026-02-25 00:14:12"
+      },
+      {
+        "name": "Brookings Institution",
+        "url": "https://www.brookings.edu",
+        "type": "http",
+        "status": "error",
+        "statusCode": null,
+        "responseTime": 162,
+        "contentValid": false,
+        "error": "read ECONNRESET",
+        "checkedAt": "2026-02-25 00:14:13"
+      },
+      {
+        "name": "Carnegie Endowment",
+        "url": "https://carnegieendowment.org",
+        "type": "http",
+        "status": "ok",
+        "statusCode": 200,
+        "responseTime": 631,
+        "contentValid": true,
+        "error": null,
+        "checkedAt": "2026-02-25 00:14:14"
+      },
+      {
+        "name": "Chatham House",
+        "url": "https://www.chathamhouse.org",
+        "type": "http",
+        "status": "error",
+        "statusCode": null,
+        "responseTime": 268,
+        "contentValid": false,
+        "error": "Unknown error",
+        "checkedAt": "2026-02-25 00:14:14"
+      }
+    ],
+    "apis": [
+      {
+        "name": "arXiv API",
+        "url": "http://export.arxiv.org/api/query?search_query=all:electron&start=0&max_results=1",
+        "type": "api",
+        "status": "redirect",
+        "statusCode": 301,
+        "responseTime": 159,
+        "contentValid": false,
+        "error": null,
+        "checkedAt": "2026-02-25 00:14:15"
+      },
+      {
+        "name": "Polymarket API",
+        "url": "https://api.polymarket.com/markets",
+        "type": "api",
+        "status": "error",
+        "statusCode": null,
+        "responseTime": 281,
+        "contentValid": false,
+        "error": "Unknown error",
+        "checkedAt": "2026-02-25 00:14:15"
+      },
+      {
+        "name": "NewsAPI",
+        "url": "https://newsapi.org/v2/top-headlines?country=us&pageSize=1",
+        "type": "api",
+        "status": "error",
+        "statusCode": null,
+        "responseTime": 261,
+        "contentValid": false,
+        "error": "Unknown error",
+        "checkedAt": "2026-02-25 00:14:16"
+      }
+    ]
+  }
+}
